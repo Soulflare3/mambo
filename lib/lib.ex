@@ -12,6 +12,10 @@ defmodule Tsmambo.Lib do
         end
     end
 
+    def format_url(url) do
+        "[url]#{url}[/url]"
+    end
+
     def encode(line) do
         str = Regex.replace(%r{\\}, line, %B{\\\\})
         str = Regex.replace(%r{/}, str, %B{\\/})
