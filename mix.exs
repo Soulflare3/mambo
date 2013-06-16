@@ -10,6 +10,7 @@ defmodule Tsmambo.Mixfile do
   # Configuration for the OTP application
   def application do
     [ registered: [:mambo],
+      applications: [:crypto, :public_key, :ssl],
       mod: {Tsmambo, []}
     ]
   end
