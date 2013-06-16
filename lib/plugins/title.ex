@@ -42,7 +42,6 @@ defmodule Title do
   end
 
   def init(_args) do
-    :inets.start()
     {:ok, []}
   end
 

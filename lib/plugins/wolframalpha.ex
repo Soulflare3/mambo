@@ -25,7 +25,6 @@ defmodule Wolframalpha do
   end
 
   def init(apikey) do
-    :inets.start()
     {:ok, apikey}
   end
 
