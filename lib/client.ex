@@ -43,6 +43,7 @@ defmodule Tsmambo.Client do
         IO.puts("Connected to #{address}:#{port}")
         {:ok, pid} = Tsmambo.Plugins.start_link(plugins)
         :ok = login(socket, user, pass, name)
+        :erlang.send_after(300000, self(), :ping)
         {:ok, {socket, pid}}
       {:error, reason} ->
         {:stop, reason}
@@ -61,6 +62,12 @@ defmodule Tsmambo.Client do
 
   def handle_info({:tcp_close, _socket}, state) do
     {:stop, :normal, state}
+  end
+
+  def handle_info(:ping, {socket, _pid} = state) do
+    :ok = send_msg(socket, "version")
+    :erlang.send_after(300000, self(), :ping)
+    {:noreply, state}
   end
 
   def handle_info(_info, state) do
