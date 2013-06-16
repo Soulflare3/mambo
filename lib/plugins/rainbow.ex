@@ -9,6 +9,10 @@ defmodule Rainbow do
            "#4B0082",
            "#9400D3"]
 
+  defp rainbow(s) do
+    rainbow(String.codepoints(s), @colors, [])
+  end
+
   defp format(color, text) do
     "[color=#{color}]#{text}[/color]"
   end
@@ -21,12 +25,12 @@ defmodule Rainbow do
     rainbow(text, @colors, acc)
   end
 
-  defp rainbow([32 | rest], colors, acc) do
+  defp rainbow([" " | rest], colors, acc) do
     rainbow(rest, colors, [" " | acc])
   end
 
   defp rainbow([h | rest], [c | nc], acc) do
-    rainbow(rest, nc, [format(c, <<h>>) | acc])
+    rainbow(rest, nc, [format(c, h) | acc])
   end
 
   def init(_args) do
@@ -36,7 +40,10 @@ defmodule Rainbow do
   def handle_event({gen_server, msg, _user}, state) do
     case msg do
       ["!gay", s] ->
-        :gen_server.cast(gen_server, {:send_txt, rainbow(binary_to_list(s), @colors, [])})
+        rs = rainbow(s)
+        IO.puts("#{s}")
+        IO.puts("#{rs}")
+        :gen_server.cast(gen_server, {:send_txt, rs})
         {:ok, state}
       _ ->
         {:ok, state}
