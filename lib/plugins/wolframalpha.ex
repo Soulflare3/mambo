@@ -8,7 +8,7 @@ defmodule Wolframalpha do
       {:ok, {{_, 200, _}, _, body}} ->
         case get_value(body) do
           [value] ->
-            callback.("[b]Wolfram|Alpha:[/b] #{value}")
+            callback.("[b]Wolfram|Alpha:[/b] #{Tsmambo.Lib.decode_xml value}")
           nil ->
             callback.("[b]Wolfram|Alpha:[/b] (no result)")
         end

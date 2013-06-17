@@ -50,4 +50,12 @@ defmodule Tsmambo.Lib do
     |> String.replace(%b([URL=),  "")
     |> String.replace(%b([/URL]), "")
   end
+
+  def decode_xml(line) do
+    String.replace(line, %b(&quot;), %b("))
+    |> String.replace(%b(&amp;),  %b(&))
+    |> String.replace(%b(&apos;), %b('))
+    |> String.replace(%b(&lt;),   %b(<))
+    |> String.replace(%b(&gt;),   %b(>))
+  end
 end
