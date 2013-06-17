@@ -1,7 +1,7 @@
 defmodule Benis do
   use GenEvent.Behaviour
 
-  def benisify(s) do
+  defp benisify(s) do
     Enum.reduce([String.downcase(&1),
       Regex.replace(%r/x/, &1, "cks"),
       Regex.replace(%r/ing/, &1, "in"),
