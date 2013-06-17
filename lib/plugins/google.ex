@@ -21,7 +21,7 @@ defmodule Google do
   end
 
   defp get_url(body) do
-    Regex.run(%r{unescapedUrl":"([\s\S]*?)","url}iu, body, capture: [1])
+    Regex.run(%r/unescapedUrl":"([\s\S]*?)","url/iu, body, capture: [1])
   end
 
   def init(_args) do
