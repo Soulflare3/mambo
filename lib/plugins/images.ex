@@ -9,8 +9,8 @@ defmodule Images do
         case Jsonex.decode(body)["responseData"]["results"] do
           [] ->
             callback.("Google Images: (no result)")
-          result ->
-            callback.("Google Images: #{Tsmambo.Lib.format_url (hd result)["unescapedUrl"]}")
+          [result | _] ->
+            callback.("Google Images: #{Tsmambo.Lib.format_url result["unescapedUrl"]}")
         end
       _ ->
         callback.("Well shit, something went wrong. I blame you.")

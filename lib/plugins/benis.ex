@@ -25,7 +25,7 @@ defmodule Benis do
   def init(_args) do
     {:ok, []}
   end
-  
+
   def handle_event({gen_server, msg, _user}, state) do
     case msg do
       ["!benis", s] ->
