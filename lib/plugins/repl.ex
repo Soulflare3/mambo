@@ -7,7 +7,7 @@ defmodule Repl do
   use GenEvent.Behaviour
 
   @allowed_mods [Bitwise, Dict, Enum, HashDict, Keyword, List, ListDict,
-                 Regex, String, :dict, :lists, :math, :orddict, :proplists,
+                 Regex, String, URI, :dict, :lists, :math, :orddict, :proplists,
                  :re, :sets, :string]
 
   @allowed_funs [:fn, :'->', :&, :=, :==, :===, :>=, :<=, :!=, :!==, :>,
