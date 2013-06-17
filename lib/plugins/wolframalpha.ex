@@ -21,7 +21,7 @@ defmodule Wolframalpha do
   end
 
   defp get_value(body) do
-    Regex.run(%r{<plaintext.*?>([\s\S]*?)</plaintext>}iu, body, capture: [1])
+    Regex.run(%r/<plaintext.*?>([\s\S]*?)<\/plaintext>/iu, body, capture: [1])
   end
 
   def init(apikey) do
