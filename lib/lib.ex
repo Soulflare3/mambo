@@ -28,7 +28,7 @@ defmodule Tsmambo.Lib do
     String.replace(line, %b(\\), %b(\\\\))
     |> String.replace(%b(/),   %b(\\/))
     |> String.replace(%b( ),   %b(\\s))
-    |> String.replace(%b(\|),  %b(\\p))
+    |> String.replace(%b(|),   %b(\\p))
     |> String.replace(%b(\n),  %b(\\n))
     |> String.replace(%b(\r),  %b(\\r))
     |> String.replace(%b(   ), %b(\\t))
