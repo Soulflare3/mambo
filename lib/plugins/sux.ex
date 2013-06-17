@@ -1,4 +1,5 @@
 defmodule Sux do
+  use GenEvent.Behaviour
 
   defp sux(what) do
     "fuck #{what}; #{what} sucks; #{what} is dying; #{what} is dead to me; #{what} hit wtc"
