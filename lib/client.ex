@@ -18,7 +18,7 @@ defmodule Tsmambo.Client do
     :ok = send_msg(socket, "login #{user} #{pass}")
     :ok = send_msg(socket, "use sid=1")
     :ok = send_msg(socket, "servernotifyregister event=textchannel id=1")
-    send_msg(socket, "clientupdate client_nickname=#{name}")
+    send_msg(socket, "clientupdate client_nickname=#{Tsmambo.Lib.encode name}")
   end
 
   defp handle_msg(pid, "notifytextmessage" <> data) do

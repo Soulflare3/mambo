@@ -9,7 +9,7 @@ defmodule Title do
   end
 
   defp receive_chunk(_ref, callback, body, len) when len <= 0 do
-    [title] = Regex.run(%r{<title.*?>([\s\S]*?)</title>}iu, body, capture: [1])
+    [title] = Regex.run(%r/<title.*?>([\s\S]*?)<\/title>/iu, body, capture: [1])
     callback.("Title: #{title}")
   end
 
