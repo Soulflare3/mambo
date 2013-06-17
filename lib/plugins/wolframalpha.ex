@@ -31,7 +31,7 @@ defmodule Wolframalpha do
         callback = fn(x) ->
                        :gen_server.cast(gen_server, {:send_txt, x})
                    end
-        spawn(fn() -> search(URI.encode(query), apikey, callback) end)
+        spawn(fn() -> search(query, apikey, callback) end)
         {:ok, apikey}
       _ ->
         {:ok, apikey}
