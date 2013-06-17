@@ -36,7 +36,11 @@ defmodule Repl do
           {value, _} = Code.eval_quoted(safe(ast, __ENV__))
           callback.("[b]Elixir:[/b] #{inspect value}")
         catch
-          reason -> callback.("[b]Elixir:[/b] #{reason}")
+          reason ->
+            callback.("[b]Elixir:[/b] #{reason}")
+        rescue
+          error ->
+            callback.("[b]Elixir:[/b] #{error.message}")
         end
       {:error, {line, desc, info}} ->
         callback.("[b]Elixir:[/b] #{line}: #{desc}#{info}")
