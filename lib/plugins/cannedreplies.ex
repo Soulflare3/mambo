@@ -17,7 +17,7 @@ defmodule Cannedreplies do
     {:ok, state}
   end
 
-  def handle_event({gen_server, msg, _user}, state) do
+  def handle_event({gen_server, msg, _user, _userid}, state) do
     case msg do
       [s] ->
         key = binary_to_atom(s)

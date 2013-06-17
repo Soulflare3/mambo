@@ -25,7 +25,7 @@ defmodule Wolframalpha do
     {:ok, apikey}
   end
 
-  def handle_event({gen_server, msg, _user}, apikey) do
+  def handle_event({gen_server, msg, _user, _userid}, apikey) do
     case msg do
       ["!wa", query] ->
         callback = fn(x) ->

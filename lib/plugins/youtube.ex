@@ -22,7 +22,7 @@ defmodule Youtube do
     {:ok, apikey}
   end
 
-  def handle_event({gen_server, msg, _user}, apikey) do
+  def handle_event({gen_server, msg, _user, _userid}, apikey) do
     case msg do
       ["!yt", query] ->
         callback = fn(x) ->

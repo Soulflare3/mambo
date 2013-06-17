@@ -45,7 +45,7 @@ defmodule Title do
     {:ok, []}
   end
 
-  def handle_event({gen_server, msg, _user}, state) do
+  def handle_event({gen_server, msg, _user, _userid}, state) do
     msg = Enum.join(msg, " ")
     case Tsmambo.Lib.find_url(msg) do
       [url] ->
