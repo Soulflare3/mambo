@@ -13,7 +13,11 @@ defmodule Tsmambo.Lib do
     end
 
     def format_url(url) do
-        "[url]#{url}[/url]"
+        "[URL]#{url}[/URL]"
+    end
+
+    def find_url(line) do
+        Regex.run(%r{http[s]?://[^\s<>"]+|www\.[^\s<>\"]+}iu, line)
     end
 
     def encode(line) do
@@ -27,18 +31,18 @@ defmodule Tsmambo.Lib do
     end
 
     def decode(line) do
-        str = Regex.replace(%r{\\\\},   line, "\\")
-        str = Regex.replace(%r{\\/},    str,  "/")
-        str = Regex.replace(%r{\\s},    str,  " ")
-        str = Regex.replace(%r{\\p},    str,  "|")
-        str = Regex.replace(%r{\\a},    str,  "")
-        str = Regex.replace(%r{\\b},    str,  "")
-        str = Regex.replace(%r{\\f},    str,  "")
-        str = Regex.replace(%r{\\n},    str,  "\n")
-        str = Regex.replace(%r{\\r},    str,  "\r")
-        str = Regex.replace(%r{\\t},    str,  "    ")
-        str = Regex.replace(%r{\\v},    str,  "\n")
-        str = Regex.replace(%r{[URL]},  str,  "")
-        Regex.replace(%r{[/URL]}, str,  "")
+        String.replace(line, %b{\\\\}, %b{\\})
+        |> String.replace(%b{\\/},    %b{/})
+        |> String.replace(%b{\\s},    %b{ })
+        |> String.replace(%b{\\p},    %b{|})
+        |> String.replace(%b{\\a},    "")
+        |> String.replace(%b{\\b},    "")
+        |> String.replace(%b{\\f},    "")
+        |> String.replace(%b{\\n},    %b{\n})
+        |> String.replace(%b{\\r},    %b{\r})
+        |> String.replace(%b{\\t},    %b{    })
+        |> String.replace(%b{\\v},    %b{\n})
+        |> String.replace(%b{[URL]},  "")
+        |> String.replace(%b{[/URL]}, "")
     end
 end

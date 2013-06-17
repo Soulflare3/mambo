@@ -40,10 +40,7 @@ defmodule Rainbow do
   def handle_event({gen_server, msg, _user}, state) do
     case msg do
       ["!gay", s] ->
-        rs = rainbow(s)
-        IO.puts("#{s}")
-        IO.puts("#{rs}")
-        :gen_server.cast(gen_server, {:send_txt, rs})
+        :gen_server.cast(gen_server, {:send_txt, rainbow(s)})
         {:ok, state}
       _ ->
         {:ok, state}
