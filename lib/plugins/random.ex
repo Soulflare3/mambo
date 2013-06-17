@@ -2,8 +2,7 @@ defmodule Random do
   use GenEvent.Behaviour
 
   defp attack() do
-    i = :random.uniform(3)
-    Enum.at ["rock", "paper", "scissors"], i - 1
+    Enum.at ["rock", "paper", "scissors"], :random.uniform(3) - 1
   end
 
   defp winner(moves) do
