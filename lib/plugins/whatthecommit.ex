@@ -1,7 +1,7 @@
 defmodule Whatthecommit do
   use GenEvent.Behaviour
 
-  def wtc(callback) do
+  defp wtc(callback) do
     url = 'http://whatthecommit.com/index.txt'
     case :httpc.request(:get, {url, []}, [], body_format: :binary) do
       {:ok, {{_, 200, _}, _, body}} ->
@@ -19,11 +19,11 @@ defmodule Whatthecommit do
     case msg do
       ["!wtc"] ->
         callback = fn(x) ->
-                     :gen_server.cast(gen_server, {:send_text, x})
+                       :gen_server.cast(gen_server, {:send_txt, x})
                    end
         spawn(fn() -> wtc(callback) end)
         {:ok, state}
-      _->
+      _ ->
         {:ok, state}
     end
   end
