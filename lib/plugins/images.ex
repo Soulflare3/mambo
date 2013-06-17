@@ -6,7 +6,7 @@ defmodule Images do
     url = "http://ajax.googleapis.com/ajax/services/search/images?safe=off&v=1.0&q=#{es}"
     case :httpc.request(:get, {binary_to_list(url), []}, [], body_format: :binary) do
       {:ok, {{_, 200, _}, _, body}} ->
-        case Jsonex.decode(body)["responseData"]["results"] do
+        case :jsx.decode(body)["responseData"]["results"] do
           [] ->
             callback.("Google Images: (no result)")
           [result | _] ->

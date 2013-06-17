@@ -18,6 +18,6 @@ defmodule Tsmambo.Mixfile do
   # Returns the list of dependencies in the format:
   # { :foobar, "0.1", git: "https://github.com/elixir-lang/foobar.git" }
   defp deps do
-    [{:jsonex,"2.0",[github: "marcelog/jsonex", tag: "2.0"]}]
+    [{:jsx,"1.3.3",[github: "talentdeficit/jsx", tag: "v1.3.3"]}]
   end
 end
