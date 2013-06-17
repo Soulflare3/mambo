@@ -34,12 +34,12 @@ defmodule Repl do
       {:ok, ast} ->
         try do
           {value, _} = Code.eval_quoted(safe(ast, __ENV__))
-          callback.(binary_to_list("Elixir: #{inspect value}"))
+          callback.("[b]Elixir:[/b] #{inspect value}")
         catch
-          reason -> callback.(binary_to_list("Elixir: #{reason}"))
+          reason -> callback.("[b]Elixir:[/b] #{reason}")
         end
       {:error, {line, desc, info}} ->
-        callback.(binary_to_list("Elixir: #{line}: #{desc}#{info}"))
+        callback.("[b]Elixir:[/b] #{line}: #{desc}#{info}")
     end
   end
 
