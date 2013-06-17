@@ -27,7 +27,7 @@ defmodule Repl do
                  :term_to_binary, :.., :=~, :__B__, :__C__, :__R__, :__W__,
                  :__b__, :__c__, :__r__, :__w__, :delete_elem, :in, :is_range,
                  :is_regex, :match?, :nil?, :set_elem, :to_binary, :to_char_list,
-                 :xor, :'|>', :access]
+                 :xor, :'|>', :access, :'{}']
 
   defp eval(string, callback) do
     case Code.string_to_ast(string) do
