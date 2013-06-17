@@ -13,7 +13,7 @@ defmodule Cannedreplies do
     {:ok, []}
   end
 
-  def handle_event({_, _, @name}, state) do
+  def handle_event({_, _, @name, _}, state) do
     {:ok, state}
   end
 
