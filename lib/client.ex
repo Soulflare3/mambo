@@ -22,15 +22,13 @@ defmodule Tsmambo.Client do
   end
 
   defp handle_msg(pid, "notifytextmessage" <> data) do
-    msg = Regex.run(%r{(?<=msg=)(.*?)(?= invokerid=)}iu, data, capture: :first)
-    |> hd
-    |> Tsmambo.Lib.decode
+    [msg] = Regex.run(%r/msg=([\s\S]*?) invokerid=/, data, capture: [1])
+    msg = Tsmambo.Lib.decode(msg)
 
-    user = Regex.run(%r{(?<=invokername=)(.*?)(?= invokeruid=)}iu, data, capture: :first)
-    |> hd
-    |> Tsmambo.Lib.decode
+    [user] = Regex.run(%r/invokername=([\s\S]*?) invokeruid=/, data, capture: [1])
+    user = Tsmambo.Lib.decode(user)
 
-    Tsmambo.Plugins.notify(pid, {self(), Regex.split(%r{ }, msg, parts: 2), user})
+    Tsmambo.Plugins.notify(pid, {self(), String.split(msg, " ", global: false), user})
   end
 
   defp handle_msg(_pid, _data) do
