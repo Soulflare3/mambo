@@ -5,7 +5,8 @@ defmodule Cannedreplies do
               cool: "COOL LIKE SNOWMAN ☃",
               chownface: "( ´· ‿ ·`)",
               goface: "ʕ ◔ϖ◔ʔ",
-              edgyface: "(ケ≖‿≖)ケ"]
+              edgyface: "(ケ≖‿≖)ケ",
+              dface: "ಠ_ಠ"]
 
   @name elem(Tsmambo.Lib.consult("settings.cfg"), 1)[:name]
 
