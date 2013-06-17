@@ -10,7 +10,7 @@ defmodule Title do
 
   defp receive_chunk(_ref, callback, body, len) when len <= 0 do
     [title] = Regex.run(%r/<title.*?>([\s\S]*?)<\/title>/iu, body, capture: [1])
-    callback.("Title: #{title}")
+    callback.("[b]Title:[/b] #{title}")
   end
 
   defp receive_chunk(ref, callback, body, len) do
@@ -21,7 +21,7 @@ defmodule Title do
           true ->
             receive_chunk(ref, callback, body, len)
           _ ->
-            callback.("Content Type: #{content_type}")
+            callback.("[b]Content Type:[/b] #{content_type}")
         end
 
       {:http, {ref, :stream, data}} ->
@@ -33,7 +33,7 @@ defmodule Title do
           true ->
             receive_chunk(ref, callback, body, 0)
           _ ->
-            callback.("Content Type: #{content_type}")
+            callback.("[b]Content Type:[/b] #{content_type}")
         end
     after
       5000 ->

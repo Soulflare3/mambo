@@ -8,9 +8,9 @@ defmodule Wolframalpha do
       {:ok, {{_, 200, _}, _, body}} ->
         case get_value(body) do
           [value] ->
-            callback.("Wolfram|Alpha: #{value}")
+            callback.("[b]Wolfram|Alpha:[/b] #{value}")
           nil ->
-            callback.("Wolfram|Alpha: (no result)")
+            callback.("[b]Wolfram|Alpha:[/b] (no result)")
         end
       _ ->
         callback.("Well shit, something went wrong. I blame you.")

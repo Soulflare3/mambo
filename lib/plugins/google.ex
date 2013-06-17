@@ -8,9 +8,9 @@ defmodule Google do
       {:ok, {{_, 200, _}, _, body}} ->
         case :jsx.decode(body)["responseData"]["results"] do
           [] ->
-            callback.("Google: (no result)")
+            callback.("[b]Google:[/b] (no result)")
           [result | _] ->
-            callback.("Google: #{Tsmambo.Lib.format_url result["unescapedUrl"]}")
+            callback.("[b]Google:[/b] #{Tsmambo.Lib.format_url result["unescapedUrl"]}")
         end
       _ ->
         callback.("Well shit, something went wrong. I blame you.")

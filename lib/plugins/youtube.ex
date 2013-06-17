@@ -8,10 +8,10 @@ defmodule Youtube do
       {:ok, {{_, 200, _}, _, body}} ->
         case :jsx.decode(body)["items"] do
           [] ->
-            callback.("YouTube: (no result)")
+            callback.("[b]YouTube:[/b] (no result)")
           [first | _rest] ->
             video_url = "https://www.youtube.com/watch?v=#{first["id"]["videoId"]}"
-            callback.("YouTube: #{Tsmambo.Lib.format_url video_url}")
+            callback.("[b]YouTube:[/b] #{Tsmambo.Lib.format_url video_url}")
         end
       _ ->
         callback.("Well shit, something went wrong. I blame you.")

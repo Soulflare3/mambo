@@ -8,9 +8,9 @@ defmodule Images do
       {:ok, {{_, 200, _}, _, body}} ->
         case :jsx.decode(body)["responseData"]["results"] do
           [] ->
-            callback.("Google Images: (no result)")
+            callback.("[b]Google Images:[/b] (no result)")
           [result | _] ->
-            callback.("Google Images: #{Tsmambo.Lib.format_url result["unescapedUrl"]}")
+            callback.("[b]Google Images:[/b] #{Tsmambo.Lib.format_url result["unescapedUrl"]}")
         end
       _ ->
         callback.("Well shit, something went wrong. I blame you.")
