@@ -2,12 +2,9 @@ defmodule Wolframalpha do
   use GenEvent.Behaviour
 
   defp search(query, apikey, callback) do
-    url = "http://api.wolframalpha.com/v2/query?input=#{query}&appid=#{apikey}&podindex=2&format=plaintext"
-    |> binary_to_list
-
-    headers = [{'User-Agent', 'Mozilla/5.0 (mambo bot)'}]
-
-    case :httpc.request(:get, {url, headers}, [], body_format: :binary) do
+    equery = URI.encode(query)
+    url = "http://api.wolframalpha.com/v2/query?input=#{equery}&appid=#{apikey}&podindex=2&format=plaintext"
+    case :httpc.request(:get, {binary_to_list(url), []}, [], body_format: :binary) do
       {:ok, {{_, 200, _}, _, body}} ->
         case get_value(body) do
           [value] ->
