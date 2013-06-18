@@ -8,6 +8,10 @@ defmodule Streams do
          {"!sc",   'https://api.twitch.tv/kraken/streams?game=StarCraft+II:+Heart+of+the+Swarm&limit='},
          {"!wow",  'https://api.twitch.tv/kraken/streams?game=World+of+Warcraft:+Mists+of+Pandaria&limit='}]
 
+  def get_list([], []) do
+    "(no streams)"
+  end
+
   def get_list([], acc) do
       Enum.join(Enum.reverse(acc), " | ")
   end
