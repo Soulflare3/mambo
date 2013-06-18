@@ -2,7 +2,11 @@ defmodule Streams do
   use GenEvent.Behaviour
 
   @urls [{"!dota", 'https://api.twitch.tv/kraken/streams?game=Dota+2&limit='},
-         {"!sc",   'https://api.twitch.tv/kraken/streams?game=StarCraft+II:+Heart+of+the+Swarm&limit='}]
+         {"!lol",  'https://api.twitch.tv/kraken/streams?game=League+of+Legends&limit='},
+         {"!hon",  'https://api.twitch.tv/kraken/streams?game=Heroes+of+Newerth&limit='},
+         {"!blc",  'https://api.twitch.tv/kraken/streams?game=Bloodline+Champions&limit='},
+         {"!sc",   'https://api.twitch.tv/kraken/streams?game=StarCraft+II:+Heart+of+the+Swarm&limit='},
+         {"!wow",  'https://api.twitch.tv/kraken/streams?game=World+of+Warcraft:+Mists+of+Pandaria&limit='}]
 
   def get_list([], acc) do
       Enum.join(Enum.reverse(acc), " | ")
