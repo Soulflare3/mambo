@@ -1,19 +1,20 @@
 defmodule Images do
   use GenEvent.Behaviour
 
-  defp image_me(s, callback) do
+  defp image_me(s, scast, tnotify) do
     es = URI.encode(s)
     url = "http://ajax.googleapis.com/ajax/services/search/images?safe=off&v=1.0&q=#{es}"
     case :httpc.request(:get, {binary_to_list(url), []}, [], body_format: :binary) do
       {:ok, {{_, 200, _}, _, body}} ->
         case :jsx.decode(body)["responseData"]["results"] do
           [] ->
-            callback.("[b]Google Images:[/b] (no result)")
+            scast.("[b]Google Images:[/b] (no result)")
           [result | _] ->
-            callback.("[b]Google Images:[/b] #{Tsmambo.Lib.format_url result["unescapedUrl"]}")
+            scast.("[b]Google Images:[/b] #{Tsmambo.Lib.format_url result["unescapedUrl"]}")
+            tnotify.(result["unescapedUrl"])
         end
       _ ->
-        callback.("Well shit, something went wrong. I blame you.")
+        scast.("Well shit, something went wrong. I blame you.")
     end
   end
 
@@ -24,10 +25,12 @@ defmodule Images do
   def handle_event({msg, _user, _userid}, state) do
     case msg do
       ["!images", s] ->
-        callback = fn(x) ->
-                        :gen_server.cast(:mambo, {:send_txt, x})
-                   end
-        spawn(fn() -> image_me(URI.encode(s), callback) end)
+        # send message to server
+        scast = fn(x) -> :gen_server.cast(:mambo, {:send_txt, x}) end
+        # notify plugins to get the url title
+        tnotify = fn(l) -> Tsmambo.Plugins.notify({[l], "", ""}) end
+
+        spawn(fn() -> image_me(URI.encode(s), scast, tnotify) end)
         {:ok, state}
       _ ->
         {:ok, state}

@@ -55,9 +55,7 @@ defmodule Title do
     msg = Enum.join(msg, " ")
     case Tsmambo.Lib.find_url(msg) do
       [url] ->
-        callback = fn(x) ->
-                     :gen_server.cast(:mambo, {:send_txt, x})
-                   end
+        callback = fn(x) -> :gen_server.cast(:mambo, {:send_txt, x}) end
         spawn(fn() -> fetch(url, callback) end)
         {:ok, state}
       _ ->

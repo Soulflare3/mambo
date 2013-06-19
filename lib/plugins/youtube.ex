@@ -1,20 +1,24 @@
 defmodule Youtube do
   use GenEvent.Behaviour
 
-  defp search(query, apikey, callback) do
+  defp search(query, apikey, scast, tnotify) do
     equery = URI.encode(query)
     url = "https://www.googleapis.com/youtube/v3/search?key=#{apikey}&part=id&q=#{equery}"
+
     case :httpc.request(:get, {binary_to_list(url), []}, [], body_format: :binary) do
       {:ok, {{_, 200, _}, _, body}} ->
         case :jsx.decode(body)["items"] do
           [] ->
-            callback.("[b]YouTube:[/b] (no result)")
+            scast.("[b]YouTube:[/b] (no result)")
+
           [first | _rest] ->
             video_url = "https://www.youtube.com/watch?v=#{first["id"]["videoId"]}"
-            callback.("[b]YouTube:[/b] #{Tsmambo.Lib.format_url video_url}")
+            scast.("[b]YouTube:[/b] #{Tsmambo.Lib.format_url video_url}")
+            tnotify.(video_url)
         end
+
       _ ->
-        callback.("Well shit, something went wrong. I blame you.")
+        scast.("Well shit, something went wrong. I blame you.")
     end
   end
 
@@ -25,11 +29,14 @@ defmodule Youtube do
   def handle_event({msg, _user, _userid}, apikey) do
     case msg do
       ["!yt", query] ->
-        callback = fn(x) ->
-                       :gen_server.cast(:mambo, {:send_txt, x})
-                   end
-        spawn(fn() -> search(query, apikey, callback) end)
+        # send message to server
+        scast = fn(x) -> :gen_server.cast(:mambo, {:send_txt, x}) end
+        # notify plugins to get the url title
+        tnotify = fn(l) -> Tsmambo.Plugins.notify({[l], "", ""}) end
+
+        spawn(fn() -> search(query, apikey, scast, tnotify) end)
         {:ok, apikey}
+
       _ ->
         {:ok, apikey}
     end
