@@ -103,11 +103,11 @@ defmodule Brainfuck do
 		{:ok, []}
 	end
 
-	def handle_event({gen_server, msg, _user, _userid}, state) do
+	def handle_event({msg, _user, _userid}, state) do
 		case msg do
 			["!bf", instructions] ->
 				out = run(instructions)
-				:gen_server.cast(gen_server, {:send_txt, "[b]Brainfuck:[/b] #{out}"})
+				:gen_server.cast(:mambo, {:send_txt, "[b]Brainfuck:[/b] #{out}"})
 				{:ok, state}
 			_ ->
 				{:ok, state}

@@ -15,11 +15,11 @@ defmodule Whatthecommit do
     {:ok, []}
   end
 
-  def handle_event({gen_server, msg, _user, _userid}, state) do
+  def handle_event({msg, _user, _userid}, state) do
     case msg do
       ["!wtc"] ->
         callback = fn(x) ->
-                       :gen_server.cast(gen_server, {:send_txt, x})
+                       :gen_server.cast(:mambo, {:send_txt, x})
                    end
         spawn(fn() -> wtc(callback) end)
         {:ok, state}

@@ -36,19 +36,19 @@ defmodule Random do
     {:ok, []}
   end
 
-  def handle_event({gen_server, msg, _user, _userid}, state) do
+  def handle_event({msg, _user, _userid}, state) do
     case msg do
       ["!rock"] ->
-        :gen_server.cast(gen_server, {:send_txt, "#{pp_rps("rock", attack())}"})
+        :gen_server.cast(:mambo, {:send_txt, "#{pp_rps("rock", attack())}"})
         {:ok, state}
       ["!paper"] ->
-        :gen_server.cast(gen_server, {:send_txt, "#{pp_rps("paper", attack())}"})
+        :gen_server.cast(:mambo, {:send_txt, "#{pp_rps("paper", attack())}"})
         {:ok, state}
       ["!scissors"] ->
-        :gen_server.cast(gen_server, {:send_txt, "#{pp_rps("scissors", attack())}"})
+        :gen_server.cast(:mambo, {:send_txt, "#{pp_rps("scissors", attack())}"})
         {:ok, state}
       ["!roll"] ->
-        :gen_server.cast(gen_server, {:send_txt, "#{roll()}"})
+        :gen_server.cast(:mambo, {:send_txt, "#{roll()}"})
         {:ok, state}
       _ ->
         {:ok, state}

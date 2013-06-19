@@ -22,11 +22,11 @@ defmodule Youtube do
     {:ok, apikey}
   end
 
-  def handle_event({gen_server, msg, _user, _userid}, apikey) do
+  def handle_event({msg, _user, _userid}, apikey) do
     case msg do
       ["!yt", query] ->
         callback = fn(x) ->
-                       :gen_server.cast(gen_server, {:send_txt, x})
+                       :gen_server.cast(:mambo, {:send_txt, x})
                    end
         spawn(fn() -> search(query, apikey, callback) end)
         {:ok, apikey}

@@ -8,22 +8,22 @@ defmodule Cannedreplies do
               edgyface: "(ケ≖‿≖)ケ",
               dface: "ಠ_ಠ"]
 
-  @name elem(Tsmambo.Lib.consult("settings.cfg"), 1)[:name]
+  @id elem(Tsmambo.Lib.consult("settings.cfg"), 1)[:bot_id]
 
   def init(_args) do
     {:ok, []}
   end
 
-  def handle_event({_, _, @name, _}, state) do
+  def handle_event({_, _, _, @id}, state) do
     {:ok, state}
   end
 
-  def handle_event({gen_server, msg, _user, _userid}, state) do
+  def handle_event({msg, _user, _userid}, state) do
     case msg do
       [s] ->
         key = binary_to_atom(s)
         if Dict.has_key?(@responses, key) do
-          :gen_server.cast(gen_server, {:send_txt, @responses[key]})
+          :gen_server.cast(:mambo, {:send_txt, @responses[key]})
           {:ok, state}
         else
             {:ok, state}

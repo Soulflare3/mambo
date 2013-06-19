@@ -38,13 +38,13 @@ defmodule Streams do
     {:ok, []}
   end
 
-  def handle_event({gen_server, msg, _user, _userid}, state) do
+  def handle_event({msg, _user, _userid}, state) do
     case msg do
       [cmd, count] ->
         case String.to_integer(count) do
           {num, ""} when num > 0 and num <= 10 ->
             callback = fn(x) ->
-                         :gen_server.cast(gen_server, {:send_txt, x})
+                         :gen_server.cast(:mambo, {:send_txt, x})
                        end
             spawn(fn() -> fetch(@urls[cmd], binary_to_list(count), callback) end)
             {:ok, state}
@@ -54,7 +54,7 @@ defmodule Streams do
 
       [cmd] ->
         callback = fn(x) ->
-                     :gen_server.cast(gen_server, {:send_txt, x})
+                     :gen_server.cast(:mambo, {:send_txt, x})
                    end
         spawn(fn() -> fetch(@urls[cmd], '5', callback) end)
         {:ok, state}

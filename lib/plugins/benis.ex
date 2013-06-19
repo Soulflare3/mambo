@@ -26,10 +26,10 @@ defmodule Benis do
     {:ok, []}
   end
 
-  def handle_event({gen_server, msg, _user, _userid}, state) do
+  def handle_event({msg, _user, _userid}, state) do
     case msg do
       ["!benis", s] ->
-        :gen_server.cast(gen_server, {:send_txt, benisify(s)})
+        :gen_server.cast(:mambo, {:send_txt, benisify(s)})
         {:ok, state}
        _ ->
         {:ok, state}

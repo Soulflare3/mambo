@@ -15,10 +15,10 @@ defmodule Eightball do
     {:ok, []}
   end
 
-  def handle_event({gen_server, msg, _user, _userid}, state) do
+  def handle_event({msg, _user, _userid}, state) do
     case msg do
       ["!8ball", _] ->
-        :gen_server.cast(gen_server, {:send_txt, shake()})
+        :gen_server.cast(:mambo, {:send_txt, shake()})
         {:ok, state}
       _ ->
         {:ok, state}

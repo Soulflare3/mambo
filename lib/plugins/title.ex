@@ -1,6 +1,8 @@
 defmodule Title do
   use GenEvent.Behaviour
 
+  @id elem(Tsmambo.Lib.consult("settings.cfg"), 1)[:bot_id]
+
   defp fetch(url, callback) do
     headers = [{'User-Agent', 'Mozilla/5.0 (mambo bot)'}]
     {:ok, ref} = :httpc.request(:get, {binary_to_list(url), headers}, [],
@@ -45,12 +47,16 @@ defmodule Title do
     {:ok, []}
   end
 
-  def handle_event({gen_server, msg, _user, _userid}, state) do
+  def handle_event({_, _, @id}, state) do
+    {:ok, state}
+  end
+
+  def handle_event({msg, _user, _userid}, state) do
     msg = Enum.join(msg, " ")
     case Tsmambo.Lib.find_url(msg) do
       [url] ->
         callback = fn(x) ->
-                     :gen_server.cast(gen_server, {:send_txt, x})
+                     :gen_server.cast(:mambo, {:send_txt, x})
                    end
         spawn(fn() -> fetch(url, callback) end)
         {:ok, state}
