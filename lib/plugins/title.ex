@@ -12,6 +12,7 @@ defmodule Title do
 
   defp receive_chunk(_ref, callback, body, len) when len <= 0 do
     [title] = Regex.run(%r/<title.*?>([\s\S]*?)<\/title>/iu, body, capture: [1])
+    title = String.strip(title) |> String.strip(?\n)
     callback.("[b]Title:[/b] #{title}")
   end
 
