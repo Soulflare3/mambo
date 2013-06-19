@@ -17,7 +17,7 @@ defmodule Tsmambo.Lib do
   end
 
   def format_url(url, name) do
-    "[URL=#{url} ]#{name}[/URL]"
+    "[URL=#{url}]#{name}[/URL]"
   end
 
   def find_url(line) do
