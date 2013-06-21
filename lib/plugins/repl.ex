@@ -30,7 +30,7 @@ defmodule Repl do
                  :xor, :'|>', :access, :'{}', :'<<>>', :::, :unit]
 
   defp eval(string, callback) do
-    case Code.string_to_ast(string) do
+    case Code.string_to_quoted(string) do
       {:ok, ast} ->
         try do
           {value, _} = Code.eval_quoted(safe(ast, __ENV__))
