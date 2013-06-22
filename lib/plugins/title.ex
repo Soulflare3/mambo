@@ -12,7 +12,7 @@ defmodule Title do
   defp receive_chunk(_ref, callback, body, len) when len <= 0 do
     [title] = Regex.run(%r/<title.*?>([\s\S]*?)<\/title>/, body, capture: [1])
     title = String.strip(title) |> String.strip(?\n)
-    callback.("[b]Title:[/b] #{title}")
+    callback.("[b]Title:[/b] #{Tsmambo.Lib.decode_xml title}")
   end
 
   defp receive_chunk(ref, callback, body, len) do

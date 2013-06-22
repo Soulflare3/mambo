@@ -57,5 +57,6 @@ defmodule Tsmambo.Lib do
     |> String.replace(%b(&apos;), %b('))
     |> String.replace(%b(&lt;),   %b(<))
     |> String.replace(%b(&gt;),   %b(>))
+    |> String.replace(%b(&#39;),  %b('))
   end
 end
