@@ -41,7 +41,7 @@ defmodule Lastfm do
 	end
 
 	def handle_event({msg, _user, userid}, apikey) do
-		{:ok, :ids} = :dets.open_file(:ids, [{:type, :set}, {:file, "lastfm.db"}])
+		{:ok, :ids} = :dets.open_file(:ids, [{:type, :set}, {:file, 'lastfm.db'}])
 		callback = fn(x) ->
                  :gen_server.cast(:mambo, {:send_txt, x})
                end
