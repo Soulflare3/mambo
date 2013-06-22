@@ -4,14 +4,13 @@ defmodule Title do
   @id elem(Tsmambo.Lib.consult("settings.cfg"), 1)[:bot_id]
 
   defp fetch(url, callback) do
-    headers = [{'User-Agent', 'Mozilla/5.0 (mambo bot)'}]
-    {:ok, ref} = :httpc.request(:get, {binary_to_list(url), headers}, [],
+    {:ok, ref} = :httpc.request(:get, {binary_to_list(url), []}, [],
                                 sync: false, stream: :self, body_format: :binary)
-    receive_chunk(ref, callback, <<>>, 10000)
+    receive_chunk(ref, callback, <<>>, 5000)
   end
 
   defp receive_chunk(_ref, callback, body, len) when len <= 0 do
-    [title] = Regex.run(%r/<title.*?>([\s\S]*?)<\/title>/iu, body, capture: [1])
+    [title] = Regex.run(%r/<title.*?>([\s\S]*?)<\/title>/, body, capture: [1])
     title = String.strip(title) |> String.strip(?\n)
     callback.("[b]Title:[/b] #{title}")
   end
@@ -19,25 +18,19 @@ defmodule Title do
   defp receive_chunk(ref, callback, body, len) do
     receive do
       {:http, {ref, :stream_start, headers}} ->
-        content_type = ListDict.get(headers, 'content-type', '')
-        case :lists.prefix('text/', content_type) do
-          true ->
-            receive_chunk(ref, callback, body, len)
-          _ ->
-            callback.("[b]Content Type:[/b] #{content_type}")
+        content = list_to_binary(headers['content-type'])
+        if String.contains?(content, "text/") do
+          receive_chunk(ref, callback, body, len)
+        else
+          [ct | _rest] = String.split(content, ";")
+          callback.("[b]Content Type:[/b] #{ct}")
         end
 
       {:http, {ref, :stream, data}} ->
         receive_chunk(ref, callback, body <> data, len - size(data))
 
-      {:http, {ref, :stream_end, headers}} ->
-        content_type = ListDict.get(headers, 'content-type')
-        case :lists.prefix('text/', content_type) do
-          true ->
-            receive_chunk(ref, callback, body, 0)
-          _ ->
-            callback.("[b]Content Type:[/b] #{content_type}")
-        end
+      {:http, {ref, :stream_end, _headers}} ->
+        receive_chunk(ref, callback, body, 0)
     after
       5000 ->
         :ok
