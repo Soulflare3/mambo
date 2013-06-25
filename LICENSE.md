@@ -1,4 +1,5 @@
 Copyright (C) 2013 João Marques
+
 Copyright (C) 2013 Gonçalo Cabrita
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
