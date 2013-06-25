@@ -30,4 +30,4 @@ Plugins
 License
 -------
 
-All files under this repository fall under the MIT License. Check LICENSE.md for more details.
+All files under this repository fall under the MIT License. Check LICENSE for more details.
