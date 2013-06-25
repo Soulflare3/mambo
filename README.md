@@ -8,9 +8,8 @@ Getting started
 
 You will need to create a `settings.cfg` file, use the `settings.cfg.sample` as a guide.
 Username and password are the teamspeak3 server query credentials, name is the nickname you want for the bot.
-On the plugin list, place a list of all the plugins (even if you don't plan to use them) in the following form:
-`{:on, {ModName, [Args]}}`, the first element makes the plugin load when the bot is started, if you don't plan to
-use a certain plugin just change this value to `:off`.
+On the plugin list, place a list of all the plugins you plan to use in the following form,
+`{:on, {ModName, [Args]}}`, the first element makes the plugin load when the bot is started, if you don't that just change this value to `:off`.
 
 When you're happy with you `settings.cfg` just do the following to compile and start the bot:
 
