@@ -11,13 +11,13 @@ Username and password are the teamspeak3 server query credentials, name is the n
 On the plugin list, place a list of all the plugins you plan to use in the following form,
 `{:on, {ModName, [Args]}}`, the first element makes the plugin load when the bot is started, if you don't that just change this value to `:off`.
 
-When you're happy with you `settings.cfg` just do the following to compile and start the bot:
+When you're happy with your `settings.cfg` just do the following to compile and start the bot:
 
 	mix deps.get
 	mix compile
 	iex -S mix
 
-The bot will only work on the `home` channel, I will probably add the ability to choose the bot
+The bot will only work on the default channel, I will probably add the ability to choose the bot
 channel on the settings file, for the time being if you want it in another channel you will have to move it
 manually in your teamspeak3 client. If you want to keep the bot running on your server start it in a screen or
 tmux session.
