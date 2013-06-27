@@ -25,7 +25,7 @@ tmux session.
 Plugins
 -------
 
-**TODO, will probably add the info in a wiki page.**
+Check the [wiki page](https://github.com/mrshankly/tsmambo/wiki/Plugins).
 
 License
 -------
