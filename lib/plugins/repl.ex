@@ -6,94 +6,148 @@
 defmodule Repl do
   use GenEvent.Behaviour
 
-  @allowed_mods [Bitwise, Dict, Enum, HashDict, Keyword, List, ListDict,
-                 Regex, String, URI, :dict, :lists, :math, :orddict, :proplists,
-                 :re, :sets, :string]
+  @allowed_non_local HashDict.new [
+    {Bitwise,  :all},
+    {Dict,     :all},
+    {Enum,     :all},
+    {HashDict, :all},
+    {Keyword,  :all},
+    {List,     :all},
+    {ListDict, :all},
+    {Regex,    :all},
+    {String,   :all},
+    {Binary.Chars, [:to_binary]}, # string interpolation
+    {Kernel,   [:access]}
+  ]
 
-  @allowed_funs [:fn, :'->', :&, :=, :==, :===, :>=, :<=, :!=, :!==, :>,
-                 :<, :and, :or, :||, :&&, :!, :*, :+, :-, :/, :++, :--, :<>,
-                 :is_atom, :is_binary, :is_bitstring, :is_boolean, :is_float,
-                 :is_function, :is_integer, :is_list, :is_number, :is_pid,
-                 :is_port, :is_record, :is_reference, :is_tuple, :is_exception,
-                 :abs, :bit_size, :byte_size, :div, :elem, :float, :hd, :length,
-                 :rem, :round, :size, :tl, :trunc, :tuple_size, :lc, :inlist,
-                 :__block__, :atom_to_binary, :atom_to_list, :binary_part,
-                 :binary_to_atom, :binary_to_float, :binary_to_integer,
-                 :binary_to_list, :binary_to_term, :bitstring_to_list,
-                 :float_to_binary, :float_to_list, :integer_to_binary,
-                 :integer_to_list, :iolist_size, :iolist_to_binary,
-                 :list_to_atom, :list_to_binary, :list_to_bitstring,
-                 :list_to_float, :list_to_integer, :list_to_tuple, :max, :min,
-                 :term_to_binary, :.., :=~, :__B__, :__C__, :__R__, :__W__,
-                 :__b__, :__c__, :__r__, :__w__, :delete_elem, :in, :is_range,
-                 :is_regex, :match?, :nil?, :set_elem, :to_binary, :to_char_list,
-                 :xor, :'|>', :access, :'{}', :'<<>>', :::, :unit]
+  # with 0 arity
+  @restricted_local [:binding, :is_alive, :make_ref, :node, :self]
+  @allowed_local [:&&, :.., :<>, :access, :and, :atom_to_binary, :binary_to_atom,
+    :case, :cond, :div, :elem, :if, :in, :insert_elem, :is_range, :is_record,
+    :is_regex, :match?, :nil?, :or, :rem, :set_elem, :sigil_B, :sigil_C, :sigil_R,
+    :sigil_W, :sigil_b, :sigil_c, :sigil_r, :sigil_w, :to_binary, :to_char_list,
+    :unless, :xor, :|>, :||, :!, :!=, :!==, :*, :+, :+, :++, :-, :--, :/, :<, :<=,
+    :=, :==, :===, :=~, :>, :>=, :abs, :atom_to_binary, :atom_to_list, :binary_part,
+    :binary_to_atom, :binary_to_float, :binary_to_integer, :binary_to_integer,
+    :binary_to_list, :binary_to_term, :bit_size, :bitstring_to_list, :byte_size,
+    :float, :float_to_binary, :float_to_list, :hd, :inspect, :integer_to_binary,
+    :integer_to_list, :iolist_size, :iolist_to_binary, :is_atom, :is_binary,
+    :is_bitstring, :is_boolean, :is_float, :is_function, :is_integer, :is_list,
+    :is_number, :is_tuple, :length, :list_to_atom, :list_to_binary, :list_to_bitstring,
+    :list_to_float, :list_to_integer, :list_to_tuple, :max, :min, :not, :round, :size,
+    :term_to_binary, :throw, :tl, :trunc, :tuple_size, :tuple_to_list, :fn, :->, :&,
+    :__block__, :"{}", :"<<>>", :::, :lc, :inlist, :bc, :inbits, :^, :when, :|]
 
   defp eval(string, callback) do
-    case Code.string_to_quoted(string) do
-      {:ok, ast} ->
-        try do
-          {value, _} = Code.eval_quoted(safe(ast, __ENV__))
-          callback.("[b]Elixir:[/b] #{inspect value}")
-        catch
-          reason ->
-            callback.("[b]Elixir:[/b] #{reason}")
-        rescue
-          error ->
-            callback.("[b]Elixir:[/b] #{error.message}")
-        end
-      {:error, {line, desc, info}} ->
-        callback.("[b]Elixir:[/b] #{line}: #{desc}#{info}")
-    end
-  end
-
-  #check modules
-  defp safe({{:., _, [module, fun]} = dot, meta, args} = tree, caller) do
-    module = Macro.expand(module, caller)
-    if is_atom(module) do
-      cond do
-        module == Kernel and fun == :access ->
-          {dot, meta, safe(args, caller)}
-        module in @allowed_mods ->
-          {dot, meta, safe(args, caller)}
-        true ->
-          throw "#{inspect module} is not allowed."
+    result =
+      try do
+        do_eval(string)
+      rescue
+        exception ->
+          format_exception exception
+      catch
+        kind, error ->
+          format_error kind, error
       end
-    else
-      throw "Invalid call expression #{inspect Macro.to_binary(tree)}"
+    callback.("[b]Elixir:[/b] #{result}")
+  end
+
+  defp do_eval(line) do
+    case Code.string_to_quoted(line) do
+      {:ok, form} ->
+        if is_safe? form do
+          {value, _} = Code.eval_quoted(form, [], __ENV__)
+          inspect value
+        else
+          raise "restricted"
+        end
+      {:error, {line, error, token}} ->
+        :elixir_errors.parse_error(line, "iex", error, token)
     end
   end
 
-  #check calls to anonymous functions, eg. f.()
-  defp safe({{:., f_meta, f_args}, meta, args}, caller) do
-    {{:., f_meta, safe(f_args, caller)}, meta, safe(args, caller)}
-  end
-
-  #check functions
-  defp safe({dot, meta, args}, caller) when args != nil do
-    if dot in @allowed_funs do
-      {dot, meta, safe(args, caller)}
-    else
-      throw "#{inspect dot} is not allowed."
+  defp is_safe?({{:., _, [module, fun]}, _, args}) do
+    module = Macro.expand(module, __ENV__)
+    case HashDict.get(@allowed_non_local, module) do
+      :all ->
+        is_safe?(args)
+      lst when is_list(lst) ->
+        (fun in lst) and is_safe?(args)
+      _ ->
+        false
     end
   end
 
-  #used with :'->'
-  defp safe({lst, other}, caller) when is_list(lst) do
-    {lst, safe(other, caller)}
+  # check calls to anonymous functions, eg. f.()
+  defp is_safe?({{:., _, f_args}, _, args}) do
+    is_safe?(f_args) and is_safe?(args)
   end
 
-  #used with :fn
-  defp safe([do: other], caller) do
-    [do: safe(other, caller)]
+  # used with :fn
+  defp is_safe?([do: args]) do
+    is_safe?(args)
   end
 
-  defp safe(other, caller) when is_list(other) do
-    Enum.map(other, fn(x) -> safe(x, caller) end)
+  # used with :'->'
+  defp is_safe?({left, _, right}) when is_list(left) do
+    is_safe?(left) and is_safe?(right)
   end
 
-  defp safe(other, _caller) do
-    other
+  # limit range size
+  defp is_safe?({:.., _, [begin, last]}) do
+    (last - begin) <= 100 and last < 1000
+  end
+
+  # don't size and unit in :::
+  defp is_safe?({:::, _, [_, opts]}) do
+    do_opts(opts)
+  end
+
+  # check 0 arity local functions
+  defp is_safe?({dot, _, nil}) when is_atom(dot) do
+    not dot in @restricted_local
+  end
+
+  defp is_safe?({dot, _, args}) when args != nil do
+    (dot in @allowed_local) and is_safe?(args)
+  end
+
+  defp is_safe?(lst) when is_list(lst) do
+    if length(lst) <= 100 do
+      Enum.all?(lst, fn(x) -> is_safe?(x) end)
+    else
+      false
+    end
+  end
+
+  defp is_safe?(_) do
+    true
+  end
+
+  defp do_opts(opt) when is_tuple(opt) do
+    case opt do
+      {:size, _, _} -> false
+      {:unit, _, _} -> false
+      _ -> true
+    end
+  end
+
+  defp do_opts([h|t]) do
+    case h do
+      {:size, _, _} -> false
+      {:unit, _, _} -> false
+      _ -> do_opts(t)
+    end
+  end
+
+  defp do_opts([]), do: true
+
+  defp format_exception(exception) do
+    "** (#{inspect exception.__record__(:name)}) #{exception.message}"
+  end
+
+  defp format_error(kind, reason) do
+    "** (#{kind}) #{inspect(reason)}"
   end
 
   ## gen_event callbacks
