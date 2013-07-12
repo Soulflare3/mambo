@@ -168,4 +168,8 @@ defmodule Repl do
         {:ok, state}
     end
   end
+
+  def handle_event(_other, state) do
+    {:ok, state}
+  end
 end

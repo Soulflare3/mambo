@@ -32,7 +32,7 @@ defmodule Youtube do
         # send message to server
         scast = fn(x) -> :gen_server.cast(:mambo, {:send_txt, x}) end
         # notify plugins to get the url title
-        tnotify = fn(l) -> Tsmambo.Plugins.notify({[l], "", ""}) end
+        tnotify = fn(url) -> Tsmambo.Plugins.notify({:url, url}) end
 
         spawn(fn() -> search(query, apikey, scast, tnotify) end)
         {:ok, apikey}
@@ -40,5 +40,9 @@ defmodule Youtube do
       _ ->
         {:ok, apikey}
     end
+  end
+
+  def handle_event(_other, state) do
+    {:ok, state}
   end
 end

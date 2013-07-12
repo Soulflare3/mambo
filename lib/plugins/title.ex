@@ -46,14 +46,29 @@ defmodule Title do
   end
 
   def handle_event({msg, _user, _userid}, state) do
-    msg = Enum.join(msg, " ")
-    case Tsmambo.Lib.find_url(msg) do
-      [url] ->
-        callback = fn(x) -> :gen_server.cast(:mambo, {:send_txt, x}) end
-        spawn(fn() -> fetch(url, callback) end)
+    case msg do
+      # don't read omegle messages
+      ["!o" | _] ->
         {:ok, state}
       _ ->
-        {:ok, state}
+        case Tsmambo.Lib.find_url(msg) do
+          [url] ->
+            callback = fn(x) -> :gen_server.cast(:mambo, {:send_txt, x}) end
+            spawn(fn() -> fetch(url, callback) end)
+            {:ok, state}
+          _ ->
+            {:ok, state}
+        end
     end
+  end
+
+  def handle_event({:url, url}, state) do
+    callback = fn(x) -> :gen_server.cast(:mambo, {:send_txt, x}) end
+    spawn(fn -> fetch(url, callback) end)
+    {:ok, state}
+  end
+
+  def handle_event(_other, state) do
+    {:ok, state}
   end
 end

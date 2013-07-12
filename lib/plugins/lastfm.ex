@@ -72,4 +72,8 @@ defmodule Lastfm do
         {:ok, apikey}
     end
   end
+
+  def handle_event(_other, state) do
+    {:ok, state}
+  end
 end

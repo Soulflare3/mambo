@@ -28,12 +28,16 @@ defmodule Google do
         # send message to server
         scast = fn(x) -> :gen_server.cast(:mambo, {:send_txt, x}) end
         # notify plugins to get the url title
-        tnotify = fn(l) -> Tsmambo.Plugins.notify({[l], "", ""}) end
+        tnotify = fn(url) -> Tsmambo.Plugins.notify({:url, url}) end
 
         spawn(fn() -> search(query, scast, tnotify) end)
         {:ok, state}
       _ ->
         {:ok, state}
     end
+  end
+
+  def handle_event(_other, state) do
+    {:ok, state}
   end
 end
