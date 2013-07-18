@@ -3,7 +3,8 @@ defmodule Fortune do
 
   defp get_fortune(fortunes) do
       i = :random.uniform(1615)
-      Enum.at fortunes, i
+      f = Enum.at fortunes, i
+      "[b]Fortune:[/b] #{f}"
   end
 
   def init(_args) do
