@@ -26,7 +26,7 @@ defmodule Benis do
     {:ok, []}
   end
 
-  def handle_event({msg, _user, _userid}, state) do
+  def handle_event({msg, _user, _userid, :unmuted}, state) do
     case msg do
       ["!benis", s] ->
         :gen_server.cast(:mambo, {:send_txt, benisify(s)})

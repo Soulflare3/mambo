@@ -9,7 +9,7 @@ defmodule Sux do
     {:ok, []}
   end
 
-  def handle_event({msg, _user, _userid}, state) do
+  def handle_event({msg, _user, _userid, :unmuted}, state) do
     case msg do
       ["!sux", what] ->
         :gen_server.cast(:mambo, {:send_txt, sux(what)})

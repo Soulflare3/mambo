@@ -22,7 +22,7 @@ defmodule Images do
     {:ok, []}
   end
 
-  def handle_event({msg, _user, _userid}, state) do
+  def handle_event({msg, _user, _userid, :unmuted}, state) do
     case msg do
       ["!images", s] ->
         # send message to server

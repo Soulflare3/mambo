@@ -37,7 +37,7 @@ defmodule Rainbow do
     {:ok, []}
   end
 
-  def handle_event({msg, _user, _userid}, state) do
+  def handle_event({msg, _user, _userid, :unmuted}, state) do
     case msg do
       ["!gay", s] ->
         :gen_server.cast(:mambo, {:send_txt, rainbow(s)})

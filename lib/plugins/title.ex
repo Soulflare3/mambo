@@ -41,11 +41,11 @@ defmodule Title do
     {:ok, []}
   end
 
-  def handle_event({_, _, @id}, state) do
+  def handle_event({_, _, @id, _}, state) do
     {:ok, state}
   end
 
-  def handle_event({msg, _user, _userid}, state) do
+  def handle_event({msg, _user, _userid, :unmuted}, state) do
     case msg do
       # don't read omegle messages
       ["!o" | _] ->

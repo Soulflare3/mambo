@@ -26,7 +26,7 @@ defmodule Youtube do
     {:ok, apikey}
   end
 
-  def handle_event({msg, _user, _userid}, apikey) do
+  def handle_event({msg, _user, _userid, :unmuted}, apikey) do
     case msg do
       ["!yt", query] ->
         # send message to server

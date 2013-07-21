@@ -38,7 +38,7 @@ defmodule Streams do
     {:ok, []}
   end
 
-  def handle_event({msg, _user, _userid}, state) do
+  def handle_event({msg, _user, _userid, :unmuted}, state) do
     case msg do
       [cmd, count] ->
         case String.to_integer(count) do

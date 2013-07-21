@@ -103,7 +103,7 @@ defmodule Brainfuck do
     {:ok, []}
   end
 
-  def handle_event({msg, _user, _userid}, state) do
+  def handle_event({msg, _user, _userid, :unmuted}, state) do
     case msg do
       ["!bf", instructions] ->
         callback = fn(x) -> :gen_server.cast(:mambo, {:send_txt, x}) end

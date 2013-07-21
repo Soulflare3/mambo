@@ -13,7 +13,7 @@ defmodule Fortune do
     {:ok, ff}
   end
 
-  def handle_event({msg, _user, _userid}, fortunes) do
+  def handle_event({msg, _user, _userid, :unmuted}, fortunes) do
     case msg do
       ["!fortune"] ->
         :gen_server.cast(:mambo, {:send_txt, get_fortune(fortunes)})

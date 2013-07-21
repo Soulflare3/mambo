@@ -13,7 +13,7 @@ defmodule Uptime do
     {:ok, []}
   end
 
-  def handle_event({msg, _user, _userid}, state) do
+  def handle_event({msg, _user, _userid, :unmuted}, state) do
     case msg do
       ["!uptime"] ->
         :gen_server.cast(:mambo, {:send_txt, uptime()})
