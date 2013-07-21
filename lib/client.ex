@@ -27,7 +27,7 @@ defmodule Tsmambo.Client do
     Enum.find(list, fn({_, {x, _}}) -> plugin == x end)
   end
 
-  defp handle_msg("notifytextmessage" <> data) do
+  defp handle_msg("notifytextmessage" <> data, talk) do
     [msg] = Regex.run(%r/msg=([\s\S]*?) invokerid=/, data, capture: [1])
     msg = Tsmambo.Lib.decode(msg)
 
@@ -37,10 +37,10 @@ defmodule Tsmambo.Client do
     [userid] = Regex.run(%r/invokeruid=.*/, data)
     userid = String.replace(userid, "invokeruid=", "")
 
-    Tsmambo.Plugins.notify({String.split(msg, " ", global: false), user, userid})
+    Tsmambo.Plugins.notify({String.split(msg, " ", global: false), user, userid, talk})
   end
 
-  defp handle_msg(_data) do
+  defp handle_msg(_data, _talk) do
     :ok
   end
 
@@ -54,7 +54,7 @@ defmodule Tsmambo.Client do
         :erlang.send_after(300000, self(), :ping)
 
         IO.puts("Connected to #{address}:#{port}")
-        {:ok, socket}
+        {:ok, {socket, :unmuted}}
 
       {:error, reason} ->
         {:stop, reason}
@@ -62,57 +62,71 @@ defmodule Tsmambo.Client do
   end
 
   ## Send text message
-  def handle_cast({:send_txt, msg}, socket) do
+  def handle_cast({:send_txt, msg}, {socket, _} = state) do
     :ok = send_msg(socket, "#{@msg_template}#{Tsmambo.Lib.encode msg}")
-    {:noreply, socket}
+    {:noreply, state}
+  end
+
+  ## Change the bot nickname
+  def handle_cast({:change_nick, nick}, {socket, _} = state) do
+    :ok = send_msg(socket, "clientupdate client_nickname=#{Tsmambo.Lib.encode nick}")
+    {:noreply, state}
+  end
+
+  def handle_cast(:mute, {socket, _}) do
+    {:noreply, {socket, :muted}}
+  end
+
+  def handle_cast(:unmute, {socket, _}) do
+    {:noreply, {socket, :unmuted}}
   end
 
   ## Plugin management
-  def handle_cast({:load_plugin, plugin}, socket) do
+  def handle_cast({:load_plugin, plugin}, {socket, _} = state) do
     if plugin in Tsmambo.Plugins.which_handlers() do
       :ok = send_msg(socket, "#{@msg_template}#{Tsmambo.Lib.encode "[b]#{plugin}[/b] already loaded."}")
-      {:noreply, socket}
+      {:noreply, state}
     else
       {:ok, settings} = Tsmambo.Lib.consult("settings.cfg")
       case plugin_exists?(plugin, settings[:plugins]) do
         nil ->
           :ok = send_msg(socket, "#{@msg_template}#{Tsmambo.Lib.encode "[b]#{plugin}[/b] not found."}")
-          {:noreply, socket}
+          {:noreply, state}
 
         {_, {^plugin, args}} ->
           case Tsmambo.Plugins.add_handler(plugin, args) do
             :ok ->
               info = Tsmambo.Lib.encode "[b]#{plugin}[/b] loaded."
               :ok = send_msg(socket, "#{@msg_template}#{info}")
-              {:noreply, socket}
+              {:noreply, state}
 
             {:error, reason} ->
               :ok = send_msg(socket, "#{@msg_template}#{Tsmambo.Lib.encode reason}")
-              {:noreply, socket}
+              {:noreply, state}
           end
       end
     end
   end
 
-  def handle_cast({:unload_plugin, plugin}, socket) do
+  def handle_cast({:unload_plugin, plugin}, {socket, _} = state) do
     if plugin in Tsmambo.Plugins.which_handlers() do
       case Tsmambo.Plugins.delete_handler(plugin, []) do
         :ok ->
           info = Tsmambo.Lib.encode "[b]#{plugin}[/b] unloaded."
           :ok = send_msg(socket, "#{@msg_template}#{info}")
-          {:noreply, socket}
+          {:noreply, state}
 
         {:error, reason} ->
           :ok = send_msg(socket, "#{@msg_template}#{Tsmambo.Lib.encode reason}")
-          {:noreply, socket}
+          {:noreply, state}
       end
     else
       :ok = send_msg(socket, "#{@msg_template}#{Tsmambo.Lib.encode "[b]#{plugin}[/b] already unloaded."}")
-      {:noreply, socket}
+      {:noreply, state}
     end
   end
 
-  def handle_cast(:list_plugins, socket) do
+  def handle_cast(:list_plugins, {socket, _} = state) do
     f = fn(x) -> String.replace(atom_to_binary(x), "Elixir.", "") end
 
     # Ignore the head, since it's Plugin.Manager
@@ -120,26 +134,26 @@ defmodule Tsmambo.Client do
     sp = Enum.join(lp, " | ")
 
     send_msg(socket, "#{@msg_template}#{Tsmambo.Lib.encode sp}")
-    {:noreply, socket}
+    {:noreply, state}
   end
 
   ## Server messages
-  def handle_info({:tcp, _socket, data}, socket) do
-    handle_msg(data)
-    {:noreply, socket}
+  def handle_info({:tcp, _socket, data}, {_, talk} = state) do
+    handle_msg(data, talk)
+    {:noreply, state}
   end
 
-  def handle_info({:tcp_close, _socket}, socket) do
-    {:stop, :normal, socket}
+  def handle_info({:tcp_close, _socket}, state) do
+    {:stop, :normal, state}
   end
 
-  def handle_info(:ping, socket) do
+  def handle_info(:ping, {socket, _} = state) do
     :ok = send_msg(socket, "version")
     :erlang.send_after(300000, self(), :ping)
-    {:noreply, socket}
+    {:noreply, state}
   end
 
-  def handle_info(_info, socket) do
-    {:noreply, socket}
+  def handle_info(_info, state) do
+    {:noreply, state}
   end
 end

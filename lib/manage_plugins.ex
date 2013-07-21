@@ -7,7 +7,7 @@ defmodule Plugins.Manager do
     {:ok, []}
   end
 
-  def handle_event({msg, _user, userid}, state) do
+  def handle_event({msg, _user, userid, _talk}, state) do
     case msg do
       ["!load", plugin] when userid in @admins ->
         :gen_server.cast(:mambo, {:load_plugin, binary_to_atom(plugin)})
