@@ -1,40 +1,17 @@
 defmodule Utils do
   use GenEvent.Behaviour
 
-  defp week_day(num) do
-    case num do
-      1 -> "Mon"
-      2 -> "Tue"
-      3 -> "Wed"
-      4 -> "Thu"
-      5 -> "Fri"
-      6 -> "Sat"
-      7 -> "Sun"
-    end
-  end
-
-  defp month_name(num) do
-    case num do
-      1  -> "Jan"
-      2  -> "Feb"
-      3  -> "Mar"
-      4  -> "Apr"
-      5  -> "May"
-      6  -> "Jun"
-      7  -> "Jul"
-      8  -> "Aug"
-      9  -> "Sep"
-      10 -> "Oct"
-      11 -> "Nov"
-      12 -> "Dec"
-    end
-  end
+  @days   {'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'}
+  @months {'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
+           'Oct', 'Nov', 'Dec'}
 
   defp date do
     {{year, month_num, day} = date, {h, m, s}} = :erlang.localtime()
-    wday = :calendar.day_of_the_week(date) |> week_day
-    month = month_name(month_num)
-    "#{wday} #{month} #{day} #{h}:#{m}:#{s} #{year}"
+    wday = elem(@days, :calendar.day_of_the_week(date) - 1)
+    month = elem(@months, month_num - 1)
+    :io_lib.format('~s ~s ~B ~2..0B:~2..0B:~2..0B ~B', [wday, month, day, h, m, s, year])
+    |> List.flatten
+    |> list_to_binary
   end
 
   def init(_args) do
