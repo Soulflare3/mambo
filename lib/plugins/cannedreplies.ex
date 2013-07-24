@@ -6,7 +6,8 @@ defmodule Cannedreplies do
               {"chownface", "( ´· ‿ ·`)"},
               {"goface", "ʕ ◔ϖ◔ʔ"},
               {"edgyface", "(ケ≖‿≖)ケ"},
-              {"dface", "ಠ_ಠ"}]
+              {"dface", "ಠ_ಠ"},
+              {"ggface", "G_G"}]
 
   def init(_args) do
     {:ok, []}
