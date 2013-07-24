@@ -86,7 +86,7 @@ defmodule Omegle do
     {:ok, {[], nil}}
   end
 
-  def handle_event({msg, _user, _userid}, {[], nil} = state) do
+  def handle_event({msg, _user, _userid, :unmuted}, {[], nil} = state) do
     callback = fn(x) ->
                  :gen_server.cast(:mambo, {:send_txt, x})
                end
