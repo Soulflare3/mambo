@@ -1,10 +1,10 @@
 defmodule Wolframalpha do
   use GenEvent.Behaviour
 
-  defp search(query, apikey, callback) do
+  def search(query, apikey, callback) do
     equery = URI.encode(query)
     url = "http://api.wolframalpha.com/v2/query?input=#{equery}&appid=#{apikey}&podindex=2&format=plaintext"
-    case :httpc.request(:get, {binary_to_list(url), []}, [], body_format: :binary) do
+    case :httpc.request(:get, {String.to_char_list!(url), []}, [], body_format: :binary) do
       {:ok, {{_, 200, _}, _, body}} ->
         case get_value(body) do
           [value] ->
@@ -31,7 +31,7 @@ defmodule Wolframalpha do
         callback = fn(x) ->
                        :gen_server.cast(:mambo, {:send_txt, x})
                    end
-        spawn(fn() -> search(query, apikey, callback) end)
+        spawn(Wolframalpha, :search, [query, apikey, callback])
         {:ok, apikey}
       _ ->
         {:ok, apikey}

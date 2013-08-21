@@ -21,7 +21,7 @@ defmodule Brainfuck do
   @tape <<0 :: [size(30000), unit(8)]>>
   @data_pointer 0
 
-  defp run(instructions, callback) do
+  def run(instructions, callback) do
     {_, _, out} = parse(instructions, @data_pointer, @tape, [])
     callback.("[b]Brainfuck:[/b] #{Enum.join(Enum.reverse(out), "")}")
   end
@@ -107,7 +107,7 @@ defmodule Brainfuck do
     case msg do
       ["!bf", instructions] ->
         callback = fn(x) -> :gen_server.cast(:mambo, {:send_txt, x}) end
-        spawn(fn() -> run(instructions, callback) end)
+        spawn(Brainfuck, :run, [instructions, callback])
         {:ok, state}
       _ ->
         {:ok, state}

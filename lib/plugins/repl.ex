@@ -38,7 +38,7 @@ defmodule Repl do
     :term_to_binary, :throw, :tl, :trunc, :tuple_size, :tuple_to_list, :fn, :->, :&,
     :__block__, :"{}", :"<<>>", :::, :lc, :inlist, :bc, :inbits, :^, :when, :|]
 
-  defp eval(string, callback) do
+  def eval(string, callback) do
     result =
       try do
         do_eval(string)
@@ -162,7 +162,7 @@ defmodule Repl do
         callback = fn(x) ->
                        :gen_server.cast(:mambo, {:send_txt, x})
                    end
-        spawn(fn() -> eval(s, callback) end)
+        spawn(Repl, :eval, [s, callback])
         {:ok, state}
       _ ->
         {:ok, state}

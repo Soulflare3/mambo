@@ -12,7 +12,7 @@ defmodule Lastfm do
     end
   end
 
-  defp now_playing(apikey, username, callback) do
+  def now_playing(apikey, username, callback) do
     url = 'http://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=#{username}&api_key=#{apikey}&format=json'
     case :httpc.request(:get, {url, []}, [], body_format: :binary) do
       {:ok, {{_, 200, _}, _, body}} ->
@@ -50,7 +50,7 @@ defmodule Lastfm do
       ["!np"] ->
         case :dets.lookup(:ids, userid) do
           [{_, username}] ->
-            spawn(fn() -> now_playing(apikey, username, callback) end)
+            spawn(Lastfm, :now_playing, [apikey, username, callback])
             {:ok, apikey}
           [] ->
             callback.("[b]Last.fm:[/b] You're not associated with an username.")
@@ -59,7 +59,7 @@ defmodule Lastfm do
         end
 
       ["!np", username] ->
-        spawn(fn() -> now_playing(apikey, username, callback) end)
+        spawn(Lastfm, :now_playing, [apikey, username, callback])
         {:ok, apikey}
 
       ["!setuser", username] ->

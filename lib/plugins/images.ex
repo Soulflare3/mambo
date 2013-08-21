@@ -1,10 +1,10 @@
 defmodule Images do
   use GenEvent.Behaviour
 
-  defp image_me(s, scast, tnotify) do
+  def image_me(s, scast, tnotify) do
     es = URI.encode(s)
     url = "http://ajax.googleapis.com/ajax/services/search/images?safe=off&v=1.0&q=#{es}"
-    case :httpc.request(:get, {binary_to_list(url), []}, [], body_format: :binary) do
+    case :httpc.request(:get, {String.to_char_list!(url), []}, [], body_format: :binary) do
       {:ok, {{_, 200, _}, _, body}} ->
         case :jsx.decode(body)["responseData"]["results"] do
           [] ->
@@ -30,7 +30,7 @@ defmodule Images do
         # notify plugins to get the url title
         tnotify = fn(url) -> Tsmambo.Plugins.notify({:url, url}) end
 
-        spawn(fn() -> image_me(URI.encode(s), scast, tnotify) end)
+        spawn(Images, :image_me, [URI.encode(s), scast, tnotify])
         {:ok, state}
       _ ->
         {:ok, state}

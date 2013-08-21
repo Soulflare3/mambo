@@ -3,8 +3,8 @@ defmodule Title do
 
   @id elem(Tsmambo.Lib.consult("settings.cfg"), 1)[:bot_id]
 
-  defp fetch(url, callback) do
-    {:ok, ref} = :httpc.request(:get, {binary_to_list(url), []}, [],
+  def fetch(url, callback) do
+    {:ok, ref} = :httpc.request(:get, {String.to_char_list!(url), []}, [],
                                 sync: false, stream: :self, body_format: :binary)
     receive_chunk(ref, callback, <<>>, 5000)
   end
@@ -55,7 +55,7 @@ defmodule Title do
         case Tsmambo.Lib.find_url(msg) do
           [url] ->
             callback = fn(x) -> :gen_server.cast(:mambo, {:send_txt, x}) end
-            spawn(fn() -> fetch(url, callback) end)
+            spawn(Title, :fetch, [url, callback])
             {:ok, state}
           _ ->
             {:ok, state}
@@ -65,7 +65,7 @@ defmodule Title do
 
   def handle_event({:url, url}, state) do
     callback = fn(x) -> :gen_server.cast(:mambo, {:send_txt, x}) end
-    spawn(fn -> fetch(url, callback) end)
+    spawn(Title, :fetch, [url, callback])
     {:ok, state}
   end
 

@@ -17,7 +17,7 @@ defmodule Omegle do
     end
   end
 
-  defp send(id, msg, callback) do
+  def send(id, msg, callback) do
     case post('/send','msg=' ++ msg ++ '&id=' ++ id) do
       {:ok, 'win'} ->
         :ok
@@ -26,12 +26,12 @@ defmodule Omegle do
     end
   end
 
-  defp events(_, callback, 5) do
+  def events(_, callback, 5) do
     callback.("[b]Omegle:[/b] Timeout.")
     :timeout
   end
 
-  defp events(id, callback, count) do
+  def events(id, callback, count) do
     case post('/events', 'id=' ++ id) do
       {:ok, body} ->
         :timer.sleep 2000
@@ -71,7 +71,7 @@ defmodule Omegle do
     end
   end
 
-  defp post(where, params // []) do
+  def post(where, params // []) do
     case :httpc.request(:post, {@url ++ where,
                                 @headers,
                                 'application/x-www-form-urlencoded', params}, [], []) do
@@ -99,7 +99,7 @@ defmodule Omegle do
             {:ok, state}
           id ->
             callback.("[b]Omegle:[/b] Waiting for someone...")
-            pid = spawn(fn -> events(id, callback, 0) end)
+            pid = spawn(Omegle, :events, [id, callback, 0])
             {:ok, {id, pid}}
         end
       ["!o", _msg] ->
@@ -123,10 +123,10 @@ defmodule Omegle do
         callback.("[b]Omegle:[/b] Disconnect from the current conversation first.")
         {:ok, state}
       ["!o", msg] ->
-        spawn(fn -> send(id, binary_to_list(URI.encode msg), callback) end)
+        spawn(Omegle, :send, [id, String.to_char_list!(URI.encode msg), callback])
         {:ok, state}
       ["!dc"] ->
-        spawn(fn -> post('/disconnect') end)
+        spawn(Omegle, :post, ['/disconnect'])
         Process.exit(pid, :kill)
         callback.("[b]Omegle:[/b] Got away safely!")
         {:ok, {[], nil}}

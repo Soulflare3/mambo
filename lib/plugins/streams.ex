@@ -8,15 +8,15 @@ defmodule Streams do
          {"!sc",   'https://api.twitch.tv/kraken/streams?game=StarCraft+II:+Heart+of+the+Swarm&limit='},
          {"!wow",  'https://api.twitch.tv/kraken/streams?game=World+of+Warcraft:+Mists+of+Pandaria&limit='}]
 
-  def get_list([], []) do
+  defp get_list([], []) do
     "(no streams)"
   end
 
-  def get_list([], acc) do
+  defp get_list([], acc) do
       Enum.join(Enum.reverse(acc), " | ")
   end
 
-  def get_list([h|t], acc) do
+  defp get_list([h|t], acc) do
     url = Tsmambo.Lib.format_url(h["channel"]["url"], h["channel"]["display_name"])
     get_list(t, ["#{url} (#{h["viewers"]})" | acc])
   end
@@ -46,7 +46,7 @@ defmodule Streams do
             callback = fn(x) ->
                          :gen_server.cast(:mambo, {:send_txt, x})
                        end
-            spawn(fn() -> fetch(@urls[cmd], binary_to_list(count), callback) end)
+            spawn(Streams, :fetch, [@urls[cmd], String.to_char_list!(count), callback])
             {:ok, state}
           _ ->
             {:ok, state}
@@ -56,7 +56,7 @@ defmodule Streams do
         callback = fn(x) ->
                      :gen_server.cast(:mambo, {:send_txt, x})
                    end
-        spawn(fn() -> fetch(@urls[cmd], '5', callback) end)
+        spawn(Streams, :fetch, [@urls[cmd], '5', callback])
         {:ok, state}
 
       _ ->

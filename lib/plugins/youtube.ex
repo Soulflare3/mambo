@@ -1,11 +1,11 @@
 defmodule Youtube do
   use GenEvent.Behaviour
 
-  defp search(query, apikey, scast, tnotify) do
+  def search(query, apikey, scast, tnotify) do
     equery = URI.encode(query)
     url = "https://www.googleapis.com/youtube/v3/search?key=#{apikey}&part=id&q=#{equery}"
 
-    case :httpc.request(:get, {binary_to_list(url), []}, [], body_format: :binary) do
+    case :httpc.request(:get, {String.to_char_list!(url), []}, [], body_format: :binary) do
       {:ok, {{_, 200, _}, _, body}} ->
         case :jsx.decode(body)["items"] do
           [] ->
@@ -34,7 +34,7 @@ defmodule Youtube do
         # notify plugins to get the url title
         tnotify = fn(url) -> Tsmambo.Plugins.notify({:url, url}) end
 
-        spawn(fn() -> search(query, apikey, scast, tnotify) end)
+        spawn(Youtube, :search, [query, apikey, scast, tnotify])
         {:ok, apikey}
 
       _ ->

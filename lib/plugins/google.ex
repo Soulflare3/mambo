@@ -1,10 +1,10 @@
 defmodule Google do
   use GenEvent.Behaviour
 
-  defp search(query, scast, tnotify) do
+  def search(query, scast, tnotify) do
     equery = URI.encode(query)
     url = "https://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=#{equery}"
-    case :httpc.request(:get, {binary_to_list(url), []}, [], body_format: :binary) do
+    case :httpc.request(:get, {String.to_char_list!(url), []}, [], body_format: :binary) do
       {:ok, {{_, 200, _}, _, body}} ->
         case :jsx.decode(body)["responseData"]["results"] do
           [] ->
@@ -30,7 +30,7 @@ defmodule Google do
         # notify plugins to get the url title
         tnotify = fn(url) -> Tsmambo.Plugins.notify({:url, url}) end
 
-        spawn(fn() -> search(query, scast, tnotify) end)
+        spawn(Google, :search, [query, scast, tnotify])
         {:ok, state}
       _ ->
         {:ok, state}
