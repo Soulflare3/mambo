@@ -2,11 +2,11 @@ defmodule Mueval do
 
   use GenEvent.Behaviour
 
-  @muevalcmd "/home/mrshankly/.cabal/bin/mueval-core -XViewPatterns -XTupleSections -XPatternGuards -XArrows -XUnicodeSyntax -XMagicHash -XUnboxedTuples -XTemplateHaskell -mGHC.Base -mGHC.Types -mGHC.Prim -mGHC.Exts -mGHC.ST -mLanguage.Haskell.TH.Syntax -mLanguage.Haskell.TH.Lib -mLanguage.Haskell.TH -e"
+  @muevalcmd "/home/mrshankly/.cabal/bin/mueval-core --time-limit=3 -XViewPatterns -XTupleSections -XPatternGuards -XArrows -XUnicodeSyntax -XMagicHash -XUnboxedTuples -XTemplateHaskell -mGHC.Base -mGHC.Types -mGHC.Prim -mGHC.Exts -mGHC.ST -mLanguage.Haskell.TH.Syntax -mLanguage.Haskell.TH.Lib -mLanguage.Haskell.TH -e"
 
   def mueval(exp, callback) do
-    res = @muevalcmd <> " \"" <> inspect(exp) <> "\"" |> System.cmd
-    "[b]Mueval: [/b]" <> res |> callback.()
+    res = @muevalcmd <> "\"" <> Inspect.BitString.escape(exp, ?") <> "\"" |> System.cmd
+    "[b]Muh eval: [/b]" <> res |> callback.()
   end
 
   # gen_event callbacks
