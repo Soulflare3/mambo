@@ -4,7 +4,7 @@ defmodule Title do
   @id elem(Tsmambo.Lib.consult("settings.cfg"), 1)[:bot_id]
 
   def fetch(url, callback) do
-    case System.cmd("bin/title " <> url) do
+    case System.cmd(<<"bin/title" :: binary, ? , ?", url :: binary, ?") do
       <<?t, title :: binary>> ->
         callback.("[b]Title:[/b] #{Tsmambo.Lib.decode_html title}")
       <<?c, content :: binary>> ->
