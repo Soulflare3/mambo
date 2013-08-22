@@ -12,13 +12,13 @@ defmodule Title do
   defp receive_chunk(_ref, callback, body, len) when len <= 0 do
     [title] = Regex.run(%r/<title.*?>([\s\S]*?)<\/title>/, body, capture: [1])
     title = String.strip(title) |> String.strip(?\n)
-    callback.("[b]Title:[/b] #{Tsmambo.Lib.decode_xml title}")
+    callback.("[b]Title:[/b] #{Tsmambo.Lib.decode_html title}")
   end
 
   defp receive_chunk(ref, callback, body, len) do
     receive do
       {:http, {ref, :stream_start, headers}} ->
-        content = list_to_binary(headers['content-type'])
+        content = String.from_char_list!(headers['content-type'])
         if String.contains?(content, "text/") do
           receive_chunk(ref, callback, body, len)
         else
