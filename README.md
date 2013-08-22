@@ -14,8 +14,8 @@ On the plugin list, place a list of all the plugins you plan to use in the follo
 When you're happy with your `settings.cfg` just do the following to compile and start the bot:
 
 	mix deps.get
-	mix compile
-	iex -S mix
+	make
+	make run
 
 The bot will only work on the default channel, I will probably add the ability to choose the bot
 channel on the settings file, for the time being if you want it in another channel you will have to move it
