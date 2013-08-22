@@ -4,35 +4,12 @@ defmodule Title do
   @id elem(Tsmambo.Lib.consult("settings.cfg"), 1)[:bot_id]
 
   def fetch(url, callback) do
-    {:ok, ref} = :httpc.request(:get, {String.to_char_list!(url), []}, [],
-                                sync: false, stream: :self, body_format: :binary)
-    receive_chunk(ref, callback, <<>>, 5000)
-  end
-
-  defp receive_chunk(_ref, callback, body, len) when len <= 0 do
-    [title] = Regex.run(%r/<title.*?>([\s\S]*?)<\/title>/, body, capture: [1])
-    title = String.strip(title) |> String.strip(?\n)
-    callback.("[b]Title:[/b] #{Tsmambo.Lib.decode_html title}")
-  end
-
-  defp receive_chunk(ref, callback, body, len) do
-    receive do
-      {:http, {ref, :stream_start, headers}} ->
-        content = String.from_char_list!(headers['content-type'])
-        if String.contains?(content, "text/") do
-          receive_chunk(ref, callback, body, len)
-        else
-          [ct | _rest] = String.split(content, ";")
-          callback.("[b]Content Type:[/b] #{ct}")
-        end
-
-      {:http, {ref, :stream, data}} ->
-        receive_chunk(ref, callback, body <> data, len - size(data))
-
-      {:http, {ref, :stream_end, _headers}} ->
-        receive_chunk(ref, callback, body, 0)
-    after
-      5000 ->
+    case System.cmd("bin/title " <> url) do
+      <<?t, title :: binary>> ->
+        callback.("[b]Title:[/b] #{Tsmambo.Lib.decode_html title}")
+      <<?c, content :: binary>> ->
+        callback.("[b]Content Type:[/b] #{content}")
+      _ ->
         :ok
     end
   end
