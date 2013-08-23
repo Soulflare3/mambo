@@ -39,7 +39,7 @@ func main() {
 			panic(err)
 		}
 
-		r, _ := regexp.Compile("<title[^>]*>(.*?)[^<]</title>")
+		r, _ := regexp.Compile(`(?im)<title[^>]*>([^<]+)</title>`)
 		if title := r.FindStringSubmatch(string(cont)); title != nil {
 			fmt.Printf("t%s", title[1])
 		}
