@@ -41,8 +41,12 @@ func main() {
 
 		r, _ := regexp.Compile(`(?im)<title[^>]*>([^<]+)</title>`)
 		if title := r.FindStringSubmatch(string(cont)); title != nil {
-			replacer := strings.NewReplacer("\n", "", "\t", "")
-			fmt.Printf("t%s", replacer.Replace(strings.TrimSpace(title[1])))
+			lines := strings.Split(strings.TrimSpace(title), "\n")
+			for i, l := range lines {
+				lines[i] = strings.TrimSpace(l)
+			}
+
+			fmt.Printf("t%s", strings.Join(lines, " "))
 		}
 	}
 }
