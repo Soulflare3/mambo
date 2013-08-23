@@ -7,7 +7,7 @@ defmodule Translate do
   # sl=de and tl=en -> translate from german to english
 
   defp get_opts(s) do
-    case String.split(s, "-") do
+    case String.split(s, "|") do
       [sl]     -> {:ok, {sl, "en"}}
       [sl, tl] -> {:ok, {sl, tl}}
       _other   -> :error
@@ -40,7 +40,7 @@ defmodule Translate do
       ["!tl", m] ->
         spawn(Translate, :translate, [m, "auto", "en", callback])
         {:ok, state}
-      [<<"!tl", ?-, opts :: binary>>, m] ->
+      [<<"!tl", ?|, opts :: binary>>, m] ->
         case get_opts(opts) do
           {:ok, {sl, tl}} ->
             spawn(Translate, :translate, [m, sl, tl, callback])
