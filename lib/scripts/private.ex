@@ -13,10 +13,12 @@ defmodule Private do
 	# gen_event callbacks
 	# --------------------
 
+	@doc false
 	def init([]) do
 		{:ok, []}
 	end
 
+	@doc false
 	def handle_event({:msg, {<<"help ", r :: binary>>, _, _}}, []) do
 		if r in ["talk", "speak", "chat"] do
 			Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
