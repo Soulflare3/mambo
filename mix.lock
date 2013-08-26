@@ -1,3 +1,1 @@
-[ "hackney": {:git, "git://github.com/benoitc/hackney.git", "9170f28f42886198d72875f37d99572328fd0817", []},
-  "jsx": {:git, "git://github.com/talentdeficit/jsx.git", "f0f43c4abab4d4e889bff79e5d5aab675f9e8d4d", [{:tag, "v1.4.1"}]},
-  "mimetypes": {:git, "https://github.com/spawngrid/mimetypes.git", "47d37a977a7d633199822bf6b08353007483d00f", [{:ref, "master"}]} ]
+[ "jsx": {:git, "git://github.com/talentdeficit/jsx.git", "f0f43c4abab4d4e889bff79e5d5aab675f9e8d4d", [{:tag, "v1.4.1"}]} ]
