@@ -12,11 +12,22 @@ defmodule Question do
 	@name "My name is Wolfram|Alpha."
 	@author "I was created by Stephen Wolfram and his team."
 
-
+	@doc false
 	def init(apikey) do
 		{:ok, re} = Regex.compile("^mambo ((what|who|where|why|when|who|whom|how" <>
 			                      "|whose|whence|whither|do)('s)? (.*))", "i")
 		{:ok, {re, apikey}}
+	end
+
+	@doc false
+	def handle_event({:msg, {"help ask", _, _}}, state) do
+		Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
+		{:ok, state}
+	end
+
+	def handle_event({:privmsg, {"help ask", _, {id, _}}}, state) do
+		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
+		{:ok, state}
 	end
 
 	def handle_event({:msg, {msg, _, _}}, {re, key}) do
@@ -46,6 +57,10 @@ defmodule Question do
 	def handle_event(_, state) do
 		{:ok, state}
 	end
+
+	# --------
+	# Helpers
+	# --------
 
 	defp ask(q, answer, key) do
 		url = "http://api.wolframalpha.com/v2/query?" <>
