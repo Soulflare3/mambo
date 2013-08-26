@@ -86,8 +86,8 @@ defmodule Translate do
 		langs = Enum.reduce(@languages, [], fn({k,v}, acc) -> [k, v | acc] end)
 		|> Enum.join("|")
 
-		{:ok, _} = Regex.compile("translate(?:\s*me)?(?:\s*(?:from)?\s*(#{langs}))?" <>
-		                         "(?:\s*(?:(?:in)?to)? (#{langs}))? (.*)", "i")
+		{:ok, _} = Regex.compile("translate(?: me)?(?: (?:from)? (#{langs}))?" <>
+		                         "(?: (?:(?:in)?to)? (#{langs}))? (.*)", "i")
 	end
 
 	@doc false
