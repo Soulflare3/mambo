@@ -1,17 +1,21 @@
-defmodule Tsmambo.Supervisor do
-  use Supervisor.Behaviour
+defmodule Mambo.Supervisor do
+	@moduledoc """
+	Main bot supervisor, it supervises a `Mambo.Bot` process.
+	"""
 
-  def start_link() do
-    case Tsmambo.Lib.consult("settings.cfg") do
-      {:ok, settings} ->
-        :supervisor.start_link(__MODULE__, settings)
-      {:error, reason} ->
-        IO.puts("Error in settings file: #{reason}")
-    end
-  end
+	use Supervisor.Behaviour
 
-  def init(settings) do
-    children = [worker(Tsmambo.Client, [settings])]
-    supervise(children, strategy: :one_for_one)
-  end
+	@doc """
+	Starts the supervisor. Returns `{:ok, pid}` on success.
+	"""
+	@spec start_link() :: {:ok, pid}
+	def start_link() do
+		{:ok, _} = :supervisor.start_link(__MODULE__, [])
+	end
+
+	@doc false
+	def init([]) do
+		children = [worker(Mambo.EventManager, []), worker(Mambo.Bot, [])]
+		supervise(children, strategy: :one_for_all)
+	end
 end

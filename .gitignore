@@ -1,6 +1,4 @@
-/bin
 /ebin
 /deps
 erl_crash.dump
-settings.cfg
-lastfm.db
+settings.json
