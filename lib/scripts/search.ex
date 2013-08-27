@@ -27,7 +27,7 @@ defmodule Search do
 
 	def handle_event({:msg, {msg, _, _}}, k) do
 		answer = fn(x) -> Mambo.Bot.send_msg(x) end
-		re = Regex.compile("^(?:#{Mambo.Bot.name} )?search(?: (google" <>
+		{:ok, re} = Regex.compile("^(?:#{Mambo.Bot.name} )?search(?: (google" <>
 		                   "|youtube|yt|img|image(?:s)?)?)? (.*)", "i")
 
 		case Regex.run(re, msg) do
@@ -44,7 +44,7 @@ defmodule Search do
 
 	def handle_event({:privmsg, {msg, _, {id, _}}}, k) do
 		answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
-		re = Regex.compile("^(?:#{Mambo.Bot.name} )?search(?: (google" <>
+		{:ok, re} = Regex.compile("^(?:#{Mambo.Bot.name} )?search(?: (google" <>
 		                   "|youtube|yt|img|image(?:s)?)?)? (.*)", "i")
 
 		case Regex.run(re, msg) do
