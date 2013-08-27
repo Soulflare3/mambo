@@ -43,6 +43,10 @@ defmodule Lastfm do
 		{:ok, k}
 	end
 
+	def handle_event(_, k) do
+		{:ok, k}
+	end
+
 	# --------
 	# Helpers
 	# --------
