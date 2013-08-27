@@ -157,7 +157,7 @@ defmodule Mambo.Bot do
 	@doc false
 	def handle_info({:tcp, _, <<@notify_msg, r :: binary>>}, {_, Settings[bot_id: bid]} = state) do
 		{:ok, re} = Regex.compile("targetmode=([1-2]) msg=(\\S*)(?: target=[0-9]*)? " <>
-			                      "invokerid=([0-9]*) invokername=(.*) invokeruid=(.*)", "i")
+		                          "invokerid=([0-9]*) invokername=(.*) invokeruid=(.*)", "i")
 
 		case Regex.run(re, r) do
 			[_, _, _, _, _, ^bid] ->
