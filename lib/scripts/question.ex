@@ -15,7 +15,7 @@ defmodule Question do
 	@doc false
 	def init(apikey) do
 		{:ok, re} = Regex.compile("^mambo ((what|who|where|why|when|who|whom|how" <>
-			                      "|whose|whence|whither|do)('s)? (.*))", "i")
+		                          "|whose|whence|whither|do)('s)? (.*))", "i")
 		{:ok, {re, apikey}}
 	end
 

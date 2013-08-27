@@ -3,8 +3,8 @@ defmodule Search do
 	Search google, youtube and images.
 
 	Examples:
-	mambo search <phrase>
-	mambo search youtube <phrase>
+	  mambo search <phrase>
+	  mambo search youtube <phrase>
 	"""
 
 	use GenEvent.Behaviour
@@ -27,8 +27,10 @@ defmodule Search do
 
 	def handle_event({:msg, {msg, _, _}}, k) do
 		answer = fn(x) -> Mambo.Bot.send_msg(x) end
+		re = Regex.compile("^(?:#{Mambo.Bot.name} )?search(?: (google" <>
+		                   "|youtube|yt|img|image(?:s)?)?)? (.*)", "i")
 
-		case Regex.run(%r/^(?:#{Mambo.Bot.name} )?search(?: (google|youtube|yt|img|image(?:s)?)?)? (.*)/i, msg) do
+		case Regex.run(re, msg) do
 			[_, "", q] ->
 				spawn(fn -> search("google", q, k, answer) end)
 				{:ok, k}
@@ -42,8 +44,10 @@ defmodule Search do
 
 	def handle_event({:privmsg, {msg, _, {id, _}}}, k) do
 		answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
+		re = Regex.compile("^(?:#{Mambo.Bot.name} )?search(?: (google" <>
+		                   "|youtube|yt|img|image(?:s)?)?)? (.*)", "i")
 
-		case Regex.run(%r/^(?:#{Mambo.Bot.name} )?search(?: (google|youtube|yt|img|image(?:s)?)?)? (.*)/i, msg) do
+		case Regex.run(re, msg) do
 			[_, "", q] ->
 				spawn(fn -> search("google", q, k, answer) end)
 				{:ok, k}

@@ -1,6 +1,7 @@
 defmodule Mambo.Supervisor do
 	@moduledoc """
-	Main bot supervisor, it supervises a `Mambo.Bot` process.
+	Main bot supervisor, it supervises the processes `Mambo.Bot`, `Mambo.Brain`
+	and `Mambo.EventManager`.
 	"""
 
 	use Supervisor.Behaviour
@@ -16,8 +17,8 @@ defmodule Mambo.Supervisor do
 	@doc false
 	def init([]) do
 		children = [worker(Mambo.Brain, []),
-			        worker(Mambo.EventManager, []),
+		            worker(Mambo.EventManager, []),
 		            worker(Mambo.Bot, [])]
-		supervise(children, strategy: :one_for_all)
+		supervise(children, strategy: :one_for_one)
 	end
 end
