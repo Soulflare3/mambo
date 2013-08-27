@@ -28,7 +28,7 @@ defmodule Mambo.Brain do
 	@doc """
 	Returns a list of all objects with the key `key` in the bot brain.
 	"""
-	@spec get(term) :: [tuple]
+	@spec get(term) :: term | nil
 	def get(key) do
 		case :gen_server.call(@brain, {:get, key}) do
 			[{_, v}] -> v
