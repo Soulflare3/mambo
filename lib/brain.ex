@@ -30,7 +30,10 @@ defmodule Mambo.Brain do
 	"""
 	@spec get(term) :: [tuple]
 	def get(key) do
-		:gen_server.call(@brain, {:get, key})
+		case :gen_server.call(@brain, {:get, key}) do
+			[{_, v}] -> v
+			_ -> nil
+		end
 	end
 
 	@doc """
