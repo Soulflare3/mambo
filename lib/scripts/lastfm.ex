@@ -70,16 +70,18 @@ defmodule Lastfm do
 
 		case :httpc.request(:get, {url, []}, [], body_format: :binary) do
 			{:ok, {{_, 200, _}, _, body}} ->
-				song = :jsx.decode(body)
+				{song} = :jiffy.decode(body)
 				case ListDict.get(song, "recenttracks") do
 					nil ->
 						Mambo.Bot.send_msg("No result.")
-					t ->
+					{t} ->
 						case ListDict.get(t, "track") do
 							nil ->
 								Mambo.Bot.send_msg("No result.")
-							[s | _] ->
-								Mambo.Bot.send_msg("[b]#{s["name"]}[/b] by [b]#{s["artist"]["#text"]}[/b].")
+							[{s} | _] ->
+								name     = s["name"]
+								{artist} = s["artist"]
+								Mambo.Bot.send_msg("[b]#{name}[/b] by [b]#{artist["#text"]}[/b].")
 						end
 				end
 			_ ->

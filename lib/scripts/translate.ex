@@ -86,8 +86,8 @@ defmodule Translate do
 		langs = Enum.reduce(@languages, [], fn({k,v}, acc) -> [k, v | acc] end)
 		|> Enum.join("|")
 
-		{:ok, _} = Regex.compile("translate(?: me)?(?: from)? (#{langs})?" <>
-		                         "(?: (?:in)?to)? (#{langs})? (.*)", "i")
+		{:ok, _} = Regex.compile("translate(?: me)?(?: from)?(?: (#{langs}))?" <>
+		                         "(?: (?:in)?to)?(?: (#{langs}))? (.*)", "i")
 	end
 
 	@doc false
@@ -175,10 +175,11 @@ defmodule Translate do
 
 		case :httpc.request(:get, {url, []}, [], body_format: :binary) do
 			{:ok, {{_, 200, _}, _, body}} ->
-				data = :jsx.decode(body)
+				{data} = :jiffy.decode(body)
 				ilang = @languages[data["src"]]
 				tlang = @languages[tl]
-				trans = hd(data["sentences"])["trans"]
+				{sentences} = hd(data["sentences"])
+				trans = sentences["trans"]
 
 				if sl == "auto" do
 					answer.("[b]#{exp}[/b] is #{ilang} for [b]#{trans}[/b].")

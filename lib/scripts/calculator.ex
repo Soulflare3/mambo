@@ -69,16 +69,12 @@ defmodule Calculator do
 		case :httpc.request(:get, {url, []}, [], body_format: :binary) do
 			{:ok, {{_, 200, _}, _, body}} ->
 				json = good_json(body)
+				{data} = :jiffy.decode(json)
 
-				if :jsx.is_json(json) do
-					res = :jsx.decode(json)["rhs"]
-					if res != "" do
-						answer.(res)
-					else
-						answer.("Something is wrong with your expression.")
-					end
+				if data["error"] == "" do
+					answer.(data["rhs"])
 				else
-					answer.("Something is wrong with your expression.")
+					answer.("No result.")
 				end
 			_ ->
 				answer.("Something went wrong.")
