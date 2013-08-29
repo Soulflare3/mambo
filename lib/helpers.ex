@@ -124,6 +124,8 @@ defmodule Mambo.Helpers do
 	defp unescape(<<"\\r",  r :: binary>>, es), do: unescape(r, [?\r | es])
 	defp unescape(<<"\\t",  r :: binary>>, es), do: unescape(r, [?\t | es])
 	defp unescape(<<"\\v",  r :: binary>>, es), do: unescape(r, [?\v | es])
+	defp unescape(<<"[URL]", r :: binary>>, es), do: unescape(r, es)
+	defp unescape(<<"[\\/URL]", r :: binary>>, es), do: unescape(r, es)
 	defp unescape(<<chr :: utf8, r :: binary>>, es), do: unescape(r, [chr | es])
 
 	@doc """
@@ -162,6 +164,10 @@ defmodule Mambo.Helpers do
 			_ -> nil
 		end
 	end
+
+	# --------
+	# Helpers
+	# --------
 
 	defp r_entities([], rest, _, acc) do
 		String.from_char_list!(Enum.reverse(acc)) <> rest
