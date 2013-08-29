@@ -11,6 +11,7 @@ defmodule Brainfuck do
 	@tape <<0 :: [size(30000), unit(8)]>>
   	@data_pointer 0
 
+  	@doc false
 	def init([]) do
 		{:ok, []}
 	end

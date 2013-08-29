@@ -8,6 +8,7 @@ defmodule Benis do
 
 	use GenEvent.Behaviour
 
+	@doc false
 	def init([]) do
 		{:ok, []}
 	end
