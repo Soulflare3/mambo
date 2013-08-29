@@ -9,10 +9,6 @@ defmodule Calculator do
 
 	use GenEvent.Behaviour
 
-	# --------------------
-	# gen_event callbacks
-	# --------------------
-
 	@doc false
 	def init([]) do
 		{:ok, []}
