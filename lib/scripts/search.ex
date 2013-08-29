@@ -20,11 +20,13 @@ defmodule Search do
 		{:ok, k}
 	end
 
+	@doc false
 	def handle_event({:privmsg, {"help search", _, {id, _}}}, k) do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 		{:ok, k}
 	end
 
+	@doc false
 	def handle_event({:msg, {msg, _, _}}, k) do
 		answer = fn(x) -> Mambo.Bot.send_msg(x) end
 		{:ok, re} = Regex.compile("^(?:#{Mambo.Bot.name} )?search(?: (google" <>
@@ -42,6 +44,7 @@ defmodule Search do
 		end
 	end
 
+	@doc false
 	def handle_event({:privmsg, {msg, _, {id, _}}}, k) do
 		answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
 		{:ok, re} = Regex.compile("^(?:#{Mambo.Bot.name} )?search(?: (google" <>
@@ -59,6 +62,7 @@ defmodule Search do
 		end
 	end
 
+	@doc false
 	def handle_event(_, k) do
 		{:ok, k}
 	end

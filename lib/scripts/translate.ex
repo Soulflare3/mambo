@@ -96,11 +96,13 @@ defmodule Translate do
 		{:ok, re}
 	end
 
+	@doc false
 	def handle_event({:privmsg, {"help translate", _, {id, _}}}, re) do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 		{:ok, re}
 	end
 
+	@doc false
 	def handle_event({:msg, {msg, _, _}}, re) do
 		answer = fn(x) -> Mambo.Bot.send_msg(x) end
 
@@ -118,6 +120,7 @@ defmodule Translate do
 		end
 	end
 
+	@doc false
 	def handle_event({:privmsg, {msg, _, {id, _}}}, re) do
 		answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
 
@@ -135,6 +138,7 @@ defmodule Translate do
 		end
 	end
 
+	@doc false
 	def handle_event(_, re) do
 		{:ok, re}
 	end

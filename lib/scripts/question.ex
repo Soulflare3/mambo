@@ -25,11 +25,13 @@ defmodule Question do
 		{:ok, state}
 	end
 
+	@doc false
 	def handle_event({:privmsg, {"help ask", _, {id, _}}}, state) do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 		{:ok, state}
 	end
 
+	@doc false
 	def handle_event({:msg, {msg, _, _}}, {re, key}) do
 		answer = fn(x) -> Mambo.Bot.send_msg(x) end
 
@@ -42,6 +44,7 @@ defmodule Question do
 		end
 	end
 
+	@doc false
 	def handle_event({:privmsg, {msg, _, {id, _}}}, {re, key}) do
 		answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
 
@@ -54,6 +57,7 @@ defmodule Question do
 		end
 	end
 
+	@doc false
 	def handle_event(_, state) do
 		{:ok, state}
 	end

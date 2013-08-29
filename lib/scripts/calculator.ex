@@ -24,11 +24,13 @@ defmodule Calculator do
 		{:ok, []}
 	end
 
+	@doc false
 	def handle_event({:privmsg, {"help math", _, {id, _}}}, []) do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 		{:ok, []}
 	end
 
+	@doc false
 	def handle_event({:msg, {msg, _, _}}, []) do
 		case Regex.run(%r/(calc|calculate|calculator|convert|math|maths)( me)? (.*)/i, msg, capture: [3]) do
 			[q] ->
@@ -40,6 +42,7 @@ defmodule Calculator do
 		end
 	end
 
+	@doc false
 	def handle_event({:privmsg, {msg, _, {id, _}}}, []) do
 		case Regex.run(%r/(calc|calculate|calculator|convert|math|maths)( me)? (.*)/i, msg, capture: [3]) do
 			[q] ->
@@ -51,6 +54,7 @@ defmodule Calculator do
 		end
 	end
 
+	@doc false
 	def handle_event(_, []) do
 		{:ok, []}
 	end

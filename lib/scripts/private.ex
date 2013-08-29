@@ -28,6 +28,7 @@ defmodule Private do
 		end
 	end
 
+	@doc false
 	def handle_event({:privmsg, {<<"help ", r :: binary>>, _, {id, _}}}, []) do
 		if r in ["talk", "speak", "chat"] do
 			Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
@@ -37,6 +38,7 @@ defmodule Private do
 		end
 	end
 
+	@doc false
 	def handle_event({:msg, {msg, _, {id, _}}}, []) do
 		if Regex.match?(%r/^#{Mambo.Bot.name}( (talk|speak|chat)?(( (with|to))? me)?)?$/i, msg) do
 			Mambo.Bot.send_privmsg("Hello.", id)
@@ -46,6 +48,7 @@ defmodule Private do
 		end
 	end
 
+	@doc false
 	def handle_event(_, []) do
 		{:ok, []}
 	end

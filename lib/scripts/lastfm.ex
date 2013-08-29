@@ -21,16 +21,19 @@ defmodule Lastfm do
 		{:ok, k}
 	end
 
+	@doc false
 	def handle_event({:privmsg, {"help lastfm", _, {id, _}}}, k) do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 		{:ok, k}
 	end
 
+	@doc false
 	def handle_event({:msg, {"!np", _, {_, id}}}, k) do
 		spawn(fn -> get_song(Mambo.Brain.get(id), k) end)
 		{:ok, k}
 	end
 
+	@doc false
 	def handle_event({:msg, {<<"!np set ", u :: binary>>, _, {_, id}}}, k) do
 		true = Mambo.Brain.set({id, u})
 		:ok = Mambo.Brain.save
@@ -38,11 +41,13 @@ defmodule Lastfm do
 		{:ok, k}
 	end
 
+	@doc false
 	def handle_event({:msg, {<<"!np ", u :: binary>>, _, _}}, k) do
 		spawn(fn -> get_song(u, k) end)
 		{:ok, k}
 	end
 
+	@doc false
 	def handle_event(_, k) do
 		{:ok, k}
 	end
