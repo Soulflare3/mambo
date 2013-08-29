@@ -80,6 +80,14 @@ defmodule Mambo.Bot do
 		:gen_server.call(@bot, :name)
 	end
 
+	@doc """
+	Returns the bot id.
+	"""
+	@spec id() :: String.t
+	def id() do
+		:gen_server.call(@bot, :id)
+	end
+
 	# --------
 	# Helpers
 	# --------
@@ -113,6 +121,11 @@ defmodule Mambo.Bot do
 	@doc false
 	def handle_call(:name, _, {_, s} = state) do
 		{:reply, s.name, state}
+	end
+
+	@doc false
+	def handle_call(:id, _, {_, s} = state) do
+		{:reply, s.bot_id, state}
 	end
 
 	@doc false
