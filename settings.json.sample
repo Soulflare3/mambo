@@ -1,0 +1,17 @@
+{
+	"name": "mambo",
+	"user": "server_query_username",
+	"pass": "server_query_password",
+	"host": "localhost",
+	"port": 10011,
+	"bot_id": "bot_teamspeak_unique_id_here",
+	"admins": [],
+	"scripts": [
+		{"name": "Help", "args": []},
+		{"name": "Utils", "args": []},
+		{"name": "Title", "args": []},
+		{"name": "Private", "args": []},
+		{"name": "Translate", "args": []},
+		{"name": "Calculator", "args": []},
+	]
+}
