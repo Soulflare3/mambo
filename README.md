@@ -6,7 +6,7 @@ mind sharing it.
 
 ## Getting Started
 
-You will need [elixir](http://elixir-lang.org/), see [this](elixir-lang.org/getting_started/1.html)
+You will need [elixir](http://elixir-lang.org/), see [this](http://elixir-lang.org/getting_started/1.html)
 for installation instructions.
 
 ### Settings
