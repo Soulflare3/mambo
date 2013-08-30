@@ -53,7 +53,7 @@ When you're happy with the `settings.json` file you can get the bot running with
 	mix compile
 	iex -S mix
 
-If you don't want to run the elixir shell and just run the bot in the background run
+If you don't want an elixir shell and just want to run the bot in the background do
 `elixir --detached --no-halt -S mix` instead of `iex -S mix`.
 
 ## Scripts
@@ -82,22 +82,22 @@ Scripts will receive notifications of the following events:
 
 ### Reply
 
-Scripts can reply back to the server using the following functions from the `Mambo.Bot`:
+Scripts can reply back to the server using the following functions from the `Mambo.Bot` module:
 
 #### Types
 
-`msg = String.t`
-`cid = integer`
-`reason = String.t`
-`time = integer`
+* `msg = String.t`
+* `cid = integer`
+* `reason = String.t`
+* `time = integer`
 
 #### Functions
 
-`send_msg(msg) :: :ok`
-`send_privmsg(msg, cid) :: :ok`
-`send_gm(msg) :: :ok`
-`kick(cid, reason) :: :ok`
-`ban(cid, time, reason) :: :ok`
+* `send_msg(msg) :: :ok`
+* `send_privmsg(msg, cid) :: :ok`
+* `send_gm(msg) :: :ok`
+* `kick(cid, reason) :: :ok`
+* `ban(cid, time, reason) :: :ok`
 
 ### Storage
 
