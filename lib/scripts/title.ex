@@ -46,7 +46,7 @@ defmodule Title do
 	# Helpers
 	# --------
 
-	def get_title(url) do
+	defp get_title(url) do
 		headers = [{'User-Agent', 'Mozilla/5.0'},
 		           {'Cookie', 'locale=en_US; path=/; domain=.facebook.com'}]
 
