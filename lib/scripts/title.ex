@@ -42,11 +42,10 @@ defmodule Title do
 		{:ok, []}
 	end
 
-	# --------
-	# Helpers
-	# --------
-
-	defp get_title(url) do
+	@doc """
+	Sends the title of the url `url` to the channel the bot is operating.
+	"""
+	def get_title(url) do
 		headers = [{'User-Agent', 'Mozilla/5.0'},
 		           {'Cookie', 'locale=en_US; path=/; domain=.facebook.com'}]
 
@@ -55,6 +54,10 @@ defmodule Title do
 
 		receive_chunk(ref, "", 5000)
 	end
+
+	# --------
+	# Helpers
+	# --------
 
 	defp receive_chunk(_, body, len) when len <= 0 do
 		case Regex.run(%r\<title[^>]*>([^<]+)</title>\im, body, capture: [1]) do

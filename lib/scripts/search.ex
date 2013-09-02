@@ -99,7 +99,9 @@ defmodule Search do
 					[] ->
 						answer.("No result.")
 					[{r} | _] ->
-						answer.("#{Mambo.Helpers.format_url r["unescapedUrl"]}")
+						result = r["unescapedUrl"]
+						spawn(Title, :get_title, [result])
+						answer.("#{Mambo.Helpers.format_url result}")
 				end
 			_ ->
 				answer.("Something went wrong.")
@@ -122,6 +124,7 @@ defmodule Search do
 				[{v} | _] ->
 					{id} = v["id"]
 					v_url = "https://www.youtube.com/watch?v=#{id["videoId"]}"
+					spawn(Title, :get_title, [v_url])
 					answer.("#{Mambo.Helpers.format_url v_url}")
 			end
 		_ ->
