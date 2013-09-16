@@ -49,7 +49,7 @@ Use the `settings.json.sample` as a guide.
 
 When you're happy with the `settings.json` file you can get the bot running with:
 
-	mix deps.get --all
+	mix deps.get
 	mix compile
 	iex -S mix
 
@@ -60,8 +60,8 @@ If you don't want an elixir shell and just want to run the bot in the background
 
 Mambo is extensible, it's easy to add new functionalities with scripting.
 
-Scripts are written as gen_event handlers, see [1](http://www.erlang.org/doc/man/gen_event.html)
-and [2](http://elixir-lang.org/docs/master/) for more info. Look at already written scripts to
+Scripts are written as gen_event handlers, see [[1]](http://www.erlang.org/doc/man/gen_event.html)
+and [[2]](http://elixir-lang.org/docs/master/) for more info. Look at already written scripts to
 know how to write your own, check this [list](https://github.com/mrshankly/mambo/tree/master/lib/scripts).
 
 Once you have written your script place it in the `lib/scripts` folder and add it to the `scripts` list in
