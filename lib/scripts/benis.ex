@@ -41,22 +41,19 @@ defmodule Benis do
 	# --------
 
 	defp benisify(s) do
-		Enum.reduce([String.downcase(&1),
-			Regex.replace(%r/x/, &1, "cks"),
-			Regex.replace(%r/ing/, &1, "in"),
-			Regex.replace(%r/you/, &1, "u"),
-			Regex.replace(%r/oo/, &1, String.duplicate("u", :random.uniform(5))),
-			Regex.replace(%r/ck/, &1, String.duplicate("g", :random.uniform(5))),
-			Regex.replace(%r/(t+)(?=[aeiouys]|\b)/, &1, String.duplicate("d", String.length("&") + 1)),
-			Regex.replace(%r/p/, &1, "b"),
-			Regex.replace(%r/\bthe\b/, &1, "da"),
-			Regex.replace(%r/\bc/, &1, "g"),
-			Regex.replace(%r/\bis/, &1, "are"),
-			Regex.replace(%r/c+(?![eiy])/, &1, String.duplicate("g", :random.uniform(5))),
-			Regex.replace(%r/k+(?=[aeiouy]|\b)/, &1, String.duplicate("g", :random.uniform(5))),
-			Regex.replace(%r/([?!.]|$)+/, &1, (String.duplicate("&", :random.uniform(5))) <> " " <> ":DD:DDD:D:DD")],
-			s,
-			fn(f, acc) -> f.(acc) end
-		)
+		String.downcase(s)
+			|> String.replace(%r/x/, "cks")
+			|> String.replace(%r/ing/, "in")
+			|> String.replace(%r/you/, "u")
+			|> String.replace(%r/oo/, String.duplicate("u", :random.uniform(5)))
+			|> String.replace(%r/ck/, String.duplicate("g", :random.uniform(5)))
+			|> String.replace(%r/(t+)(?=[aeiouys]|\b)/, String.duplicate("d", String.length("&") + 1))
+			|> String.replace(%r/p/, "b")
+			|> String.replace(%r/\bthe\b/, "da")
+			|> String.replace(%r/\bc/, "g")
+			|> String.replace(%r/\bis/, "are")
+			|> String.replace(%r/c+(?![eiy])/, String.duplicate("g", :random.uniform(5)))
+			|> String.replace(%r/k+(?=[aeiouy]|\b)/, String.duplicate("g", :random.uniform(5)))
+			|> String.replace(%r/([?!.]|$)+/, (String.duplicate("&", :random.uniform(5))) <> " " <> ":DD:DDD:D:DD")
 	end
 end
