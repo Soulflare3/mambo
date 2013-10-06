@@ -19,6 +19,6 @@ defmodule Mambo.Supervisor do
 		children = [worker(Mambo.Brain, []),
 		            worker(Mambo.EventManager, []),
 		            worker(Mambo.Bot, [])]
-		supervise(children, strategy: :one_for_one)
+		supervise(children, strategy: :one_for_all)
 	end
 end
