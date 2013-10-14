@@ -2,10 +2,15 @@ defmodule Mambo.Mixfile do
 	use Mix.Project
 
 	def project do
-		[ app: :mambo,
-		  version: "0.2",
-		  elixir: "~> 0.10.2-dev",
-		  deps: deps ]
+		[
+			app: :mambo,
+			version: "0.2",
+			elixir: "~> 0.10.4-dev",
+			name: "Mambo",
+			source_url: "https://github.com/mrshankly/mambo",
+			homepage_url: "https://github.com/mrshankly/mambo",
+			deps: deps
+		]
 	end
 
 	# Configuration for the OTP application
@@ -17,6 +22,9 @@ defmodule Mambo.Mixfile do
 	# Returns the list of dependencies in the format:
 	# { :foobar, "~> 0.1", git: "https://github.com/elixir-lang/foobar.git" }
 	defp deps do
-		[ {:jiffy, [github: "davisp/jiffy"]} ]
+		[
+			{:jiffy,  github: "davisp/jiffy"},
+			{:ex_doc, github: "elixir-lang/ex_doc"}
+		]
 	end
 end
