@@ -34,7 +34,7 @@ defmodule Search do
     answer = fn(x) -> Mambo.Bot.send_msg(x) end
     case Regex.run(%r/^(\.g|\.google|\.youtube|\.yt|\.img|\.image(?:s)?) (.*)/i, msg) do
       [_, cmd, q] ->
-        spawn(fn -> search(cmd, q, k, answer) end)
+        spawn(fn -> search(cmd, q, k, answer, :public) end)
         {:ok, k}
       _ ->
         {:ok, k}
@@ -46,7 +46,7 @@ defmodule Search do
     answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
     case Regex.run(%r/^(\.g|\.google|\.youtube|\.yt|\.img|\.image(?:s)?) (.*)/i, msg) do
       [_, cmd, q] ->
-        spawn(fn -> search(cmd, q, k, answer) end)
+        spawn(fn -> search(cmd, q, k, answer, id) end)
         {:ok, k}
       _ ->
         {:ok, k}
@@ -62,25 +62,25 @@ defmodule Search do
   # Helpers
   # --------
 
-  defp search(<<?., ?i, _ :: binary>>, q, _, answer) do
+  defp search(<<?., ?i, _ :: binary>>, q, _, answer, type) do
     url = 'http://ajax.googleapis.com/ajax/services/search/' ++
           'images?safe=off&v=1.0&q=#{URI.encode(q)}'
 
-    google(url, answer)
+    google(url, answer, type)
   end
 
-  defp search(<<?., ?g, _ :: binary>>, q, _, answer) do
+  defp search(<<?., ?g, _ :: binary>>, q, _, answer, type) do
     url = 'https://ajax.googleapis.com/ajax/services/search/' ++
           'web?safe=off&v=1.0&q=#{URI.encode(q)}'
 
-    google(url, answer)
+    google(url, answer, type)
   end
 
-  defp search(<<?., ?y, _ :: binary>>, q, k, answer) do
-    youtube(q, k, answer)
+  defp search(<<?., ?y, _ :: binary>>, q, k, answer, type) do
+    youtube(q, k, answer, type)
   end
 
-  defp google(url, answer) do
+  defp google(url, answer, type) do
     case :httpc.request(:get, {url, []}, [], body_format: :binary) do
       {:ok, {{_, 200, _}, _, body}} ->
         {:ok, data}  = JSEX.decode(body)
@@ -91,7 +91,7 @@ defmodule Search do
             answer.("No result.")
           [r | _] ->
             result = r["unescapedUrl"]
-            spawn(Title, :get_title, [result])
+            spawn(Title, :get_title, [result, type])
             answer.("#{Mambo.Helpers.format_url result}")
         end
       _ ->
@@ -99,7 +99,7 @@ defmodule Search do
     end
   end
 
-  defp youtube(q, k, answer) do
+  defp youtube(q, k, answer, type) do
     url = "https://www.googleapis.com/youtube/v3/search?" <>
       URI.encode_query(
         [q: q,
@@ -115,7 +115,7 @@ defmodule Search do
         [v | _] ->
           id = v["id"]
           v_url = "https://www.youtube.com/watch?v=#{id["videoId"]}"
-          spawn(Title, :get_title, [v_url])
+          spawn(Title, :get_title, [v_url, type])
           answer.("#{Mambo.Helpers.format_url v_url}")
       end
     _ ->
