@@ -6,6 +6,10 @@ defmodule Cannedreplies do
 	  cool
 	  gface
 	  goface
+	  edgyface
+	  dface
+	  ggface
+	  chownface
 	"""
 
 	use GenEvent.Behaviour
@@ -24,13 +28,13 @@ defmodule Cannedreplies do
 	end
 
 	@doc false
-	def handle_event({:msg, {"help cannedreplies", _, _}}, []) do
+	def handle_event({:msg, {<<".help repl", _ :: binary>>, _, _}}, []) do
 		Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {"help cannedreplies", _, {id, _}}}, []) do
+	def handle_event({:privmsg, {<<".help repl", _ :: binary>>, _, {id, _}}}, []) do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 		{:ok, []}
 	end

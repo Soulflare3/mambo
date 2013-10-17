@@ -3,9 +3,9 @@ defmodule Lastfm do
 	Shows the last (or current) played song in last.fm.
 
 	Examples:
-	  !np
-	  !np <last.fm user>
-	  !np set <last.fm user>
+	  .np
+	  .np <last.fm user>
+	  .np set <last.fm user>
 	"""
 
 	use GenEvent.Behaviour
@@ -16,25 +16,25 @@ defmodule Lastfm do
 	end
 
 	@doc false
-	def handle_event({:msg, {"help lastfm", _, _}}, k) do
+	def handle_event({:msg, {".help np", _, _}}, k) do
 		Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
 		{:ok, k}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {"help lastfm", _, {id, _}}}, k) do
+	def handle_event({:privmsg, {".help np", _, {id, _}}}, k) do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 		{:ok, k}
 	end
 
 	@doc false
-	def handle_event({:msg, {"!np", _, {_, id}}}, k) do
+	def handle_event({:msg, {".np", _, {_, id}}}, k) do
 		spawn(fn -> get_song(Mambo.Brain.get(id), k) end)
 		{:ok, k}
 	end
 
 	@doc false
-	def handle_event({:msg, {<<"!np set ", u :: binary>>, _, {_, id}}}, k) do
+	def handle_event({:msg, {<<".np set ", u :: binary>>, _, {_, id}}}, k) do
 		true = Mambo.Brain.set({id, u})
 		:ok = Mambo.Brain.save
 		Mambo.Bot.send_msg("You're now associated with last.fm user [b]#{u}[/b].")
@@ -42,7 +42,7 @@ defmodule Lastfm do
 	end
 
 	@doc false
-	def handle_event({:msg, {<<"!np ", u :: binary>>, _, _}}, k) do
+	def handle_event({:msg, {<<".np ", u :: binary>>, _, _}}, k) do
 		spawn(fn -> get_song(u, k) end)
 		{:ok, k}
 	end

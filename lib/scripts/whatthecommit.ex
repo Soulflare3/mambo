@@ -3,7 +3,7 @@ defmodule Whatthecommit do
 	Prints a commit from http://whatthecommit.com/.
 
 	Examples:
-	  !wtc
+	  .wtc
 	"""
 
 	use GenEvent.Behaviour
@@ -14,26 +14,26 @@ defmodule Whatthecommit do
 	end
 
 	@doc false
-	def handle_event({:msg, {"help wtc", _, _}}, []) do
+	def handle_event({:msg, {".help wtc", _, _}}, []) do
 		Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {"help wtc", _, {id, _}}}, []) do
+	def handle_event({:privmsg, {".help wtc", _, {id, _}}}, []) do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:msg, {"!wtc", _, _}}, []) do
+	def handle_event({:msg, {".wtc", _, _}}, []) do
 		answer = fn(x) -> Mambo.Bot.send_msg(x) end
 		spawn(fn -> wtc(answer) end)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {"!wtc", _, {id, _}}}, []) do
+	def handle_event({:privmsg, {".wtc", _, {id, _}}}, []) do
 		answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
 		spawn(fn -> wtc(answer) end)
 		{:ok, []}

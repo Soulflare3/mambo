@@ -15,13 +15,13 @@ defmodule Title do
 	end
 
 	@doc false
-	def handle_event({:msg, {"help title", _, _}}, []) do
+	def handle_event({:msg, {".help title", _, _}}, []) do
 		Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {"help title", _, {id, _}}}, []) do
+	def handle_event({:privmsg, {".help title", _, {id, _}}}, []) do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 		{:ok, []}
 	end

@@ -3,7 +3,7 @@ defmodule Benis do
 	Benisify a sentence.
 
 	Examples:
-	  !benis <sentence>
+	  .benis <sentence>
 	"""
 
 	use GenEvent.Behaviour
@@ -14,19 +14,19 @@ defmodule Benis do
 	end
 
 	@doc false
-	def handle_event({:msg, {"help benis", _, _}}, []) do
+	def handle_event({:msg, {".help benis", _, _}}, []) do
 		Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {"help benis", _, {id, _}}}, []) do
+	def handle_event({:privmsg, {".help benis", _, {id, _}}}, []) do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:msg, {<<"!benis ", msg :: binary>>, _, _}}, []) do
+	def handle_event({:msg, {<<".benis ", msg :: binary>>, _, _}}, []) do
 		msg |> benisify |> Mambo.Bot.send_msg
 		{:ok, []}
 	end

@@ -3,10 +3,10 @@ defmodule Utils do
 	Utility commands.
 
 	Examples:
-	  !ping
-	  !date
-	  !time
-	  !uptime
+	  .ping
+	  .date
+	  .time
+	  .uptime
 	"""
 
 	use GenEvent.Behaviour
@@ -21,61 +21,61 @@ defmodule Utils do
 	end
 
 	@doc false
-	def handle_event({:msg, {"help utils", _, _}}, []) do
+	def handle_event({:msg, {".help utils", _, _}}, []) do
 		Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {"help utils", _, {id, _}}}, []) do
+	def handle_event({:privmsg, {".help utils", _, {id, _}}}, []) do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:msg, {"!ping", _, _}}, []) do
+	def handle_event({:msg, {".ping", _, _}}, []) do
 		Mambo.Bot.send_msg("pong")
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {"!ping", _, {id, _}}}, []) do
+	def handle_event({:privmsg, {".ping", _, {id, _}}}, []) do
 		Mambo.Bot.send_privmsg("pong", id)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:msg, {"!date", _, _}}, []) do
+	def handle_event({:msg, {".date", _, _}}, []) do
 		Mambo.Bot.send_msg(date)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {"!date", _, {id, _}}}, []) do
+	def handle_event({:privmsg, {".date", _, {id, _}}}, []) do
 		Mambo.Bot.send_privmsg(date, id)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:msg, {"!time", _, _}}, []) do
+	def handle_event({:msg, {".time", _, _}}, []) do
 		Mambo.Bot.send_msg(date)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {"!time", _, {id, _}}}, []) do
+	def handle_event({:privmsg, {".time", _, {id, _}}}, []) do
 		Mambo.Bot.send_privmsg(date, id)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:msg, {"!uptime", _, _}}, []) do
+	def handle_event({:msg, {".uptime", _, _}}, []) do
 		Mambo.Bot.send_msg(uptime)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {"!uptime", _, {id, _}}}, []) do
+	def handle_event({:privmsg, {".uptime", _, {id, _}}}, []) do
 		Mambo.Bot.send_privmsg(uptime, id)
 		{:ok, []}
 	end

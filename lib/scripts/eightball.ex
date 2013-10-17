@@ -3,7 +3,7 @@ defmodule Eightball do
 	Ask the magic 8 ball.
 
 	Examples:
-	  !8ball <question>
+	  .8ball <question>
 	"""
 
 	use GenEvent.Behaviour
@@ -22,25 +22,25 @@ defmodule Eightball do
 	end
 
 	@doc false
-	def handle_event({:msg, {"help 8ball", _, _}}, []) do
+	def handle_event({:msg, {".help 8ball", _, _}}, []) do
 		Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {"help 8ball", _, {id, _}}}, []) do
+	def handle_event({:privmsg, {".help 8ball", _, {id, _}}}, []) do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:msg, {<<"!8ball ", _ :: binary>>, _, _}}, []) do
+	def handle_event({:msg, {<<".8ball ", _ :: binary>>, _, _}}, []) do
 		Mambo.Bot.send_msg(shake)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {<<"!8ball ", _ :: binary>>, _, {id, _}}}, []) do
+	def handle_event({:privmsg, {<<".8ball ", _ :: binary>>, _, {id, _}}}, []) do
 		Mambo.Bot.send_privmsg(shake, id)
 		{:ok, []}
 	end

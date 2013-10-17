@@ -3,11 +3,14 @@ defmodule Private do
 	Starts a private chat with mambo.
 
 	Examples:
-	  mambo
-	  mambo talk to me
+	  .talk
+	  .speak
+	  .chat
 	"""
 
 	use GenEvent.Behaviour
+
+	@cmds [".talk", ".speak", ".chat"]
 
 	# --------------------
 	# gen_event callbacks
@@ -19,7 +22,7 @@ defmodule Private do
 	end
 
 	@doc false
-	def handle_event({:msg, {<<"help ", r :: binary>>, _, _}}, []) do
+	def handle_event({:msg, {<<".help ", r :: binary>>, _, _}}, []) do
 		if r in ["talk", "speak", "chat"] do
 			Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
 			{:ok, []}
@@ -29,7 +32,7 @@ defmodule Private do
 	end
 
 	@doc false
-	def handle_event({:privmsg, {<<"help ", r :: binary>>, _, {id, _}}}, []) do
+	def handle_event({:privmsg, {<<".help ", r :: binary>>, _, {id, _}}}, []) do
 		if r in ["talk", "speak", "chat"] do
 			Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 			{:ok, []}
@@ -39,13 +42,9 @@ defmodule Private do
 	end
 
 	@doc false
-	def handle_event({:msg, {msg, _, {id, _}}}, []) do
-		if Regex.match?(%r/^#{Mambo.Bot.name}( (talk|speak|chat)?(( (with|to))? me)?)?$/i, msg) do
-			Mambo.Bot.send_privmsg("Hello.", id)
-			{:ok, []}
-		else
-			{:ok, []}
-		end
+	def handle_event({:msg, {msg, _, {id, _}}}, []) when msg in @cmds do
+		Mambo.Bot.send_privmsg("Hello.", id)
+		{:ok, []}
 	end
 
 	@doc false

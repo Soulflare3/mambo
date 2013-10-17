@@ -3,8 +3,8 @@ defmodule Calculator do
 	I'm a mathemagician yo!
 
 	Examples
-	  mambo calc <expression>
-	  mambo convert me <expression> to <units>
+	  .calc <expression>
+	  .convert <expression> to <units>
 	"""
 
 	use GenEvent.Behaviour
@@ -15,20 +15,20 @@ defmodule Calculator do
 	end
 
 	@doc false
-	def handle_event({:msg, {"help math", _, _}}, []) do
+	def handle_event({:msg, {<<".help c", _ :: binary>>, _, _}}, []) do
 		Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {"help math", _, {id, _}}}, []) do
+	def handle_event({:privmsg, {<<".help c", _ :: binary>>, _, {id, _}}}, []) do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 		{:ok, []}
 	end
 
 	@doc false
 	def handle_event({:msg, {msg, _, _}}, []) do
-		case Regex.run(%r/(calc|calculate|calculator|convert|math|maths)( me)? (.*)/i, msg, capture: [3]) do
+		case Regex.run(%r/(\.calc|\.calculate|\.calculator|\.convert) (.*)/i, msg, capture: [2]) do
 			[q] ->
 				answer = fn(x) -> Mambo.Bot.send_msg(x) end
 				spawn(fn -> calc(q, answer) end)
@@ -40,7 +40,7 @@ defmodule Calculator do
 
 	@doc false
 	def handle_event({:privmsg, {msg, _, {id, _}}}, []) do
-		case Regex.run(%r/(calc|calculate|calculator|convert|math|maths)( me)? (.*)/i, msg, capture: [3]) do
+		case Regex.run(%r/(\.calc|\.calculate|\.calculator|\.convert) (.*)/i, msg, capture: [2]) do
 			[q] ->
 				answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
 				spawn(fn -> calc(q, answer) end)
@@ -65,12 +65,17 @@ defmodule Calculator do
 		case :httpc.request(:get, {url, []}, [], body_format: :binary) do
 			{:ok, {{_, 200, _}, _, body}} ->
 				json = good_json(body)
-				{:ok, data} = JSEX.decode(json)
 
-				if data["error"] == "" do
-					answer.(data["rhs"])
+				if JSEX.is_json?(json) do
+					{:ok, data} = JSEX.decode(json)
+
+					if data["error"] == "" do
+						answer.(data["rhs"])
+					else
+						answer.("No result.")
+					end
 				else
-					answer.("No result.")
+					answer.("Something went wrong.")
 				end
 			_ ->
 				answer.("Something went wrong.")

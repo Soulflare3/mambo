@@ -3,7 +3,7 @@ defmodule Brainfuck do
 	Brainfuck interpreter.
 
 	Examples
-	  !bf ++++++++++[>++++++++>++++++<<-]>---.>+++++.<.>+.<++.
+	  .bf ++++++++++[>++++++++>++++++<<-]>---.>+++++.<.>+.<++.
 	"""
 
 	use GenEvent.Behaviour
@@ -17,26 +17,26 @@ defmodule Brainfuck do
 	end
 
 	@doc false
-	def handle_event({:msg, {"help brainfuck", _, _}}, []) do
+	def handle_event({:msg, {<<".help b", _ :: binary>>, _, _}}, []) do
 		Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {"help brainfuck", _, {id, _}}}, []) do
+	def handle_event({:privmsg, {<<".help b", _ :: binary>>, _, {id, _}}}, []) do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:msg, {<<"!bf ", l :: binary>>, _, _}}, []) do
+	def handle_event({:msg, {<<".bf ", l :: binary>>, _, _}}, []) do
 		answer = fn(x) -> Mambo.Bot.send_msg(x) end
 		spawn(fn -> run(l, answer) end)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {<<"!bf ", l :: binary>>, _, {id, _}}}, []) do
+	def handle_event({:privmsg, {<<".bf ", l :: binary>>, _, {id, _}}}, []) do
 		answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
 		spawn(fn -> run(l, answer) end)
 		{:ok, []}

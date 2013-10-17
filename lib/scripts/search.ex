@@ -3,8 +3,9 @@ defmodule Search do
 	Search google, youtube and images.
 
 	Examples:
-	  mambo search <phrase>
-	  mambo search youtube <phrase>
+	  .google <phrase>
+	  .youtube <phrase>
+	  .images <phrase>
 	"""
 
 	use GenEvent.Behaviour
@@ -15,13 +16,15 @@ defmodule Search do
 	end
 
 	@doc false
-	def handle_event({:msg, {"help search", _, _}}, k) do
+	def handle_event({:msg, {<<".help ", cmd :: binary>>, _, _}}, k)
+		when cmd in ["google", "yt", "youtube", "img", "image", "images"] do
 		Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
 		{:ok, k}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {"help search", _, {id, _}}}, k) do
+	def handle_event({:privmsg, {<<".help ", cmd :: binary>>, _, {id, _}}}, k)
+		when cmd in ["google", "yt", "youtube", "img", "image", "images"] do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 		{:ok, k}
 	end
@@ -29,15 +32,9 @@ defmodule Search do
 	@doc false
 	def handle_event({:msg, {msg, _, _}}, k) do
 		answer = fn(x) -> Mambo.Bot.send_msg(x) end
-		{:ok, re} = Regex.compile("^(?:#{Mambo.Bot.name} )?search(?: (google" <>
-		                          "|youtube|yt|img|image(?:s)?)?)? (.*)", "i")
-
-		case Regex.run(re, msg) do
-			[_, "", q] ->
-				spawn(fn -> search("google", q, k, answer) end)
-				{:ok, k}
-			[_, e, q] ->
-				spawn(fn -> search(e, q, k, answer) end)
+		case Regex.run(%r/^(\.g|\.google|\.youtube|\.yt|\.img|\.image(?:s)?) (.*)/i, msg) do
+			[_, cmd, q] ->
+				spawn(fn -> search(cmd, q, k, answer) end)
 				{:ok, k}
 			_ ->
 				{:ok, k}
@@ -47,15 +44,9 @@ defmodule Search do
 	@doc false
 	def handle_event({:privmsg, {msg, _, {id, _}}}, k) do
 		answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
-		{:ok, re} = Regex.compile("^(?:#{Mambo.Bot.name} )?search(?: (google" <>
-		                          "|youtube|yt|img|image(?:s)?)?)? (.*)", "i")
-
-		case Regex.run(re, msg) do
-			[_, "", q] ->
-				spawn(fn -> search("google", q, k, answer) end)
-				{:ok, k}
-			[_, e, q] ->
-				spawn(fn -> search(e, q, k, answer) end)
+		case Regex.run(%r/^(\.g|\.google|\.youtube|\.yt|\.img|\.image(?:s)?) (.*)/i, msg) do
+			[_, cmd, q] ->
+				spawn(fn -> search(cmd, q, k, answer) end)
 				{:ok, k}
 			_ ->
 				{:ok, k}
@@ -71,21 +62,21 @@ defmodule Search do
 	# Helpers
 	# --------
 
-	defp search(<<?i, _ :: binary>>, q, _, answer) do
+	defp search(<<?., ?i, _ :: binary>>, q, _, answer) do
 		url = 'http://ajax.googleapis.com/ajax/services/search/' ++
 		      'images?safe=off&v=1.0&q=#{URI.encode(q)}'
 
 		google(url, answer)
 	end
 
-	defp search(<<?g, _ :: binary>>, q, _, answer) do
+	defp search(<<?., ?g, _ :: binary>>, q, _, answer) do
 		url = 'https://ajax.googleapis.com/ajax/services/search/' ++
 		      'web?safe=off&v=1.0&q=#{URI.encode(q)}'
 
 		google(url, answer)
 	end
 
-	defp search(<<?y, _ :: binary>>, q, k, answer) do
+	defp search(<<?., ?y, _ :: binary>>, q, k, answer) do
 		youtube(q, k, answer)
 	end
 

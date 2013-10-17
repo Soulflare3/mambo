@@ -3,7 +3,7 @@ defmodule Rainbow do
 	Rainbow color a phrase.
 
 	Examples:
-	  !gay <phrase>
+	  .gay <phrase>
 	"""
 
 	use GenEvent.Behaviour
@@ -22,21 +22,19 @@ defmodule Rainbow do
 	end
 
 	@doc false
-	def handle_event({:msg, {<<"help ", c :: binary>>, _, _}}, [])
-	                 when c == "gay" or c == "rainbow" do
+	def handle_event({:msg, {".help gay", _, _}}, []) do
 		Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {<<"help ", c :: binary>>, _, {id, _}}}, [])
-	                 when c == "gay" or c == "rainbow" do
+	def handle_event({:privmsg, {".help gay", _, {id, _}}}, []) do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
 		{:ok, []}
 	end
 
 	@doc false
-	def handle_event({:msg, {<<"!gay ", msg :: binary>>, _, _}}, []) do
+	def handle_event({:msg, {<<".gay ", msg :: binary>>, _, _}}, []) do
 		msg |> rainbow |> Mambo.Bot.send_msg
 		{:ok, []}
 	end

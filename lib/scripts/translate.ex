@@ -3,8 +3,8 @@ defmodule Translate do
 	Mambo is a polyglot, he will translate anything for you.
 
 	Examples:
-	  mambo translate me <phrase>
-	  mambo translate me from <input language> into <target language> <phrase>
+	  .translate <phrase>
+	  .translate <input language> <target language> <phrase>
 	"""
 
 	use GenEvent.Behaviour
@@ -86,61 +86,62 @@ defmodule Translate do
 		langs = Enum.reduce(@languages, [], fn({k,v}, acc) -> [k, v | acc] end)
 		|> Enum.join("|")
 
-		{:ok, _} = Regex.compile("translate(?: me)?(?: from)?(?: (#{langs}))?" <>
-		                         "(?: (?:in)?to)?(?: (#{langs}))? (.*)", "i")
+		{:ok, langs}
 	end
 
 	@doc false
-	def handle_event({:msg, {"help translate", _, _}}, re) do
+	def handle_event({:msg, {<<".help ", cmd :: binary>>, _, _}}, langs)
+		when cmd in ["tl", "translate"] do
 		Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
-		{:ok, re}
+		{:ok, langs}
 	end
 
 	@doc false
-	def handle_event({:privmsg, {"help translate", _, {id, _}}}, re) do
+	def handle_event({:privmsg, {<<".help ", cmd :: binary>>, _, {id, _}}}, langs)
+		when cmd in ["tl", "translate"] do
 		Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
-		{:ok, re}
+		{:ok, langs}
 	end
 
 	@doc false
-	def handle_event({:msg, {msg, _, _}}, re) do
+	def handle_event({:msg, {msg, _, _}}, langs) do
 		answer = fn(x) -> Mambo.Bot.send_msg(x) end
 
-		case Regex.run(re, msg) do
-			[_, "", "", exp] ->
+		case Regex.run(%r/^(\.tl|\.translate)(?: (#{langs}))?(?: (#{langs}))? (.*)/, msg) do
+			[_, _, "", "", exp] ->
 				spawn(fn -> translate("auto", "en", exp, answer) end)
-				{:ok, re}
+				{:ok, langs}
 
-			[_, sl, tl, exp] when sl != "" and tl != "" ->
+			[_, _, sl, tl, exp] when sl != "" and tl != "" ->
 				spawn(fn -> translate(get_code(sl), get_code(tl), exp, answer) end)
-				{:ok, re}
+				{:ok, langs}
 
 			_ ->
-				{:ok, re}
+				{:ok, langs}
 		end
 	end
 
 	@doc false
-	def handle_event({:privmsg, {msg, _, {id, _}}}, re) do
+	def handle_event({:privmsg, {msg, _, {id, _}}}, langs) do
 		answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
 
-		case Regex.run(re, msg) do
-			[_, "", "", exp] ->
+		case Regex.run(%r/^(\.tl|\.translate)(?: (#{langs}))?(?: (#{langs}))? (.*)/, msg) do
+			[_, _, "", "", exp] ->
 				spawn(fn -> translate("auto", "en", exp, answer) end)
-				{:ok, re}
+				{:ok, langs}
 
-			[_, sl, tl, exp] when sl != "" and tl != "" ->
+			[_, _, sl, tl, exp] when sl != "" and tl != "" ->
 				spawn(fn -> translate(get_code(sl), get_code(tl), exp, answer) end)
-				{:ok, re}
+				{:ok, langs}
 
 			_ ->
-				{:ok, re}
+				{:ok, langs}
 		end
 	end
 
 	@doc false
-	def handle_event(_, re) do
-		{:ok, re}
+	def handle_event(_, langs) do
+		{:ok, langs}
 	end
 
 	# --------
