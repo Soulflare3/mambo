@@ -65,7 +65,6 @@ defmodule Question do
   # --------
 
   defp ask(q, answer, key) do
-    IO.inspect q
     url = "http://api.wolframalpha.com/v2/query?" <>
       URI.encode_query(
         [input: q,
