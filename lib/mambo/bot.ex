@@ -8,10 +8,10 @@ defmodule Mambo.Bot do
 
   @bot __MODULE__
 
-  @notify_msg       "notifytextmessage"
-  @notify_move      "notifyclientmoved"
-  @notify_left      "notifyclientleftview"
-  @notify_enter     "notifycliententerview"
+  @notify_msg   "notifytextmessage"
+  @notify_move  "notifyclientmoved"
+  @notify_left  "notifyclientleftview"
+  @notify_enter "notifycliententerview"
 
   defrecord Settings,
     name:    "mambo",
