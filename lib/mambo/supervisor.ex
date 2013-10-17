@@ -1,24 +1,24 @@
 defmodule Mambo.Supervisor do
-	@moduledoc """
-	Main bot supervisor, it supervises the processes `Mambo.Bot`, `Mambo.Brain`
-	and `Mambo.EventManager`.
-	"""
+  @moduledoc """
+  Main bot supervisor, it supervises the processes `Mambo.Bot`, `Mambo.Brain`
+  and `Mambo.EventManager`.
+  """
 
-	use Supervisor.Behaviour
+  use Supervisor.Behaviour
 
-	@doc """
-	Starts the supervisor. Returns `{:ok, pid}` on success.
-	"""
-	@spec start_link() :: {:ok, pid}
-	def start_link() do
-		{:ok, _} = :supervisor.start_link(__MODULE__, [])
-	end
+  @doc """
+  Starts the supervisor. Returns `{:ok, pid}` on success.
+  """
+  @spec start_link() :: {:ok, pid}
+  def start_link() do
+    {:ok, _} = :supervisor.start_link(__MODULE__, [])
+  end
 
-	@doc false
-	def init([]) do
-		children = [worker(Mambo.Brain, []),
-		            worker(Mambo.EventManager, []),
-		            worker(Mambo.Bot, [])]
-		supervise(children, strategy: :one_for_all)
-	end
+  @doc false
+  def init([]) do
+    children = [worker(Mambo.Brain, []),
+                worker(Mambo.EventManager, []),
+                worker(Mambo.Bot, [])]
+    supervise(children, strategy: :one_for_all)
+  end
 end
