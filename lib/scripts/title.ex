@@ -43,7 +43,9 @@ defmodule Title do
   end
 
   @doc """
-  Sends the title of the url `url` to the channel the bot is operating.
+  If type is `:public` sends the title of the url `url` to the channel
+  the bot is operating. Otherwise the title is sent to the private chat with
+  id `type`.
   """
   def get_title(url, type) do
     answer = case type do
