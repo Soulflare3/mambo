@@ -21,7 +21,7 @@
     {"name": "Private", "args": []},
     {"name": "Translate", "args": []},
     {"name": "Calculator", "args": []},
-    {"name": "Question", "args": "WOLFRAM-ALPHA API KEY"},
+    {"name": "Question", "args": ["mambo", "WOLFRAM-ALPHA API KEY"]},
     {"name": "Lastfm", "args": "LAST.FM API KEY"},
     {"name": "Search", "args": "YOUTUBE API KEY"}
   ]

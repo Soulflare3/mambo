@@ -13,8 +13,8 @@ defmodule Question do
   @author "I was created by Stephen Wolfram and his team."
 
   @doc false
-  def init(apikey) do
-    {:ok, re} = Regex.compile("^#{Mambo.Bot.name} ((what|who|where|why|when|" <>
+  def init([name, apikey]) do
+    {:ok, re} = Regex.compile("^#{name} ((what|who|where|why|when|" <>
       "who|whom|how|whose|whence|whither|do)('s)? (.*))", "i")
     {:ok, {re, apikey}}
   end
@@ -34,7 +34,6 @@ defmodule Question do
   @doc false
   def handle_event({:msg, {msg, _, _}}, {re, key}) do
     answer = fn(x) -> Mambo.Bot.send_msg(x) end
-
     case Regex.run(re, msg, capture: [1]) do
       [exp] ->
         spawn(fn -> ask(exp, answer, key) end)
@@ -47,7 +46,6 @@ defmodule Question do
   @doc false
   def handle_event({:privmsg, {msg, _, {id, _}}}, {re, key}) do
     answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
-
     case Regex.run(re, msg, capture: [1]) do
       [exp] ->
         spawn(fn -> ask(exp, answer, key) end)
@@ -67,6 +65,7 @@ defmodule Question do
   # --------
 
   defp ask(q, answer, key) do
+    IO.inspect q
     url = "http://api.wolframalpha.com/v2/query?" <>
       URI.encode_query(
         [input: q,
