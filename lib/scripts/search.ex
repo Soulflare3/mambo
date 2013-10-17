@@ -92,13 +92,13 @@ defmodule Search do
 	defp google(url, answer) do
 		case :httpc.request(:get, {url, []}, [], body_format: :binary) do
 			{:ok, {{_, 200, _}, _, body}} ->
-				{data}  = :jiffy.decode(body)
-				{rdata} = data["responseData"]
+				{:ok, data}  = JSEX.decode(body)
+				rdata = data["responseData"]
 
 				case rdata["results"] do
 					[] ->
 						answer.("No result.")
-					[{r} | _] ->
+					[r | _] ->
 						result = r["unescapedUrl"]
 						spawn(Title, :get_title, [result])
 						answer.("#{Mambo.Helpers.format_url result}")
@@ -117,12 +117,12 @@ defmodule Search do
 
 		case :httpc.request(:get, {url, []}, [], body_format: :binary) do
 		{:ok, {{_, 200, _}, _, body}} ->
-			{data} = :jiffy.decode(body)
+			{:ok, data} = JSEX.decode(body)
 			case data["items"] do
 				[] ->
 					answer.("No result.")
-				[{v} | _] ->
-					{id} = v["id"]
+				[v | _] ->
+					id = v["id"]
 					v_url = "https://www.youtube.com/watch?v=#{id["videoId"]}"
 					spawn(Title, :get_title, [v_url])
 					answer.("#{Mambo.Helpers.format_url v_url}")

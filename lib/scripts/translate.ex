@@ -175,10 +175,10 @@ defmodule Translate do
 
 		case :httpc.request(:get, {url, []}, [], body_format: :binary) do
 			{:ok, {{_, 200, _}, _, body}} ->
-				{data} = :jiffy.decode(body)
+				{:ok, data} = JSEX.decode(body)
 				ilang = @languages[data["src"]]
 				tlang = @languages[tl]
-				{sentences} = hd(data["sentences"])
+				sentences = hd(data["sentences"])
 				trans = sentences["trans"]
 
 				if sl == "auto" do

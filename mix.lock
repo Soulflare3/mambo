@@ -1,2 +1,2 @@
-[ "ex_doc": {:git, "git://github.com/elixir-lang/ex_doc.git", "4ea86fb6d1f282c8d6b0ba7eef9e8d41031e98c4", []},
-  "jiffy": {:git, "git://github.com/davisp/jiffy.git", "d16a4fd968e000b65e4678cccfad68d7a0a8bd1c", []} ]
+[ "jsex": {:git, "git://github.com/talentdeficit/jsex.git", "95492e9a4f418c10ff1c74d669d89ca5e8ac4d67", []},
+  "jsx": {:git, "git://github.com/talentdeficit/jsx.git", "e50af6e109cb03bd26acf715cbc77de746507d1d", [{:tag, "v1.4.3"}]} ]

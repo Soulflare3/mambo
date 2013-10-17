@@ -7,11 +7,22 @@
 	"bot_id": "bot_teamspeak_unique_id_here",
 	"admins": [],
 	"scripts": [
+		{"name": "Benis", "args": []},
+		{"name": "Brainfuck", "args": []},
+		{"name": "Cannedreplies", "args": []},
+		{"name": "Eightball", "args": []},
+		{"name": "Rainbow", "args": []},
+		{"name": "Random", "args": []},
+		{"name": "Sux", "args": []},
 		{"name": "Help", "args": []},
 		{"name": "Utils", "args": []},
 		{"name": "Title", "args": []},
+		{"name": "Whatthecommit", "args": []},
 		{"name": "Private", "args": []},
 		{"name": "Translate", "args": []},
 		{"name": "Calculator", "args": []},
+		{"name": "Question", "args": "WOLFRAM-ALPHA API KEY"},
+		{"name": "Lastfm", "args": "LAST.FM API KEY"},
+		{"name": "Search", "args": "YOUTUBE API KEY"}
 	]
 }

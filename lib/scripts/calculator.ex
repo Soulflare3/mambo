@@ -65,7 +65,7 @@ defmodule Calculator do
 		case :httpc.request(:get, {url, []}, [], body_format: :binary) do
 			{:ok, {{_, 200, _}, _, body}} ->
 				json = good_json(body)
-				{data} = :jiffy.decode(json)
+				{:ok, data} = JSEX.decode(json)
 
 				if data["error"] == "" do
 					answer.(data["rhs"])
@@ -79,9 +79,9 @@ defmodule Calculator do
 
 	defp good_json(bad_json) do
 		bad_json
-		|> String.replace("lhs", "\"lhs\"")
-		|> String.replace("rhs", "\"rhs\"")
-		|> String.replace("error", "\"error\"")
-		|> String.replace("icc", "\"icc\"")
+			|> String.replace("lhs", "\"lhs\"")
+			|> String.replace("rhs", "\"rhs\"")
+			|> String.replace("error", "\"error\"")
+			|> String.replace("icc", "\"icc\"")
 	end
 end
