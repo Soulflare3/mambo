@@ -1,5 +1,6 @@
 /ebin
 /deps
+/releases
 erl_crash.dump
 settings.json
 brain.db
