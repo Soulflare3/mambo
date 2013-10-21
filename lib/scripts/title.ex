@@ -57,9 +57,9 @@ defmodule Title do
                {'Cookie', 'locale=en_US; path=/; domain=.facebook.com'}]
 
     {:ok, ref} = :httpc.request(:get, {String.to_char_list!(url), headers}, [],
-                              sync: false, stream: :self, body_format: :binary)
+      sync: false, stream: :self)
 
-    receive_chunk(ref, "", 5000, answer)
+    receive_chunk(ref, <<>>, 5000, answer)
   end
 
   # --------
@@ -67,6 +67,7 @@ defmodule Title do
   # --------
 
   defp receive_chunk(_, body, len, answer) when len <= 0 do
+    body = :unicode.characters_to_binary(body, :latin1)
     case Regex.run(%r\<title[^>]*>([^<]+)</title>\im, body, capture: [1]) do
       nil ->
         :ok
@@ -74,26 +75,26 @@ defmodule Title do
         title = String.strip(title) |> String.split("\n") |> Enum.join
                 |> Mambo.Helpers.decode_html
 
-        answer.(<<"[b]Title:[/b] ", title :: binary>>)
+        answer.("[b]Title:[/b] #{title}")
     end
   end
 
   defp receive_chunk(ref, body, len, answer) do
     receive do
       {:http, {^ref, :stream_start, headers}} ->
-        content_type = String.from_char_list!(headers['content-type'])
-                       |> String.split(";") |> hd
+        [ct|_] = String.from_char_list!(headers['content-type'])
+          |> String.split(";", global: false)
 
-        if content_type == "text/html" do
+        if ct == "text/html" do
           receive_chunk(ref, body, len, answer)
         else
-          answer.(<<"[b]Content Type:[/b] ", content_type :: binary>>)
+          answer.("[b]Content Type:[/b] #{ct}")
         end
 
       {:http, {^ref, :stream, data}} ->
         receive_chunk(ref, body <> data, len - size(data), answer)
 
-      {:http, {^ref, :stream_ent, _}} ->
+      {:http, {^ref, :stream_end, _}} ->
         receive_chunk(ref, body, 0, answer)
 
     after
