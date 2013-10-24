@@ -28,24 +28,24 @@ defmodule Cannedreplies do
   end
 
   @doc false
-  def handle_event({:msg, {<<".help repl", _ :: binary>>, _, _}}, []) do
-    Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
+  def handle_event({:msg, {<<".help repl", _ :: binary>>, _, {cid,_,_}}}, []) do
+    Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:privmsg, {<<".help repl", _ :: binary>>, _, {id, _}}}, []) do
-    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
+  def handle_event({:privmsg, {<<".help repl", _ :: binary>>, _, {clid,_}}}, []) do
+    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:msg, {msg, _, _}}, []) do
+  def handle_event({:msg, {msg, _, {cid,_,_}}}, []) do
     case ListDict.get(@responses, msg) do
       nil ->
         {:ok, []}
       reply ->
-        Mambo.Bot.send_msg(reply)
+        Mambo.Bot.send_msg(reply, cid)
         {:ok, []}
     end
   end

@@ -16,34 +16,34 @@ defmodule Lastfm do
   end
 
   @doc false
-  def handle_event({:msg, {".help np", _, _}}, k) do
-    Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
+  def handle_event({:msg, {".help np", _, {cid,_,_}}}, k) do
+    Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, k}
   end
 
   @doc false
-  def handle_event({:privmsg, {".help np", _, {id, _}}}, k) do
-    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
+  def handle_event({:privmsg, {".help np", _, {clid,_}}}, k) do
+    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, k}
   end
 
   @doc false
-  def handle_event({:msg, {".np", _, {_, id}}}, k) do
-    spawn(fn -> get_song(Mambo.Brain.get(id), k) end)
+  def handle_event({:msg, {".np", _, {cid,_,id}}}, k) do
+    spawn(fn -> get_song(Mambo.Brain.get(id), k, cid) end)
     {:ok, k}
   end
 
   @doc false
-  def handle_event({:msg, {<<".np set ", u :: binary>>, _, {_, id}}}, k) do
+  def handle_event({:msg, {<<".np set ", u :: binary>>, _, {cid,_,id}}}, k) do
     true = Mambo.Brain.set({id, u})
     :ok = Mambo.Brain.save
-    Mambo.Bot.send_msg("You're now associated with last.fm user [b]#{u}[/b].")
+    Mambo.Bot.send_msg("You're now associated with last.fm user [b]#{u}[/b].", cid)
     {:ok, k}
   end
 
   @doc false
-  def handle_event({:msg, {<<".np ", u :: binary>>, _, _}}, k) do
-    spawn(fn -> get_song(u, k) end)
+  def handle_event({:msg, {<<".np ", u :: binary>>, _, {cid,_,_}}}, k) do
+    spawn(fn -> get_song(u, k, cid) end)
     {:ok, k}
   end
 
@@ -56,11 +56,11 @@ defmodule Lastfm do
   # Helpers
   # --------
 
-  defp get_song(nil, _) do
-    Mambo.Bot.send_msg("There is no last.fm username associated with your identity.")
+  defp get_song(nil, _, cid) do
+    Mambo.Bot.send_msg("There is no last.fm username associated with your identity.", cid)
   end
 
-  defp get_song(u, k) do
+  defp get_song(u, k, cid) do
     url = "http://ws.audioscrobbler.com/2.0/?" <>
       URI.encode_query(
         [method: "user.getrecenttracks",
@@ -73,19 +73,19 @@ defmodule Lastfm do
         {:ok, song} = JSEX.decode(body)
         case song["recenttracks"] do
           nil ->
-            Mambo.Bot.send_msg("No result.")
+            Mambo.Bot.send_msg("No result.", cid)
           t ->
             case t["track"] do
               nil ->
-                Mambo.Bot.send_msg("No result.")
+                Mambo.Bot.send_msg("No result.", cid)
               [s | _] ->
                 name   = s["name"]
                 artist = s["artist"]
-                Mambo.Bot.send_msg("[b]#{name}[/b] by [b]#{artist["#text"]}[/b].")
+                Mambo.Bot.send_msg("[b]#{name}[/b] by [b]#{artist["#text"]}[/b].", cid)
             end
         end
       _ ->
-        Mambo.Bot.send_msg("Something went wrong.")
+        Mambo.Bot.send_msg("Something went wrong.", cid)
     end
   end
 end

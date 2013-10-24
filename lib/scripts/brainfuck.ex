@@ -17,27 +17,27 @@ defmodule Brainfuck do
   end
 
   @doc false
-  def handle_event({:msg, {<<".help b", _ :: binary>>, _, _}}, []) do
-    Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
+  def handle_event({:msg, {<<".help b", _ :: binary>>, _, {cid,_,_}}}, []) do
+    Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:privmsg, {<<".help b", _ :: binary>>, _, {id, _}}}, []) do
-    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
+  def handle_event({:privmsg, {<<".help b", _ :: binary>>, _, {clid,_}}}, []) do
+    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:msg, {<<".bf ", l :: binary>>, _, _}}, []) do
-    answer = fn(x) -> Mambo.Bot.send_msg(x) end
+  def handle_event({:msg, {<<".bf ", l :: binary>>, _, {cid,_,_}}}, []) do
+    answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
     spawn(fn -> run(l, answer) end)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:privmsg, {<<".bf ", l :: binary>>, _, {id, _}}}, []) do
-    answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
+  def handle_event({:privmsg, {<<".bf ", l :: binary>>, _, {clid,_}}}, []) do
+    answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
     spawn(fn -> run(l, answer) end)
     {:ok, []}
   end

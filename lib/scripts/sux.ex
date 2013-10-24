@@ -14,20 +14,20 @@ defmodule Sux do
   end
 
   @doc false
-  def handle_event({:msg, {".help sux", _, _}}, []) do
-    Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
+  def handle_event({:msg, {".help sux", _, {cid,_,_}}}, []) do
+    Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:privmsg, {".help sux", _, {id, _}}}, []) do
-    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
+  def handle_event({:privmsg, {".help sux", _, {clid,_}}}, []) do
+    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:msg, {<<".sux ", msg :: binary>>, _, _}}, []) do
-    msg |> sux |> Mambo.Bot.send_msg
+  def handle_event({:msg, {<<".sux ", msg :: binary>>, _, {cid,_,_}}}, []) do
+    msg |> sux |> Mambo.Bot.send_msg(cid)
     {:ok, []}
   end
 

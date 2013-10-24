@@ -6,6 +6,7 @@
   "port": 10011,
   "bot_id": "bot_teamspeak_unique_id_here",
   "admins": [],
+  "channels": "all",
   "scripts": [
     {"name": "Benis", "args": []},
     {"name": "Brainfuck", "args": []},

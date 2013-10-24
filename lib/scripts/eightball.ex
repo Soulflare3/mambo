@@ -22,26 +22,26 @@ defmodule Eightball do
   end
 
   @doc false
-  def handle_event({:msg, {".help 8ball", _, _}}, []) do
-    Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
+  def handle_event({:msg, {".help 8ball", _, {cid,_,_}}}, []) do
+    Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:privmsg, {".help 8ball", _, {id, _}}}, []) do
-    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
+  def handle_event({:privmsg, {".help 8ball", _, {clid,_}}}, []) do
+    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:msg, {<<".8ball ", _ :: binary>>, _, _}}, []) do
-    Mambo.Bot.send_msg(shake)
+  def handle_event({:msg, {<<".8ball ", _ :: binary>>, _, {cid,_,_}}}, []) do
+    Mambo.Bot.send_msg(shake, cid)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:privmsg, {<<".8ball ", _ :: binary>>, _, {id, _}}}, []) do
-    Mambo.Bot.send_privmsg(shake, id)
+  def handle_event({:privmsg, {<<".8ball ", _ :: binary>>, _, {clid,_}}}, []) do
+    Mambo.Bot.send_privmsg(shake, clid)
     {:ok, []}
   end
 

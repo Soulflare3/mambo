@@ -15,22 +15,22 @@ defmodule Calculator do
   end
 
   @doc false
-  def handle_event({:msg, {<<".help c", _ :: binary>>, _, _}}, []) do
-    Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
+  def handle_event({:msg, {<<".help c", _ :: binary>>, _, {cid,_,_}}}, []) do
+    Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:privmsg, {<<".help c", _ :: binary>>, _, {id, _}}}, []) do
-    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
+  def handle_event({:privmsg, {<<".help c", _ :: binary>>, _, {clid,_}}}, []) do
+    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:msg, {msg, _, _}}, []) do
+  def handle_event({:msg, {msg, _, {cid,_,_}}}, []) do
     case Regex.run(%r/(\.calc|\.calculate|\.calculator|\.convert) (.*)/i, msg, capture: [2]) do
       [q] ->
-        answer = fn(x) -> Mambo.Bot.send_msg(x) end
+        answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
         spawn(fn -> calc(q, answer) end)
         {:ok, []}
       _ ->
@@ -39,10 +39,10 @@ defmodule Calculator do
   end
 
   @doc false
-  def handle_event({:privmsg, {msg, _, {id, _}}}, []) do
+  def handle_event({:privmsg, {msg, _, {clid,_}}}, []) do
     case Regex.run(%r/(\.calc|\.calculate|\.calculator|\.convert) (.*)/i, msg, capture: [2]) do
       [q] ->
-        answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
+        answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
         spawn(fn -> calc(q, answer) end)
         {:ok, []}
       _ ->

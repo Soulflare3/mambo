@@ -14,27 +14,27 @@ defmodule Whatthecommit do
   end
 
   @doc false
-  def handle_event({:msg, {".help wtc", _, _}}, []) do
-    Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
+  def handle_event({:msg, {".help wtc", _, {cid,_,_}}}, []) do
+    Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:privmsg, {".help wtc", _, {id, _}}}, []) do
-    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
+  def handle_event({:privmsg, {".help wtc", _, {clid,_}}}, []) do
+    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:msg, {".wtc", _, _}}, []) do
-    answer = fn(x) -> Mambo.Bot.send_msg(x) end
+  def handle_event({:msg, {".wtc", _, {cid,_,_}}}, []) do
+    answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
     spawn(fn -> wtc(answer) end)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:privmsg, {".wtc", _, {id, _}}}, []) do
-    answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
+  def handle_event({:privmsg, {".wtc", _, {clid,_}}}, []) do
+    answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
     spawn(fn -> wtc(answer) end)
     {:ok, []}
   end

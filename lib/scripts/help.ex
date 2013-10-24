@@ -40,14 +40,14 @@ defmodule Help do
   end
 
   @doc false
-  def handle_event({:msg, {".help", _, _}}, []) do
-    Mambo.Bot.send_msg(@helpmsg)
+  def handle_event({:msg, {".help", _, {cid,_,_}}}, []) do
+    Mambo.Bot.send_msg(@helpmsg, cid)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:privmsg, {".help", _, {id, _}}}, []) do
-    Mambo.Bot.send_privmsg(@helpmsg, id)
+  def handle_event({:privmsg, {".help", _, {clid,_}}}, []) do
+    Mambo.Bot.send_privmsg(@helpmsg, clid)
     {:ok, []}
   end
 

@@ -15,24 +15,25 @@ defmodule Title do
   end
 
   @doc false
-  def handle_event({:msg, {".help title", _, _}}, []) do
-    Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
+  def handle_event({:msg, {".help title", _, {cid,_,_}}}, []) do
+    Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:privmsg, {".help title", _, {id, _}}}, []) do
-    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
+  def handle_event({:privmsg, {".help title", _, {clid,_}}}, []) do
+    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
   @doc false
-  def handle_event({:msg, {msg, _, _}}, []) do
+  def handle_event({:msg, {msg, _, {cid,_,_}}}, []) do
+    answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
     case Mambo.Helpers.find_url(msg) do
       nil ->
         {:ok, []}
       url ->
-        spawn(fn -> get_title(url, :public) end)
+        spawn(fn -> get_title(url, answer) end)
         {:ok, []}
     end
   end
@@ -47,12 +48,7 @@ defmodule Title do
   the bot is operating. Otherwise the title is sent to the private chat with
   id `type`.
   """
-  def get_title(url, type) do
-    answer = case type do
-      :public -> fn(x) -> Mambo.Bot.send_msg(x) end
-      id -> fn(x) -> Mambo.Bot.send_privmsg(x, id) end
-    end
-
+  def get_title(url, answer) do
     headers = [{'User-Agent', 'Mozilla/5.0'},
                {'Cookie', 'locale=en_US; path=/; domain=.facebook.com'}]
 

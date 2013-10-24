@@ -8,36 +8,35 @@ defmodule Mambo.Bot do
 
   @bot __MODULE__
 
-  @notify_msg   "notifytextmessage"
-  @notify_move  "notifyclientmoved"
-  @notify_left  "notifyclientleftview"
-  @notify_enter "notifycliententerview"
+  @login_ok   "error id=0 msg=ok\n\r"
+  @notify_msg "notifytextmessage"
 
   defrecord Settings,
-    name:    "mambo",
-    user:    "username",
-    pass:    "password",
-    host:    "localhost",
-    port:    10011,
-    bot_id:  "",
-    admins:  [],
-    scripts: []
+    name:     "mambo",
+    user:     "username",
+    pass:     "password",
+    host:     "localhost",
+    port:     10011,
+    bot_id:   "",
+    admins:   [],
+    channels: [],
+    scripts:  [],
+    default_channel: 1
 
-  @doc """
-  Starts bot process. Returns `{:ok, pid}` on success.
-  """
+  # API.
+
   @spec start_link() :: {:ok, pid}
   def start_link() do
-    s = Mambo.Helpers.get_settings
+    s = Mambo.Helpers.get_settings()
     {:ok, _} = :gen_server.start_link({:local, @bot}, __MODULE__, s, [])
   end
 
   @doc """
   Sends a chat message to the teamspeak server.
   """
-  @spec send_msg(String.t) :: :ok
-  def send_msg(msg) do
-    :ok = :gen_server.cast(@bot, {:send_msg, msg})
+  @spec send_msg(String.t, integer) :: :ok
+  def send_msg(msg, cid) do
+    :ok = :gen_server.cast(@bot, {:send_msg, {msg, cid}})
   end
 
   @doc """
@@ -88,78 +87,108 @@ defmodule Mambo.Bot do
     :gen_server.call(@bot, :id)
   end
 
-  # --------
-  # Helpers
-  # --------
+  # Helpers.
 
   defp send_to_server(socket, msg) do
     :ok = :gen_tcp.send(socket, "#{msg}\n")
   end
 
-  defp login(s, name, user, pass) do
-    [ "login #{user} #{pass}", "use sid=1",
-      "servernotifyregister event=textprivate",
-      "servernotifyregister event=channel id=1",
-      "servernotifyregister event=textchannel id=1",
-      "clientupdate client_nickname=#{Mambo.Helpers.escape(name)}" ]
-    |> Enum.each(fn(x) -> send_to_server(s, x) end)
+  defp login(socket, name, user, pass) do
+    ["login #{user} #{pass}", "use sid=1",
+     "servernotifyregister event=textprivate",
+     "clientupdate client_nickname=#{Mambo.Helpers.escape(name)}",
+     "channellist -flags"]
+    |> Enum.each(fn(x) -> send_to_server(socket, x) end)
   end
 
-  # --------------------
-  # gen_sever callbacks
-  # --------------------
+  defp parse_channellist(channellist) do
+    String.split(channellist, "|")
+      |> Enum.map(&Regex.run(%r/cid=(\d*).*?channel_flag_default=([0-1])/, &1))
+      |> Enum.map_reduce(1, fn
+        ([_,id,"0"], dc) -> {binary_to_integer(id), dc}
+        ([_,id,"1"], _) -> id = binary_to_integer(id); {id, id}
+        (_, _) -> {[], 1}
+      end)
+  end
 
-  @doc false
+  defp add_watchers(ids, s) do
+    start_watcher = fn(id, count) ->
+      {:ok, pid} = Mambo.WatcherSup.add_watcher([{id, s.bot_id,
+        {"#{s.name}_#{count}", s.host, s.port, s.user, s.pass}}])
+      pid
+    end
+
+    {watchers, _} = case s.channels do
+      "all" ->
+        Enum.map_reduce(ids, 1, fn(id, count) ->
+          {{id, start_watcher.(id, count)}, count + 1}
+        end)
+      l when is_list(l) ->
+        Enum.map_reduce(ids, 1, fn(id, count) ->
+          if id in l do
+            {{id, start_watcher.(id, count)}, count + 1}
+          end
+        end)
+      _ ->
+        []
+    end
+
+    watchers
+  end
+
+  # gen_sever callbacks.
+
   def init(s) do
     {:ok, socket} = :gen_tcp.connect(String.to_char_list!(s.host), s.port, [:binary])
     lc {m, a} inlist s.scripts, do: Mambo.EventManager.install_script(m, a)
     :ok = login(socket, s.name, s.user, s.pass)
     :erlang.send_after(300000, self(), :keep_alive)
-    {:ok, {socket, s}}
+    {:ok, {socket, s, []}}
   end
 
-  @doc false
-  def handle_call(:name, _, {_, s} = state) do
+  def handle_call(:name, _, {_, s, _} = state) do
     {:reply, s.name, state}
   end
 
-  @doc false
-  def handle_call(:id, _, {_, s} = state) do
+  def handle_call(:id, _, {_, s, _} = state) do
     {:reply, s.bot_id, state}
   end
 
-  @doc false
   def handle_call(_, _, state) do
     {:noreply, state}
   end
 
-  @doc false
-  def handle_cast({:send_msg, msg}, {s, _} = state) do
-    cmd = "sendtextmessage targetmode=2 target=1 msg=#{Mambo.Helpers.escape(msg)}"
-    :ok = send_to_server(s, cmd)
-    {:noreply, state}
+  def handle_cast({:send_msg, {msg, cid}}, {socket, s, watchers} = state) do
+    if cid === s.default_channel do
+      cmd = "sendtextmessage targetmode=2 target=1 msg=#{Mambo.Helpers.escape(msg)}"
+      send_to_server(socket, cmd)
+      {:noreply, state}
+    else
+      :gen_server.cast(watchers[cid], {:send_msg, msg})
+      {:noreply, state}
+    end
   end
 
-  def handle_cast({:send_privmsg, {msg, cid}}, {s, _} = state) do
+  def handle_cast({:send_privmsg, {msg, cid}}, {socket, _, _} = state) do
     cmd = "sendtextmessage targetmode=1 target=#{cid} msg=#{Mambo.Helpers.escape(msg)}"
-    :ok = send_to_server(s, cmd)
+    :ok = send_to_server(socket, cmd)
     {:noreply, state}
   end
 
-  def handle_cast({:send_gm, msg}, {s, _} = state) do
-    :ok = send_to_server(s, "gm msg=#{Mambo.Helpers.escape(msg)}")
+  def handle_cast({:send_gm, msg}, {socket, _, _} = state) do
+    :ok = send_to_server(socket, "gm msg=#{Mambo.Helpers.escape(msg)}")
     {:noreply, state}
   end
 
-  def handle_cast({:kick, {cid, msg}}, {s, _} = state) do
+  def handle_cast({:kick, {cid, msg}}, {socket, _, _} = state) do
     cmd = "clientkick clid=#{cid} reasonid=5 reasonmsg=#{Mambo.Helpers.escape(msg)}"
-    :ok = send_to_server(s, cmd)
+    :ok = send_to_server(socket, cmd)
     {:noreply, state}
   end
 
-  def handle_cast({:ban, {cid, time, msg}}, {s, _} = state) do
+  def handle_cast({:ban, {cid, time, msg}}, {socket, _, _} = state) do
     cmd = "banclient clid=#{cid} time=#{time} reasonmsg=#{Mambo.Helpers.escape(msg)}"
-    :ok = send_to_server(s, cmd)
+    :ok = send_to_server(socket, cmd)
     {:noreply, state}
   end
 
@@ -167,25 +196,18 @@ defmodule Mambo.Bot do
     {:noreplay, state}
   end
 
-  @doc false
-  def handle_info({:tcp, _, <<@notify_msg, r :: binary>>}, {_, Settings[bot_id: bid]} = state) do
-    {:ok, re} = Regex.compile("targetmode=([1-2]) msg=(\\S*)(?: target=[0-9]*)? " <>
-                              "invokerid=([0-9]*) invokername=(.*) invokeruid=(.*)", "i")
+  def handle_info({:tcp, _, <<@notify_msg, r :: binary>>}, {_, Settings[bot_id: bid], _} = state) do
+    {:ok, re} = Regex.compile("targetmode=([1-2]) msg=(\\S*)(?: target=\\d*)? " <>
+      "invokerid=(\\d*) invokername=(.*) invokeruid=(.*)", "i")
 
     case Regex.run(re, r) do
       [_, _, _, _, _, ^bid] ->
         {:noreply, state}
 
-      [_, "1", msg, cid, name, uid] ->
+      [_, "1", msg, clid, name, uid] ->
         msg = Mambo.Helpers.unescape(msg)
         name = Mambo.Helpers.unescape(name)
-        Mambo.EventManager.notify({:privmsg, {msg, name, {cid, uid}}})
-        {:noreply, state}
-
-      [_, "2", msg, cid, name, uid] ->
-        msg = Mambo.Helpers.unescape(msg)
-        name = Mambo.Helpers.unescape(name)
-        Mambo.EventManager.notify({:msg, {msg, name, {cid, uid}}})
+        Mambo.EventManager.notify({:privmsg, {msg, name, {clid, uid}}})
         {:noreply, state}
 
       _ ->
@@ -193,38 +215,29 @@ defmodule Mambo.Bot do
     end
   end
 
-  def handle_info({:tcp, _, <<@notify_move, r :: binary>>}, state) do
-    case Regex.run(%r/ctid=([0-9]*)/i, r) do
-      [_, "1"] ->
-        Mambo.EventManager.notify(:move_in)
-        {:noreply, state}
-
-      [_, _] ->
-        Mambo.EventManager.notify(:move_out)
-        {:noreply, state}
-
-      _other ->
-        {:noreply, state}
+  # If the login goes ok, parse the channellist and spawn a watcher in each
+  # channel specified in `settings.json`.
+  def handle_info({:tcp, _, <<@login_ok, channellist :: binary>>}, {socket, s, []}) do
+    if String.ends_with?(channellist, "error id=0 msg=ok\n\r") do
+      {ids, dc} = parse_channellist(channellist)
+      watchers = add_watchers(ids, s)
+      {:noreply, {socket, s.default_channel(dc), watchers}}
+    else
+      {:noreply, {socket, s, [], channellist}}
     end
   end
 
-  def handle_info({:tcp, _, <<@notify_left, _ :: binary>>}, state) do
-    Mambo.EventManager.notify(:left)
-    {:noreply, state}
-  end
-
-  def handle_info({:tcp, _, <<@notify_enter, r :: binary>>}, state) do
-    case Regex.run(%r/client_nickname=(.*) client_input_muted=/i, r) do
-      [_, name] ->
-        Mambo.EventManager.notify({:enter, name})
-        {:noreply, state}
-
-      _other ->
-        {:noreply, state}
+  def handle_info({:tcp, _, data}, {socket, s, [], channellist}) do
+    if String.ends_with?(data, "error id=0 msg=ok\n\r") do
+      {ids, dc} = parse_channellist(channellist <> data)
+      watchers = add_watchers(ids, s)
+      {:noreply, {socket, s.default_channel(dc), watchers}}
+    else
+      {:noreply, {socket, s, [], channellist <> data}}
     end
   end
 
-  def handle_info({:tcp_close, _}, state) do
+  def handle_info({:tcp_closed, _}, state) do
     {:stop, :normal, state}
   end
 

@@ -90,22 +90,22 @@ defmodule Translate do
   end
 
   @doc false
-  def handle_event({:msg, {<<".help ", cmd :: binary>>, _, _}}, langs)
+  def handle_event({:msg, {<<".help ", cmd :: binary>>, _, {cid,_,_}}}, langs)
     when cmd in ["tl", "translate"] do
-    Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
+    Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, langs}
   end
 
   @doc false
-  def handle_event({:privmsg, {<<".help ", cmd :: binary>>, _, {id, _}}}, langs)
+  def handle_event({:privmsg, {<<".help ", cmd :: binary>>, _, {clid,_}}}, langs)
     when cmd in ["tl", "translate"] do
-    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
+    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, langs}
   end
 
   @doc false
-  def handle_event({:msg, {msg, _, _}}, langs) do
-    answer = fn(x) -> Mambo.Bot.send_msg(x) end
+  def handle_event({:msg, {msg, _, {cid,_,_}}}, langs) do
+    answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
 
     case Regex.run(%r/^(\.tl|\.translate)(?: (#{langs}))?(?: (#{langs}))? (.*)/, msg) do
       [_, _, "", "", exp] ->
@@ -122,8 +122,8 @@ defmodule Translate do
   end
 
   @doc false
-  def handle_event({:privmsg, {msg, _, {id, _}}}, langs) do
-    answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
+  def handle_event({:privmsg, {msg, _, {clid,_}}}, langs) do
+    answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
 
     case Regex.run(%r/^(\.tl|\.translate)(?: (#{langs}))?(?: (#{langs}))? (.*)/, msg) do
       [_, _, "", "", exp] ->

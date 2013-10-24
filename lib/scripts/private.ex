@@ -22,9 +22,9 @@ defmodule Private do
   end
 
   @doc false
-  def handle_event({:msg, {<<".help ", r :: binary>>, _, _}}, []) do
+  def handle_event({:msg, {<<".help ", r :: binary>>, _, {cid,_,_}}}, []) do
     if r in ["talk", "speak", "chat"] do
-      Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
+      Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
       {:ok, []}
     else
       {:ok, []}
@@ -32,9 +32,9 @@ defmodule Private do
   end
 
   @doc false
-  def handle_event({:privmsg, {<<".help ", r :: binary>>, _, {id, _}}}, []) do
+  def handle_event({:privmsg, {<<".help ", r :: binary>>, _, {clid,_}}}, []) do
     if r in ["talk", "speak", "chat"] do
-      Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
+      Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
       {:ok, []}
     else
       {:ok, []}
@@ -42,8 +42,8 @@ defmodule Private do
   end
 
   @doc false
-  def handle_event({:msg, {msg, _, {id, _}}}, []) when msg in @cmds do
-    Mambo.Bot.send_privmsg("Hello.", id)
+  def handle_event({:msg, {msg, _, {_,clid,_}}}, []) when msg in @cmds do
+    Mambo.Bot.send_privmsg("Hello.", clid)
     {:ok, []}
   end
 

@@ -56,12 +56,14 @@ defmodule Mambo.Helpers do
     {"clubs",?♣}, {"hearts",?♥}, {"diams",?♦}
   ]
 
+  # API.
+
   @doc """
   Reads the settings file. Returns a `Mambo.Bot.Settings` record.
   """
   @spec get_settings() :: Mambo.Bot.Settings[name: String.t, user: String.t, pass: String.t,
-                                             host: String.t, port: integer, bot_id: String.t,
-                                             admins: [String.t], scripts: [{atom, [term]}]]
+    host: String.t, port: integer, bot_id: String.t, admins: [String.t],
+    channels: String.t | [String.t], scripts: [{atom, [term]}]]
   def get_settings() do
     {:ok, data} = File.read("settings.json")
 
@@ -78,6 +80,7 @@ defmodule Mambo.Helpers do
       port: s["port"],
       bot_id: s["bot_id"],
       admins: s["admins"],
+      channels: s["channels"],
       scripts: p
     ]
   end
@@ -165,9 +168,7 @@ defmodule Mambo.Helpers do
     end
   end
 
-  # --------
-  # Helpers
-  # --------
+  # Helpers.
 
   defp r_entities([], rest, _, acc) do
     String.from_char_list!(Enum.reverse(acc)) <> rest

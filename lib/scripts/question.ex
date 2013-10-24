@@ -20,20 +20,20 @@ defmodule Question do
   end
 
   @doc false
-  def handle_event({:msg, {".help ask", _, _}}, state) do
-    Mambo.Bot.send_msg(<<?\n, @moduledoc>>)
+  def handle_event({:msg, {".help ask", _, {cid,_,_}}}, state) do
+    Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, state}
   end
 
   @doc false
-  def handle_event({:privmsg, {".help ask", _, {id, _}}}, state) do
-    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, id)
+  def handle_event({:privmsg, {".help ask", _, {clid,_}}}, state) do
+    Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, state}
   end
 
   @doc false
-  def handle_event({:msg, {msg, _, _}}, {re, key}) do
-    answer = fn(x) -> Mambo.Bot.send_msg(x) end
+  def handle_event({:msg, {msg, _, {cid,_,_}}}, {re, key}) do
+    answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
     case Regex.run(re, msg, capture: [1]) do
       [exp] ->
         spawn(fn -> ask(exp, answer, key) end)
@@ -44,8 +44,8 @@ defmodule Question do
   end
 
   @doc false
-  def handle_event({:privmsg, {msg, _, {id, _}}}, {re, key}) do
-    answer = fn(x) -> Mambo.Bot.send_privmsg(x, id) end
+  def handle_event({:privmsg, {msg, _, {clid,_}}}, {re, key}) do
+    answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
     case Regex.run(re, msg, capture: [1]) do
       [exp] ->
         spawn(fn -> ask(exp, answer, key) end)
