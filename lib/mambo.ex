@@ -33,8 +33,8 @@ defmodule Mambo do
   # Helpers.
 
   defp mnesia_init(nodes) do
-    {:atomic, :ok} = :mnesia.create_table(:mquotes, attributes: [:number, :quote],
-      disc_copies: nodes, type: :set)
+    {:atomic, :ok} = :mnesia.create_table(:mquotes, attributes: [:number, :name, :quote],
+      index: [3], disc_copies: nodes, type: :set)
     {:atomic, :ok} = :mnesia.create_table(:mlastfm, attributes: [:id, :username],
       disc_copies: nodes, type: :set)
     {:atomic, :ok} = :mnesia.create_table(:mscripts, attributes: [:key, :value],
