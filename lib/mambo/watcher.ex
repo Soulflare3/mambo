@@ -57,7 +57,7 @@ defmodule Mambo.Watcher do
     case Regex.run(%r/client_id=(\d*)/, r) do
       [_, clid] ->
         send_to_server(socket, "clientmove clid=#{clid} cid=#{cid}")
-        {:noreply, {socket, {clid, cid, bot_id}}}
+        {:noreply, {socket, {binary_to_integer(clid), cid, bot_id}}}
       _ ->
         {:noreply, state}
     end
@@ -82,15 +82,18 @@ defmodule Mambo.Watcher do
     end
   end
 
-  def handle_info({:tcp, _, <<@notify_move, r :: binary>>}, {_, {_,cid,_}} = state) do
-    cid = integer_to_binary(cid)
-    case Regex.run(%r/ctid=([0-9]*)/i, r) do
-      [_, ^cid] ->
-        Mambo.EventManager.notify({:move_in, cid})
+  def handle_info({:tcp, _, <<@notify_move, r :: binary>>}, {_, {clid,cid,_}} = state) do
+    scid = integer_to_binary(cid)
+    sclid = integer_to_binary(clid)
+    case Regex.run(%r/ctid=(\d*) reasonid=(\d*).*?clid=(\d*)/i, r) do
+      [_, _, "4", ^sclid] ->
+        Mambo.Bot.remove_watcher(cid)
+      [_, ^scid, reasonid, iclid] ->
+        Mambo.EventManager.notify({:move_in, {cid, reasonid, iclid}})
         {:noreply, state}
 
-      [_, lcid] ->
-        Mambo.EventManager.notify({:move_out, lcid})
+      [_, ocid, reasonid, oclid] ->
+        Mambo.EventManager.notify({:move_out, {ocid, reasonid, oclid}})
         {:noreply, state}
 
       _ ->
@@ -118,8 +121,8 @@ defmodule Mambo.Watcher do
     {:stop, :normal, state}
   end
 
-  def handle_info(:keep_alive, {s, _} = state) do
-    send_to_server(s, "version")
+  def handle_info(:keep_alive, {socket, _} = state) do
+    send_to_server(socket, "version")
     :erlang.send_after(300000, self(), :keep_alive)
     {:noreply, state}
   end

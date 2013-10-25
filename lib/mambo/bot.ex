@@ -36,7 +36,7 @@ defmodule Mambo.Bot do
   """
   @spec send_msg(String.t, integer) :: :ok
   def send_msg(msg, cid) do
-    :ok = :gen_server.cast(@bot, {:send_msg, {msg, cid}})
+    :gen_server.cast(@bot, {:send_msg, {msg, cid}})
   end
 
   @doc """
@@ -44,7 +44,7 @@ defmodule Mambo.Bot do
   """
   @spec send_privmsg(String.t, integer) :: :ok
   def send_privmsg(msg, cid) do
-    :ok = :gen_server.cast(@bot, {:send_privmsg, {msg, cid}})
+    :gen_server.cast(@bot, {:send_privmsg, {msg, cid}})
   end
 
   @doc """
@@ -52,7 +52,7 @@ defmodule Mambo.Bot do
   """
   @spec send_gm(String.t) :: :ok
   def send_gm(msg) do
-    :ok = :gen_server.cast(@bot, {:send_gm, msg})
+    :gen_server.cast(@bot, {:send_gm, msg})
   end
 
   @doc """
@@ -60,7 +60,7 @@ defmodule Mambo.Bot do
   """
   @spec kick(integer, String.t) :: :ok
   def kick(cid, msg // "Smells bad!") do
-    :ok = :gen_server.cast(@bot, {:kick, {cid, msg}})
+    :gen_server.cast(@bot, {:kick, {cid, msg}})
   end
 
   @doc """
@@ -68,7 +68,7 @@ defmodule Mambo.Bot do
   """
   @spec ban(integer, integer, String.t) :: :ok
   def ban(cid, time, msg // "Smells bad!") do
-    :ok = :gen_server.cast(@bot, {:ban, {cid, time, msg}})
+    :gen_server.cast(@bot, {:ban, {cid, time, msg}})
   end
 
   @doc """
@@ -85,6 +85,22 @@ defmodule Mambo.Bot do
   @spec id() :: String.t
   def id() do
     :gen_server.call(@bot, :id)
+  end
+
+  @doc """
+  Creates a watcher process in the channel `cid`.
+  """
+  @spec add_watcher(integer()) :: :ok
+  def add_watcher(cid) do
+    :gen_server.cast(@bot, {:add_watcher, cid})
+  end
+
+  @doc """
+  Terminates a watcher process in the channel `cid`.
+  """
+  @spec remove_watcher(integer()) :: :ok
+  def remove_watcher(cid) do
+    :gen_server.cast(@bot, {:remove_watcher, cid})
   end
 
   # Helpers.
@@ -192,8 +208,20 @@ defmodule Mambo.Bot do
     {:noreply, state}
   end
 
+  def handle_cast({:add_watcher, cid}, {socket, s, watchers}) do
+    num = length(watchers) + 1
+    args = [{cid, s.bot_id, {"#{s.name}_#{num}", s.host, s.port, s.user, s.pass}}]
+    {:ok, pid} = Mambo.WatcherSup.add_watcher(args)
+    {:noreply, {socket, s, Dict.put_new(watchers, cid, pid)}}
+  end
+
+  def handle_cast({:remove_watcher, cid}, {socket, s, watchers}) do
+    :ok = Mambo.WatcherSup.remove_watcher(watchers[cid])
+    {:noreply, {socket, s, Dict.delete(watchers, cid)}}
+  end
+
   def handle_cast(_, state) do
-    {:noreplay, state}
+    {:noreply, state}
   end
 
   def handle_info({:tcp, _, <<@notify_msg, r :: binary>>}, {_, Settings[bot_id: bid], _} = state) do
@@ -241,8 +269,8 @@ defmodule Mambo.Bot do
     {:stop, :normal, state}
   end
 
-  def handle_info(:keep_alive, {s, _} = state) do
-    send_to_server(s, "version")
+  def handle_info(:keep_alive, {socket, _, _} = state) do
+    send_to_server(socket, "version")
     :erlang.send_after(300000, self(), :keep_alive)
     {:noreply, state}
   end

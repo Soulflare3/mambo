@@ -3,6 +3,9 @@ defmodule Mambo.WatcherSup do
 
   use Supervisor.Behaviour
 
+  # Types.
+  @type error :: :not_found | :simple_one_for_one
+
   @watcher_sup __MODULE__
 
   # API.
@@ -17,6 +20,10 @@ defmodule Mambo.WatcherSup do
     :supervisor.start_child(@watcher_sup, args)
   end
 
+  @spec remove_watcher(pid()) :: :ok | {:error, error()}
+  def remove_watcher(watcher_pid) do
+    :supervisor.terminate_child(@watcher_sup, watcher_pid)
+  end
   # Supervisor callbacks.
 
   def init([]) do
