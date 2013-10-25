@@ -49,7 +49,7 @@ defmodule Mambo.Watcher do
   end
 
   def handle_cast(_, state) do
-    {:noreplay, state}
+    {:noreply, state}
   end
 
   # If login went ok, move watcher to channel with id `cid`.
