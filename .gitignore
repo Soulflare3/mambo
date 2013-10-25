@@ -3,4 +3,4 @@
 /releases
 erl_crash.dump
 settings.json
-brain.db
+/Mnesia.nonode@nohost

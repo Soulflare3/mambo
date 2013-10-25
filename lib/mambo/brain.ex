@@ -1,100 +1,86 @@
 defmodule Mambo.Brain do
   @moduledoc """
-  Implements the Mambo memory, a key-value store that scripts can use.
+  Implements the Mambo memory using mnesia, 3 tables are available:
+    1 - {:mquotes, :number, :name, :quote}
+    2 - {:mlastfm, :id, :username}
+    3 - {:mscripts, :key, :value}
   """
 
-  use GenServer.Behaviour
+  # API.
 
-  @brain __MODULE__
+  # Quotes.
 
-  @doc """
-  Starts the bot memory process. Returns `{:ok, pid}` on success.
-  """
-  @spec start_link() :: {:ok, pid}
-  def start_link() do
-    {:ok, _} = :gen_server.start_link({:local, @brain}, __MODULE__, [], [])
+  def add_quote(name, content) do
+    number = :mnesia.table_info(:mquotes, :size) + 1
+    f = fn() -> :mnesia.write({:mquotes, number, name, content}) end
+    :mnesia.activity(:transaction, f)
   end
 
-  @doc """
-  Inserts one or more objects into the bot brain. If there already exists an
-  object with a key matching the key of some of the given objects, the old
-  object will be replaced.
-  """
-  @spec set(tuple | [tuple]) :: true
-  def set(object) do
-    :gen_server.call(@brain, {:set, object})
+  def remove_quote(number) do
+    f = fn() -> :mnesia.delete({:mquotes, number}) end
+    :mnesia.activity(:transaction, f)
   end
 
-  @doc """
-  Returns a list of all objects with the key `key` in the bot brain.
-  """
-  @spec get(term) :: term | nil
+  def get_quote(number) do
+    f = fn() ->
+      case :mnesia.read({:mquotes, number}) do
+        [{:mquotes, ^number, name, content}] -> {name, content}
+        [] -> :not_found
+      end
+    end
+    :mnesia.activity(:transaction, f)
+  end
+
+  def get_random_quote() do
+    case :mnesia.table_info(:mquotes, :size) do
+      0 -> :no_quotes
+      size ->
+        :random.seed(:erlang.now())
+        get_quote(:random.uniform(size))
+    end
+  end
+
+  # Lastfm.
+
+  def add_lastfm_user(id, username) do
+    f = fn() -> :mnesia.write({:mlastfm, id, username}) end
+    :mnesia.activity(:transaction, f)
+  end
+
+  def get_lastfm_user(id) do
+    f = fn() ->
+      case :mnesia.read({:mlastfm, id}) do
+        [{:mlastfm, ^id, username}] -> username
+        [] -> :not_found
+      end
+    end
+    :mnesia.activity(:transaction, f)
+  end
+
+  def remove_lastfm_user(id) do
+    f = fn() -> :mnesia.delete({:mlastfm, id}) end
+    :mnesia.activity(:transaction, f)
+  end
+
+  # Scripts.
+
+  def put(key, value) do
+    f = fn() -> :mnesia.write({:mscripts, key, value}) end
+    :mnesia.activity(:transaction, f)
+  end
+
   def get(key) do
-    case :gen_server.call(@brain, {:get, key}) do
-      [{_, v}] -> v
-      _ -> nil
+    f = fn() ->
+      case :mnesia.read({:mscripts, key}) do
+        [{:mscripts, ^key, value}] -> value
+        [] -> :not_found
+      end
     end
+    :mnesia.activity(:transaction, f)
   end
 
-  @doc """
-  Removes all objects from the bot brain with the key `key`.
-  """
-  @spec remove(term) :: true
   def remove(key) do
-    :gen_server.call(@brain, {:remove, key})
-  end
-
-  @doc """
-  Dumps the bot brain to the file `filename`.
-  """
-  @spec save() :: :ok | {:error, String.t}
-  def save() do
-    :gen_server.call(@brain, :save)
-  end
-
-
-  # --------------------
-  # gen_sever callbacks
-  # --------------------
-
-  @doc false
-  def init([]) do
-    case :ets.file2tab('brain.db', verify: true) do
-      {:ok, t} ->
-        {:ok, t}
-      _ ->
-        t = :ets.new(:brain, [:set, :public])
-        {:ok, t}
-    end
-  end
-
-  def handle_call({:set, object}, _, t) do
-    r = :ets.insert(t, object)
-    {:reply, r, t}
-  end
-
-  def handle_call({:get, key}, _, t) do
-    r = :ets.lookup(t, key)
-    {:reply, r, t}
-  end
-
-  def handle_call({:remove, key}, _, t) do
-    r = :ets.delete(t, key)
-    {:reply, r, t}
-  end
-
-  def handle_call(:save, _, t) do
-    r = :ets.tab2file(t, 'brain.db')
-    {:reply, r, t}
-  end
-
-  def handle_call(_, _, t) do
-    {:noreply, t}
-  end
-
-  @doc false
-  def terminate(_, t) do
-    :ets.tab2file(t, 'brain.db')
-    :ok
+    f = fn() -> :mnesia.delete({:mscripts, key}) end
+    :mnesia.activity(:transaction, f)
   end
 end
