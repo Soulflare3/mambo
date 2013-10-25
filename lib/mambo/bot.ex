@@ -90,7 +90,6 @@ defmodule Mambo.Bot do
   def move(clids, cid, password) when is_list(clids) do
     :gen_server.cast(@bot, {:move, {clids, cid, password}})
   end
-
   def move(clid, cid, password) do
     :gen_server.cast(@bot, {:move, {[clid], cid, password}})
   end
