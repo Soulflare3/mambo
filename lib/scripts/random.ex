@@ -86,6 +86,7 @@ defmodule Random do
   # --------
 
   defp roll() do
+    :random.seed(:erlang.now())
     integer_to_binary(:random.uniform(100))
   end
 
@@ -108,6 +109,7 @@ defmodule Random do
   end
 
   defp attack() do
-    Enum.at ["rock", "paper", "scissors"], :random.uniform(3) - 1
+    :random.seed(:erlang.now())
+    Enum.at(["rock", "paper", "scissors"], :random.uniform(3) - 1)
   end
 end
