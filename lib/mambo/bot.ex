@@ -182,7 +182,7 @@ defmodule Mambo.Bot do
     lc {m, a} inlist s.scripts, do: Mambo.EventManager.install_script(m, a)
     :ok = login(socket, s.name, s.user, s.pass)
     :erlang.send_after(300000, self(), :keep_alive)
-    {:ok, {socket, s, []}}
+    {:ok, {socket, s, [], ""}}
   end
 
   def handle_call(:name, _, {_, s, _} = state) do
@@ -273,9 +273,20 @@ defmodule Mambo.Bot do
     end
   end
 
+  # Catch server query error messages and print them.
+  def handle_info({:tcp, _, <<"error id=", c, rest :: binary>>}, state) when c != ?0 do
+    case Regex.run(%r/^(\d*) msg=(.*)/i, <<c, rest :: binary>>) do
+      [_, id, msg] ->
+        IO.puts("Error(#{id}): #{Mambo.Helpers.unescape(msg)}")
+        {:noreply, state}
+      _ ->
+        {:noreply, state}
+    end
+  end
+
   # If the login goes ok, parse the channellist and spawn a watcher in each
   # channel specified in `settings.json`.
-  def handle_info({:tcp, _, <<@login_ok, channellist :: binary>>}, {socket, s, []}) do
+  def handle_info({:tcp, _, <<@login_ok, channellist :: binary>>}, {socket, s, [], ""}) do
     if String.ends_with?(channellist, "error id=0 msg=ok\n\r") do
       {ids, dc} = parse_channellist(channellist)
       watchers = add_watchers(ids, s)
@@ -285,7 +296,11 @@ defmodule Mambo.Bot do
     end
   end
 
-  def handle_info({:tcp, _, data}, {socket, s, [], channellist}) do
+  # If the channellist is too long the server query will answer in chuncks, this
+  # will match the rest of the chuncks and join them together will the content
+  # already received. Notice the state is a 4 element tuple, this is to make
+  # sure that we haven't already receive the channellist.
+  def handle_info({:tcp, _, data}, {socket, s, [], channellist}) when channellist != "" do
     if String.ends_with?(data, "error id=0 msg=ok\n\r") do
       {ids, dc} = parse_channellist(channellist <> data)
       watchers = add_watchers(ids, s)
