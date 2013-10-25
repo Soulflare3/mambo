@@ -88,6 +88,8 @@ defmodule Mambo.Watcher do
     case Regex.run(%r/ctid=(\d*) reasonid=(\d*).*?clid=(\d*)/i, r) do
       [_, _, "4", ^sclid] ->
         Mambo.Bot.remove_watcher(cid)
+        {:noreply, state}
+
       [_, ^scid, reasonid, iclid] ->
         Mambo.EventManager.notify({:move_in, {cid, reasonid, iclid}})
         {:noreply, state}
