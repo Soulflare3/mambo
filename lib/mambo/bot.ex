@@ -72,6 +72,30 @@ defmodule Mambo.Bot do
   end
 
   @doc """
+  Move the clients with id `clid` to the channel with id `cid`.
+  """
+  @spec move(integer | [integer], integer) :: :ok
+  def move(clids, cid) when is_list(clids) do
+    :gen_server.cast(@bot, {:move, {clids, cid, ""}})
+  end
+  def move(clid, cid) do
+    :gen_server.cast(@bot, {:move, {[clid], cid, ""}})
+  end
+
+  @doc """
+  Move the clients with id `clid` to the channel with id `cid` protected
+  with a password.
+  """
+  @spec move(integer | [integer], integer, String.t) :: :ok
+  def move(clids, cid, password) when is_list(clids) do
+    :gen_server.cast(@bot, {:move, {clids, cid, password}})
+  end
+
+  def move(clid, cid, password) do
+    :gen_server.cast(@bot, {:move, {[clid], cid, password}})
+  end
+
+  @doc """
   Returns the bot name.
   """
   @spec name() :: String.t
@@ -204,6 +228,13 @@ defmodule Mambo.Bot do
 
   def handle_cast({:ban, {cid, time, msg}}, {socket, _, _} = state) do
     cmd = "banclient clid=#{cid} time=#{time} reasonmsg=#{Mambo.Helpers.escape(msg)}"
+    :ok = send_to_server(socket, cmd)
+    {:noreply, state}
+  end
+
+  def handle_cast({:move, {clids, cid, password}}, {socket, _, _} = state) do
+    clients = Enum.map(clids, fn(clid) -> "clid=#{clid}" end) |> Enum.join("|")
+    cmd = "clientmove #{clients} cid=#{cid} cpw=#{password}"
     :ok = send_to_server(socket, cmd)
     {:noreply, state}
   end
