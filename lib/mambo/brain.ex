@@ -1,7 +1,7 @@
 defmodule Mambo.Brain do
   @moduledoc """
   Implements the Mambo memory using mnesia, 3 tables are available:
-    1 - {:mquotes, :number, :name, :quote}
+    1 - {:mquotes, :number, :quote}
     2 - {:mlastfm, :id, :username}
     3 - {:mscripts, :key, :value}
   """
@@ -10,9 +10,9 @@ defmodule Mambo.Brain do
 
   # Quotes.
 
-  def add_quote(name, content) do
+  def add_quote(content) do
     number = :mnesia.table_info(:mquotes, :size) + 1
-    f = fn() -> :mnesia.write({:mquotes, number, name, content}) end
+    f = fn() -> :mnesia.write({:mquotes, number, content}) end
     :mnesia.activity(:transaction, f)
   end
 
@@ -24,7 +24,7 @@ defmodule Mambo.Brain do
   def get_quote(number) do
     f = fn() ->
       case :mnesia.read({:mquotes, number}) do
-        [{:mquotes, ^number, name, content}] -> {name, content}
+        [{:mquotes, ^number, content}] -> content
         [] -> :not_found
       end
     end
