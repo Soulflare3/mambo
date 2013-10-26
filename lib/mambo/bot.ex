@@ -32,6 +32,22 @@ defmodule Mambo.Bot do
   end
 
   @doc """
+  Returns the bot name.
+  """
+  @spec name() :: String.t
+  def name() do
+    :gen_server.call(@bot, :name)
+  end
+
+  @doc """
+  Returns the bot id.
+  """
+  @spec id() :: String.t
+  def id() do
+    :gen_server.call(@bot, :id)
+  end
+
+  @doc """
   Sends a chat message to the teamspeak server.
   """
   @spec send_msg(String.t, integer) :: :ok
@@ -95,19 +111,19 @@ defmodule Mambo.Bot do
   end
 
   @doc """
-  Returns the bot name.
+  Mutes the watcher process in the channel with id `cid`.
   """
-  @spec name() :: String.t
-  def name() do
-    :gen_server.call(@bot, :name)
+  @spec mute(integer) :: :ok
+  def mute(cid) do
+    :gen_server.cast(@bot, {:mute, cid})
   end
 
   @doc """
-  Returns the bot id.
+  Unmutes the watcher process in the channel with id `cid`.
   """
-  @spec id() :: String.t
-  def id() do
-    :gen_server.call(@bot, :id)
+  @spec unmute(integer) :: :ok
+  def unmute(cid) do
+    :gen_server.cast(@bot, {:unmute, cid})
   end
 
   @doc """
@@ -235,6 +251,16 @@ defmodule Mambo.Bot do
     clients = Enum.map(clids, fn(clid) -> "clid=#{clid}" end) |> Enum.join("|")
     cmd = "clientmove #{clients} cid=#{cid} cpw=#{password}"
     :ok = send_to_server(socket, cmd)
+    {:noreply, state}
+  end
+
+  def handle_cast({:mute, cid}, {_, _, watchers} = state) do
+    :gen_server.cast(watchers[cid], :mute)
+    {:noreply, state}
+  end
+
+  def handle_cast({:unmute, cid}, {_, _, watchers} = state) do
+    :gen_server.cast(watchers[cid], :unmute)
     {:noreply, state}
   end
 

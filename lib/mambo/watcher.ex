@@ -6,11 +6,11 @@ defmodule Mambo.Watcher do
 
   use GenServer.Behaviour
 
-  @login_ok     "error id=0 msg=ok\n\r"
-  @notify_msg   "notifytextmessage"
-  @notify_move  "notifyclientmoved"
-  @notify_left  "notifyclientleftview"
-  @notify_enter "notifycliententerview"
+  @login_ok "error id=0 msg=ok\n\r"
+  @nmsg     "notifytextmessage"
+  @nmove    "notifyclientmoved"
+  @nleft    "notifyclientleftview"
+  @nenter   "notifycliententerview"
 
   # API.
 
@@ -39,10 +39,18 @@ defmodule Mambo.Watcher do
     {:ok, socket} = :gen_tcp.connect(String.to_char_list!(host), port, [:binary])
     login(socket, cid, name, user, pass)
     :erlang.send_after(300000, self(), :keep_alive)
-    {:ok, {socket, cid, bot_id}}
+    {:ok, {:unmute, socket, cid, bot_id}}
   end
 
-  def handle_cast({:send_msg, msg}, {socket, _} = state) do
+  def handle_cast(:mute, {_, socket, ids}) do
+    {:noreply, {:mute, socket, ids}}
+  end
+
+  def handle_cast(:unmute, {_, socket, ids}) do
+    {:noreply, {:unmute, socket, ids}}
+  end
+
+  def handle_cast({:send_msg, msg}, {_, socket, _} = state) do
     cmd = "sendtextmessage targetmode=2 target=1 msg=#{Mambo.Helpers.escape(msg)}"
     send_to_server(socket, cmd)
     {:noreply, state}
@@ -53,17 +61,17 @@ defmodule Mambo.Watcher do
   end
 
   # If login went ok, move watcher to channel with id `cid`.
-  def handle_info({:tcp, _, <<@login_ok, r :: binary>>}, {socket, cid, bot_id} = state) do
+  def handle_info({:tcp, _, <<@login_ok, r :: binary>>}, {_, socket, cid, bid} = state) do
     case Regex.run(%r/client_id=(\d*)/, r) do
       [_, clid] ->
         send_to_server(socket, "clientmove clid=#{clid} cid=#{cid}")
-        {:noreply, {socket, {binary_to_integer(clid), cid, bot_id}}}
+        {:noreply, {:unmute, socket, {binary_to_integer(clid), cid, bid}}}
       _ ->
         {:noreply, state}
     end
   end
 
-  def handle_info({:tcp, _, <<@notify_msg, r :: binary>>}, {_, {_,cid,bid}} = state) do
+  def handle_info({:tcp, _, <<@nmsg, r :: binary>>}, {:unmute, _, {_,cid,bid}} = state) do
     {:ok, re} = Regex.compile("targetmode=([1-2]) msg=(\\S*)(?: target=\\d*)? " <>
       "invokerid=(\\d*) invokername=(.*) invokeruid=(.*)", "i")
 
@@ -82,7 +90,7 @@ defmodule Mambo.Watcher do
     end
   end
 
-  def handle_info({:tcp, _, <<@notify_move, r :: binary>>}, {_, {clid,cid,_}} = state) do
+  def handle_info({:tcp, _, <<@nmove, r :: binary>>}, {:unmute, _, {clid,cid,_}} = state) do
     scid = integer_to_binary(cid)
     sclid = integer_to_binary(clid)
     case Regex.run(%r/ctid=(\d*) reasonid=(\d*).*?clid=(\d*)/i, r) do
@@ -103,12 +111,12 @@ defmodule Mambo.Watcher do
     end
   end
 
-  def handle_info({:tcp, _, <<@notify_left, _ :: binary>>}, state) do
+  def handle_info({:tcp, _, <<@nleft, _ :: binary>>}, {:unmute, _, _} = state) do
     Mambo.EventManager.notify(:left)
     {:noreply, state}
   end
 
-  def handle_info({:tcp, _, <<@notify_enter, r :: binary>>}, state) do
+  def handle_info({:tcp, _, <<@nenter, r :: binary>>}, {:unmute, _, _} = state) do
     case Regex.run(%r/client_nickname=(.*) client_input_muted=/i, r) do
       [_, name] ->
         Mambo.EventManager.notify({:enter, name})
@@ -123,7 +131,7 @@ defmodule Mambo.Watcher do
     {:stop, :normal, state}
   end
 
-  def handle_info(:keep_alive, {socket, _} = state) do
+  def handle_info(:keep_alive, {_, socket, _} = state) do
     send_to_server(socket, "version")
     :erlang.send_after(300000, self(), :keep_alive)
     {:noreply, state}
