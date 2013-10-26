@@ -15,79 +15,65 @@ defmodule Utils do
   @months {'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
            'Oct', 'Nov', 'Dec'}
 
-  @doc false
   def init([]) do
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:msg, {".help utils", _, {cid,_,_}}}, []) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:privmsg, {".help utils", _, {clid, _}}}, []) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:msg, {".ping", _, {cid,_,_}}}, []) do
     Mambo.Bot.send_msg("pong", cid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:privmsg, {".ping", _, {clid,_}}}, []) do
     Mambo.Bot.send_privmsg("pong", clid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:msg, {".date", _, {cid,_,_}}}, []) do
     Mambo.Bot.send_msg(date, cid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:privmsg, {".date", _, {clid,_}}}, []) do
     Mambo.Bot.send_privmsg(date, clid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:msg, {".time", _, {cid,_,_}}}, []) do
     Mambo.Bot.send_msg(date, cid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:privmsg, {".time", _, {clid,_}}}, []) do
     Mambo.Bot.send_privmsg(date, clid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:msg, {".uptime", _, {cid,_,_}}}, []) do
     Mambo.Bot.send_msg(uptime, cid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:privmsg, {".uptime", _, {clid,_}}}, []) do
     Mambo.Bot.send_privmsg(uptime, clid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event(_, []) do
     {:ok, []}
   end
 
-  # --------
   # Helpers
-  # --------
 
   defp date() do
     {{year, month_num, day} = date, {h, m, s}} = :erlang.localtime()

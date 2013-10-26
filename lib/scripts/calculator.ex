@@ -9,24 +9,20 @@ defmodule Calculator do
 
   use GenEvent.Behaviour
 
-  @doc false
   def init([]) do
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:msg, {<<".help c", _ :: binary>>, _, {cid,_,_}}}, []) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:privmsg, {<<".help c", _ :: binary>>, _, {clid,_}}}, []) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:msg, {msg, _, {cid,_,_}}}, []) do
     case Regex.run(%r/(\.calc|\.calculate|\.calculator|\.convert) (.*)/i, msg, capture: [2]) do
       [q] ->
@@ -38,7 +34,6 @@ defmodule Calculator do
     end
   end
 
-  @doc false
   def handle_event({:privmsg, {msg, _, {clid,_}}}, []) do
     case Regex.run(%r/(\.calc|\.calculate|\.calculator|\.convert) (.*)/i, msg, capture: [2]) do
       [q] ->
@@ -50,14 +45,11 @@ defmodule Calculator do
     end
   end
 
-  @doc false
   def handle_event(_, []) do
     {:ok, []}
   end
 
-  # --------
   # Helpers
-  # --------
 
   defp calc(q, answer) do
     url = 'https://www.google.com/ig/calculator?hl=en&q=#{URI.encode(q)}'

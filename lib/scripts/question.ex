@@ -12,26 +12,22 @@ defmodule Question do
   @name "My name is Wolfram|Alpha."
   @author "I was created by Stephen Wolfram and his team."
 
-  @doc false
   def init([name, apikey]) do
     {:ok, re} = Regex.compile("^#{name} ((what|who|where|why|when|" <>
       "who|whom|how|whose|whence|whither|do)('s)? (.*))", "i")
     {:ok, {re, apikey}}
   end
 
-  @doc false
   def handle_event({:msg, {".help ask", _, {cid,_,_}}}, state) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, state}
   end
 
-  @doc false
   def handle_event({:privmsg, {".help ask", _, {clid,_}}}, state) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, state}
   end
 
-  @doc false
   def handle_event({:msg, {msg, _, {cid,_,_}}}, {re, key}) do
     answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
     case Regex.run(re, msg, capture: [1]) do
@@ -43,7 +39,6 @@ defmodule Question do
     end
   end
 
-  @doc false
   def handle_event({:privmsg, {msg, _, {clid,_}}}, {re, key}) do
     answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
     case Regex.run(re, msg, capture: [1]) do
@@ -55,25 +50,19 @@ defmodule Question do
     end
   end
 
-  @doc false
   def handle_event(_, state) do
     {:ok, state}
   end
 
-  # --------
   # Helpers
-  # --------
 
   defp ask(q, answer, key) do
     url = "http://api.wolframalpha.com/v2/query?" <>
-      URI.encode_query(
-        [input: q,
-         appid: key,
-         podindex: 2,
-         format: "plaintext"]) |> String.to_char_list!
+      URI.encode_query([input: q, appid: key, podindex: 2, format: "plaintext"])
 
-    case :httpc.request(:get, {url, []}, [], body_format: :binary) do
-      {:ok, {{_, 200, _}, _, body}} ->
+    case :hackney.get(url, [], <<>>, []) do
+      {:ok, 200, _, client} ->
+        {:ok, body, _} = :hackney.body(client)
         case parse_resp(body) do
           {:done, _, s, _, _} ->
             answer.(format(s))

@@ -15,13 +15,14 @@ defmodule Mambo.Mixfile do
 
   # Configuration for the OTP application
   def application do
-    [ applications: [:ssl, :inets],
+    [ applications: [:ssl, :inets, :hackney],
       mod: {Mambo, []} ]
   end
 
   # Returns the list of dependencies in the format:
   # { :foobar, "~> 0.1", git: "https://github.com/elixir-lang/foobar.git" }
   defp deps do
-    [{:jsex, github: "talentdeficit/jsex"}]
+    [{:jsex, github: "talentdeficit/jsex"},
+     {:hackney, github: "benoitc/hackney"}]
   end
 end

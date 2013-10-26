@@ -9,24 +9,29 @@ defmodule Title do
 
   use GenEvent.Behaviour
 
-  @doc false
   def init([]) do
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:msg, {".help title", _, {cid,_,_}}}, []) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:privmsg, {".help title", _, {clid,_}}}, []) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
-  @doc false
+  # Ignore links from the `.gif` command.
+  def handle_event({:msg, {<<".gif", _ :: binary>>, _, _}}, []) do
+    {:ok, []}
+  end
+
+  def handle_event({:privmsg, {<<".gif", _ :: binary>>, _, _}}, []) do
+    {:ok, []}
+  end
+
   def handle_event({:msg, {msg, _, {cid,_,_}}}, []) do
     answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
     case Mambo.Helpers.find_url(msg) do
@@ -38,7 +43,6 @@ defmodule Title do
     end
   end
 
-  @doc false
   def handle_event(_, []) do
     {:ok, []}
   end
@@ -49,68 +53,50 @@ defmodule Title do
   id `type`.
   """
   def get_title(url, answer) do
-    headers = [{'User-Agent', 'Mozilla/5.0'},
-               {'Cookie', 'locale=en_US; path=/; domain=.facebook.com'}]
-
-    {:ok, ref} = :httpc.request(:get, {String.to_char_list!(url), headers}, [],
-      sync: false, stream: :self)
-
-    receive_chunk(ref, <<>>, 5000, answer, :unicode)
-  end
-
-  # --------
-  # Helpers
-  # --------
-
-  defp receive_chunk(_, body, len, answer, :unicode) when len <= 0 do
-    find_title(body, answer)
-  end
-
-  defp receive_chunk(_, body, len, answer, :latin1) when len <= 0 do
-    find_title(:unicode.characters_to_binary(body, :latin1), answer)
-  end
-
-  defp receive_chunk(ref, body, len, answer, encoding) do
-    receive do
-      {:http, {^ref, :stream_start, headers}} ->
-        [ct | rest] = String.from_char_list!(headers['content-type'])
-          |> String.split(";", global: false)
-
-        case rest do
-          [] -> :ok
-          _ ->
-            if String.contains?(rest, "8859-1") do
-              encoding = :latin1
-            end
+    headers = [{"User-Agent", "Mozilla/5.0"},
+               {"Cookie", "locale=en_US; path=/; domain=.facebook.com"}]
+    case :hackney.get(url, headers, <<>>, [{:follow_redirect, true}]) do
+      {:ok, 200, headers, client} ->
+        case parse_content_type(headers["Content-Type"]) do
+          "text/html" ->
+            {:ok, body, _} = :hackney.body(5000, client)
+            find_title(body, answer)
+          {"text/html", :latin1} ->
+            {:ok, body, _} = :hackney.body(5000, client)
+            find_title(:unicode.characters_to_binary(body, :latin1), answer)
+          other ->
+            answer.("[b]Content Type:[/b] #{other}")
         end
-
-        if ct == "text/html" do
-          receive_chunk(ref, body, len, answer, encoding)
-        else
-          answer.("[b]Content Type:[/b] #{ct}")
-        end
-
-      {:http, {^ref, :stream, data}} ->
-        receive_chunk(ref, body <> data, len - size(data), answer, encoding)
-
-      {:http, {^ref, :stream_end, _}} ->
-        receive_chunk(ref, body, 0, answer, encoding)
-
-    after
-      5000 ->
+      _ ->
         :ok
+    end
+  end
+
+  # Helpers
+
+  defp parse_content_type(content_type) do
+    case String.split(content_type, ";", global: false) do
+      ["text/html"] ->
+        "text/html"
+      [other] ->
+        other
+      ["text/html", rest] ->
+        if String.contains?(rest, "8859-1") do
+          {"text/html", :latin1}
+        else
+          "text/html"
+        end
     end
   end
 
   defp find_title(body, answer) do
     case Regex.run(%r\<title[^>]*>([^<]+)</title>\im, body, capture: [1]) do
-      nil ->
-        :ok
       [title] ->
         title = String.strip(title) |> String.split("\n") |> Enum.join
                 |> Mambo.Helpers.decode_html
-
         answer.("[b]Title:[/b] #{title}")
+      nil ->
+        :ok
     end
   end
 end

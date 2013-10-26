@@ -9,44 +9,37 @@ defmodule Rainbow do
   use GenEvent.Behaviour
 
   @colors ["#FF0000",
-       "#FF8000",
-       "#EAB700",
-       "#008000",
-       "#0000FF",
-       "#4B0082",
-       "#9400D3"]
+           "#FF8000",
+           "#EAB700",
+           "#008000",
+           "#0000FF",
+           "#4B0082",
+           "#9400D3"]
 
-  @doc false
   def init([]) do
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:msg, {".help gay", _, {cid,_,_}}}, []) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:privmsg, {".help gay", _, {clid,_}}}, []) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:msg, {<<".gay ", msg :: binary>>, _, {cid,_,_}}}, []) do
     msg |> rainbow |> Mambo.Bot.send_msg(cid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event(_, []) do
     {:ok, []}
   end
 
-  # --------
   # Helpers
-  # --------
 
   defp rainbow(s) do
     rainbow(String.codepoints(s), @colors, [])

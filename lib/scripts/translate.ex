@@ -77,11 +77,6 @@ defmodule Translate do
     {"yi", "yiddish"}
   ]
 
-  # --------------------
-  # gen_event callbacks
-  # --------------------
-
-  @doc false
   def init([]) do
     langs = Enum.reduce(@languages, [], fn({k,v}, acc) -> [k, v | acc] end)
     |> Enum.join("|")
@@ -89,21 +84,18 @@ defmodule Translate do
     {:ok, langs}
   end
 
-  @doc false
   def handle_event({:msg, {<<".help ", cmd :: binary>>, _, {cid,_,_}}}, langs)
     when cmd in ["tl", "translate"] do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, langs}
   end
 
-  @doc false
   def handle_event({:privmsg, {<<".help ", cmd :: binary>>, _, {clid,_}}}, langs)
     when cmd in ["tl", "translate"] do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, langs}
   end
 
-  @doc false
   def handle_event({:msg, {msg, _, {cid,_,_}}}, langs) do
     answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
 
@@ -121,7 +113,6 @@ defmodule Translate do
     end
   end
 
-  @doc false
   def handle_event({:privmsg, {msg, _, {clid,_}}}, langs) do
     answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
 
@@ -139,14 +130,11 @@ defmodule Translate do
     end
   end
 
-  @doc false
   def handle_event(_, langs) do
     {:ok, langs}
   end
 
-  # --------
   # Helpers
-  # --------
 
   defp get_code(lang) do
     unless ListDict.has_key?(@languages, lang) do
@@ -160,22 +148,13 @@ defmodule Translate do
 
   defp translate(sl, tl, exp, answer) do
     url = "https://translate.google.com/translate_a/t?" <>
-      URI.encode_query(
-        [client: "p",
-         oe: "UTF-8",
-         ie: "UTF-8",
-         hl: "en",
-         multires: 1,
-         sc: 1,
-         sl: sl,
-         ssel: 0,
-         tl: tl,
-         tsel: 0,
-         uptl: "en",
-         text: exp]) |> String.to_char_list!
+      URI.encode_query([client: "p", oe: "UTF-8", ie: "UTF-8", hl: "en",
+        multires: 1, sc: 1, sl: sl, ssel: 0, tl: tl, tsel: 0, uptl: "en",
+        text: exp])
 
-    case :httpc.request(:get, {url, []}, [], body_format: :binary) do
-      {:ok, {{_, 200, _}, _, body}} ->
+    case :hackney.get(url, [], <<>>, []) do
+      {:ok, 200, _, client} ->
+        {:ok, body, _} = :hackney.body(client)
         {:ok, data} = JSEX.decode(body)
         ilang = @languages[data["src"]]
         tlang = @languages[tl]

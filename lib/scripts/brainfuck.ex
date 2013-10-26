@@ -11,45 +11,37 @@ defmodule Brainfuck do
   @tape <<0 :: [size(30000), unit(8)]>>
     @data_pointer 0
 
-    @doc false
   def init([]) do
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:msg, {<<".help b", _ :: binary>>, _, {cid,_,_}}}, []) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:privmsg, {<<".help b", _ :: binary>>, _, {clid,_}}}, []) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:msg, {<<".bf ", l :: binary>>, _, {cid,_,_}}}, []) do
     answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
     spawn(fn -> run(l, answer) end)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:privmsg, {<<".bf ", l :: binary>>, _, {clid,_}}}, []) do
     answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
     spawn(fn -> run(l, answer) end)
     {:ok, []}
   end
 
-  @doc false
   def handle_event(_, []) do
     {:ok, []}
   end
 
-  # --------
   # Helpers
-  # --------
 
   def run(instructions, callback) do
     {_, _, out} = parse(instructions, @data_pointer, @tape, [])

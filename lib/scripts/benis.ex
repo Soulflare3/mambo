@@ -8,37 +8,30 @@ defmodule Benis do
 
   use GenEvent.Behaviour
 
-  @doc false
   def init([]) do
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:msg, {".help benis", _, {cid,_,_}}}, []) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:privmsg, {".help benis", _, {clid,_}}}, []) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event({:msg, {<<".benis ", msg :: binary>>, _, {cid,_,_}}}, []) do
     msg |> benisify |> Mambo.Bot.send_msg(cid)
     {:ok, []}
   end
 
-  @doc false
   def handle_event(_, []) do
     {:ok, []}
   end
 
-  # --------
   # Helpers
-  # --------
 
   defp benisify(s) do
     String.downcase(s)

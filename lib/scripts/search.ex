@@ -10,26 +10,22 @@ defmodule Search do
 
   use GenEvent.Behaviour
 
-  @doc false
   def init(apikey) do
     {:ok, apikey}
   end
 
-  @doc false
   def handle_event({:msg, {<<".help ", cmd :: binary>>, _, {cid,_,_}}}, k)
     when cmd in ["google", "yt", "youtube", "img", "image", "images"] do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, k}
   end
 
-  @doc false
   def handle_event({:privmsg, {<<".help ", cmd :: binary>>, _, {clid,_}}}, k)
     when cmd in ["google", "yt", "youtube", "img", "image", "images"] do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, k}
   end
 
-  @doc false
   def handle_event({:msg, {msg, _, {cid,_,_}}}, k) do
     answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
     case Regex.run(%r/^(\.g|\.google|\.youtube|\.yt|\.img|\.image(?:s)?) (.*)/i, msg) do
@@ -41,7 +37,6 @@ defmodule Search do
     end
   end
 
-  @doc false
   def handle_event({:privmsg, {msg, _, {clid,_}}}, k) do
     answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
     case Regex.run(%r/^(\.g|\.google|\.youtube|\.yt|\.img|\.image(?:s)?) (.*)/i, msg) do
@@ -53,25 +48,22 @@ defmodule Search do
     end
   end
 
-  @doc false
   def handle_event(_, k) do
     {:ok, k}
   end
 
-  # --------
   # Helpers
-  # --------
 
   defp search(<<?., ?i, _ :: binary>>, q, _, answer) do
-    url = 'http://ajax.googleapis.com/ajax/services/search/' ++
-          'images?safe=off&v=1.0&q=#{URI.encode(q)}'
+    url = "http://ajax.googleapis.com/ajax/services/search/" <>
+          "images?safe=off&v=1.0&q=#{URI.encode(q)}"
 
     google(url, answer)
   end
 
   defp search(<<?., ?g, _ :: binary>>, q, _, answer) do
-    url = 'https://ajax.googleapis.com/ajax/services/search/' ++
-          'web?safe=off&v=1.0&q=#{URI.encode(q)}'
+    url = "https://ajax.googleapis.com/ajax/services/search/" <>
+          "web?safe=off&v=1.0&q=#{URI.encode(q)}"
 
     google(url, answer)
   end
@@ -81,8 +73,9 @@ defmodule Search do
   end
 
   defp google(url, answer) do
-    case :httpc.request(:get, {url, []}, [], body_format: :binary) do
-      {:ok, {{_, 200, _}, _, body}} ->
+    case :hackney.get(url, [], <<>>, []) do
+      {:ok, 200, _, client} ->
+        {:ok, body, _} = :hackney.body(client)
         {:ok, data}  = JSEX.decode(body)
         rdata = data["responseData"]
 
@@ -92,7 +85,7 @@ defmodule Search do
           [r | _] ->
             result = r["unescapedUrl"]
             spawn(Title, :get_title, [result, answer])
-            answer.("#{Mambo.Helpers.format_url result}")
+            answer.("#{Mambo.Helpers.format_url(result)}")
         end
       _ ->
         answer.("Something went wrong.")
@@ -101,13 +94,11 @@ defmodule Search do
 
   defp youtube(q, k, answer) do
     url = "https://www.googleapis.com/youtube/v3/search?" <>
-      URI.encode_query(
-        [q: q,
-         key: k,
-         part: "id"]) |> String.to_char_list!
+      URI.encode_query([q: q, key: k, part: "id"])
 
-    case :httpc.request(:get, {url, []}, [], body_format: :binary) do
-    {:ok, {{_, 200, _}, _, body}} ->
+    case :hackney.get(url, [], <<>>, []) do
+    {:ok, 200, _, client} ->
+      {:ok, body, _} = :hackney.body(client)
       {:ok, data} = JSEX.decode(body)
       case data["items"] do
         [] ->
@@ -116,7 +107,7 @@ defmodule Search do
           id = v["id"]
           v_url = "https://www.youtube.com/watch?v=#{id["videoId"]}"
           spawn(Title, :get_title, [v_url, answer])
-          answer.("#{Mambo.Helpers.format_url v_url}")
+          answer.("#{Mambo.Helpers.format_url(v_url)}")
       end
     _ ->
       answer.("Something went wrong.")
