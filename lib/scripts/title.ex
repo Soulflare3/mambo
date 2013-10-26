@@ -73,11 +73,15 @@ defmodule Title do
   defp receive_chunk(ref, body, len, answer, encoding) do
     receive do
       {:http, {^ref, :stream_start, headers}} ->
-        [ct, charset] = String.from_char_list!(headers['content-type'])
+        [ct | rest] = String.from_char_list!(headers['content-type'])
           |> String.split(";", global: false)
 
-        if String.contains?(charset, "8859-1") do
-          encoding = :latin1
+        case rest do
+          [] -> :ok
+          _ ->
+            if String.contains?(rest, "8859-1") do
+              encoding = :latin1
+            end
         end
 
         if ct == "text/html" do
