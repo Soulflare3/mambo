@@ -1,6 +1,7 @@
 /ebin
 /deps
+/tmp
 /releases
-erl_crash.dump
-settings.json
 /Mnesia.nonode@nohost
+settings.json
+erl_crash.dump
