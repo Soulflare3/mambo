@@ -6,11 +6,12 @@ defmodule Mambo.Watcher do
 
   use GenServer.Behaviour
 
-  @login_ok "error id=0 msg=ok\n\r"
   @nmsg     "notifytextmessage"
   @nmove    "notifyclientmoved"
   @nleft    "notifyclientleftview"
   @nenter   "notifycliententerview"
+  @login_ok "error id=0 msg=ok\n\r"
+  @admin    "\.mute|\.unmute|\.ban|\.kick|\.move|\.promote|\.demote|\.gm"
 
   # API.
 
@@ -71,7 +72,7 @@ defmodule Mambo.Watcher do
     end
   end
 
-  def handle_info({:tcp, _, <<@nmsg, r :: binary>>}, {:unmute, _, {_,cid,bid}} = state) do
+  def handle_info({:tcp, _, <<@nmsg, r :: binary>>}, {status, _, {_,cid,bid}} = state) do
     {:ok, re} = Regex.compile("targetmode=([1-2]) msg=(\\S*)(?: target=\\d*)? " <>
       "invokerid=(\\d*) invokername=(.*) invokeruid=(.*)", "i")
 
@@ -82,9 +83,16 @@ defmodule Mambo.Watcher do
       [_, "2", msg, clid, name, uid] ->
         msg = Mambo.Helpers.unescape(msg)
         name = Mambo.Helpers.unescape(name)
-        Mambo.EventManager.notify({:msg, {msg, name, {cid, clid, uid}}})
-        {:noreply, state}
-
+        cond do
+          status == :unmute ->
+            Mambo.EventManager.notify({:msg, {msg, name, {cid, clid, uid}}})
+            {:noreply, state}
+          status == :mute and Regex.match?(%r/^(#{@admin})/i, msg) ->
+            Mambo.EventManager.notify({:msg, {msg, name, {cid, clid, uid}}})
+            {:noreply, state}
+          true ->
+            {:noreply, state}
+        end
       _ ->
         {:noreply, state}
     end
