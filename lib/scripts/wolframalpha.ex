@@ -14,14 +14,12 @@ defmodule Wolframalpha do
     {:ok, key}
   end
 
-  def handle_event({:msg, {<<".help ", cmd :: binary>>, _, {cid,_,_}}}, key)
-    when cmd in ["wa", "calc", "convert"] do
+  def handle_event({:msg, {".help wolframalpha", _, {cid,_,_}}}, key) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, key}
   end
 
-  def handle_event({:privmsg, {<<".help ", cmd :: binary>>, _, {clid,_}}}, key)
-    when cmd in ["wa", "calc", "convert"] do
+  def handle_event({:privmsg, {".help wolframalpha", _, {clid,_}}}, key) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, key}
   end

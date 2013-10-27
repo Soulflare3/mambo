@@ -13,14 +13,12 @@ defmodule Google do
     {:ok, []}
   end
 
-  def handle_event({:msg, {<<".help ", cmd :: binary>>, _, {cid,_,_}}}, [])
-    when cmd in ["google", "img", "image", "images"] do
+  def handle_event({:msg, {".help google", _, {cid,_,_}}}, []) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {<<".help ", cmd :: binary>>, _, {clid,_}}}, [])
-    when cmd in ["google", "img", "image", "images"] do
+  def handle_event({:privmsg, {".help google", _, {clid,_}}}, []) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
