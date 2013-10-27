@@ -61,15 +61,15 @@ defmodule Youtube do
       {:ok, data} = JSEX.decode(body)
       case data["items"] do
         [] ->
-          answer.("No result.")
+          answer.("[b]YouTube:[/b] No result.")
         videos ->
           case Enum.find(videos, fn(v) -> v["id"]["kind"] == "youtube#video" end) do
             nil ->
-              answer.("No result.")
+              answer.("[b]YouTube:[/b] No result.")
             video ->
               v_url = "https://www.youtube.com/watch?v=#{video["id"]["videoId"]}"
               spawn(Title, :get_title, [v_url, answer])
-              answer.("#{Mambo.Helpers.format_url(v_url)}")
+              answer.("[b]YouTube:[/b] #{Mambo.Helpers.format_url(v_url)}")
           end
       end
     _ ->

@@ -66,11 +66,11 @@ defmodule Google do
         rdata = data["responseData"]
         case rdata["results"] do
           [] ->
-            answer.("No result.")
+            answer.("[b]Google:[/b] No result.")
           [r | _] ->
             result = r["unescapedUrl"]
             spawn(Title, :get_title, [result, answer])
-            answer.("#{Mambo.Helpers.format_url(result)}")
+            answer.("[b]Google:[/b] #{Mambo.Helpers.format_url(result)}")
         end
       _ ->
         answer.("Something went wrong.")
