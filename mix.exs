@@ -15,7 +15,7 @@ defmodule Mambo.Mixfile do
 
   # Configuration for the OTP application
   def application do
-    [ applications: [:ssl, :inets, :hackney],
+    [ applications: [:hackney],
       mod: {Mambo, []} ]
   end
 
