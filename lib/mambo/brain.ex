@@ -1,7 +1,7 @@
 defmodule Mambo.Brain do
   @moduledoc """
   Implements the Mambo memory using mnesia, 3 tables are available:
-    1 - {:mquotes, :number, :name, :quote}
+    1 - {:mquotes, :id, :content}
     2 - {:mlastfm, :id, :username}
     3 - {:mscripts, :key, :value}
   """
@@ -10,21 +10,38 @@ defmodule Mambo.Brain do
 
   # Quotes.
 
-  def add_quote(name, content) do
-    number = :mnesia.table_info(:mquotes, :size) + 1
-    f = fn() -> :mnesia.write({:mquotes, number, name, content}) end
+  def add_quote(id, content) do
+    f = fn() -> :mnesia.write({:mquotes, id, content}) end
     :mnesia.activity(:transaction, f)
+    id
   end
 
-  def remove_quote(number) do
-    f = fn() -> :mnesia.delete({:mquotes, number}) end
-    :mnesia.activity(:transaction, f)
-  end
+  def find_quotes(query) do
+    keywords = String.replace(query, %r/(\.|:|,|;|\?|!)/, "")
+      |> String.downcase
+      |> String.split(["\n","\s","\t","\r"], trim: true)
 
-  def get_quote(number) do
     f = fn() ->
-      case :mnesia.read({:mquotes, number}) do
-        [{:mquotes, ^number, name, content}] -> {name, content}
+      :mnesia.foldl(fn({:mquotes, id, content}, acc) ->
+        if String.contains?(String.downcase(content),  keywords) do
+          [id | acc]
+        else
+          acc
+        end
+      end, [], :mquotes)
+    end
+    :mnesia.activity(:transaction, f)
+  end
+
+  def remove_quote(id) do
+    f = fn() -> :mnesia.delete({:mquotes, id}) end
+    :mnesia.activity(:transaction, f)
+  end
+
+  def get_quote(id) do
+    f = fn() ->
+      case :mnesia.read({:mquotes, id}) do
+        [{:mquotes, ^id, content}] -> {id, content}
         [] -> :not_found
       end
     end
@@ -32,12 +49,15 @@ defmodule Mambo.Brain do
   end
 
   def get_random_quote() do
-    case :mnesia.table_info(:mquotes, :size) do
-      0 -> :no_quotes
-      size ->
-        :random.seed(:erlang.now())
-        get_quote(:random.uniform(size))
-    end
+    :random.seed(:erlang.now())
+    ids = :mnesia.dirty_all_keys(:mquotes)
+    id = Enum.at(ids, :random.uniform(length(ids)) - 1)
+    get_quote(id)
+  end
+
+  def quotes_max() do
+    ids = :mnesia.dirty_all_keys(:mquotes)
+    Enum.max(ids)
   end
 
   # Lastfm.
