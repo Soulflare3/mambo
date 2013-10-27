@@ -63,12 +63,12 @@ defmodule Google do
         {:ok, data}  = JSEX.decode(body)
         rdata = data["responseData"]
         case rdata["results"] do
-          [] ->
-            answer.("[b]Google:[/b] No result.")
           [r | _] ->
             result = r["unescapedUrl"]
             spawn(Title, :get_title, [result, answer])
             answer.("[b]Google:[/b] #{Mambo.Helpers.format_url(result)}")
+          [] ->
+            answer.("[b]Google:[/b] No result.")
         end
       _ ->
         answer.("Something went wrong.")
