@@ -155,7 +155,7 @@ defmodule Translate do
     case :hackney.get(url, [], <<>>, []) do
       {:ok, 200, _, client} ->
         {:ok, body, _} = :hackney.body(client)
-        {:ok, data} = JSEX.decode(body)
+        data = :jsx.decode(body)
         ilang = @languages[data["src"]]
         tlang = @languages[tl]
         sentences = hd(data["sentences"])

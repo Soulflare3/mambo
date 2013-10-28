@@ -47,8 +47,7 @@ defmodule Twitter do
                {"Content-Type", "application/x-www-form-urlencoded;charset=UTF-8"}]
     {:ok, 200, _, client} = :hackney.post(url, headers, body, [])
     {:ok, body, _} = :hackney.body(client)
-    {:ok, resp} = JSEX.decode(body)
-    resp["access_token"]
+    :jsx.decode(body)["access_token"]
   end
 
   defp print_tweets(id, token, answer) do
@@ -68,7 +67,7 @@ defmodule Twitter do
     case :hackney.get(url, headers, <<>>, []) do
       {:ok, 200, _, client} ->
         {:ok, body, _} = :hackney.body(client)
-        {:ok, json} = JSEX.decode(body)
+        json = :jsx.decode(body)
         uscreen_name = json["user"]["screen_name"]
         tweet = tweet(
           user: {uscreen_name, "https://twitter.com/#{uscreen_name}"},

@@ -55,8 +55,7 @@ defmodule Urban do
     case :hackney.get(url, [], <<>>, []) do
       {:ok, 200, _, client} ->
         {:ok, body, _} = :hackney.body(client)
-        {:ok, data}  = JSEX.decode(body)
-        case data["list"] do
+        case :jsx.decode(body)["list"] do
           [first|_] ->
             answer.("[b]Urban Dictionary:[/b] #{format(first["definition"])}.")
           [] ->

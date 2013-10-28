@@ -108,8 +108,7 @@ defmodule Gif do
         case :hackney.post(url, headers, payload, []) do
           {:ok, 200, _, client} ->
             {:ok, body, _} = :hackney.body(client)
-            {:ok, data} = JSEX.decode(body)
-            new_gif = Mambo.Helpers.format_url(data["data"]["link"])
+            new_gif = Mambo.Helpers.format_url(:jsx.decode(body)["data"]["link"])
             answer.("[b]#{name}[/b] here's your gif #{new_gif}")
           _ ->
             answer.("Something went wrong.")

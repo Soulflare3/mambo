@@ -56,8 +56,7 @@ defmodule Youtube do
     case :hackney.get(url, [], <<>>, []) do
     {:ok, 200, _, client} ->
       {:ok, body, _} = :hackney.body(client)
-      {:ok, data} = JSEX.decode(body)
-      case data["items"] do
+      case :jsx.decode(body)["items"] do
         [] ->
           answer.("[b]YouTube:[/b] No result.")
         videos ->
