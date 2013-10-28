@@ -7,6 +7,7 @@ defmodule Utils do
     .date
     .time
     .uptime
+    .version
   """
 
   use GenEvent.Behaviour
@@ -40,32 +41,42 @@ defmodule Utils do
   end
 
   def handle_event({:msg, {".date", _, {cid,_,_}}}, []) do
-    Mambo.Bot.send_msg(date, cid)
+    Mambo.Bot.send_msg(date(), cid)
     {:ok, []}
   end
 
   def handle_event({:privmsg, {".date", _, {clid,_}}}, []) do
-    Mambo.Bot.send_privmsg(date, clid)
+    Mambo.Bot.send_privmsg(date(), clid)
     {:ok, []}
   end
 
   def handle_event({:msg, {".time", _, {cid,_,_}}}, []) do
-    Mambo.Bot.send_msg(date, cid)
+    Mambo.Bot.send_msg(date(), cid)
     {:ok, []}
   end
 
   def handle_event({:privmsg, {".time", _, {clid,_}}}, []) do
-    Mambo.Bot.send_privmsg(date, clid)
+    Mambo.Bot.send_privmsg(date(), clid)
     {:ok, []}
   end
 
   def handle_event({:msg, {".uptime", _, {cid,_,_}}}, []) do
-    Mambo.Bot.send_msg(uptime, cid)
+    Mambo.Bot.send_msg(uptime(), cid)
     {:ok, []}
   end
 
   def handle_event({:privmsg, {".uptime", _, {clid,_}}}, []) do
-    Mambo.Bot.send_privmsg(uptime, clid)
+    Mambo.Bot.send_privmsg(uptime(), clid)
+    {:ok, []}
+  end
+
+  def handle_event({:msg, {".version", _, {cid,_,_}}}, []) do
+    Mambo.Bot.send_msg(version(), cid)
+    {:ok, []}
+  end
+
+  def handle_event({:privmsg, {".version", _, {clid,_}}}, []) do
+    Mambo.Bot.send_privmsg(version(), clid)
     {:ok, []}
   end
 
@@ -88,5 +99,12 @@ defmodule Utils do
     {total, _} = :erlang.statistics(:wall_clock)
     {d, {h, m, s}} = :calendar.seconds_to_daystime(div(total, 1000))
     "#{d} days, #{h} hours, #{m} minutes and #{s} seconds."
+  end
+
+  defp version() do
+    if Enum.all?(:application.which_applications(), fn({a,_,_}) -> a != :mix end) do
+      Mix.loadpaths()
+    end
+    "Mambo - #{Mix.project()[:version]}"
   end
 end

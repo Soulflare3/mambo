@@ -77,8 +77,7 @@ defmodule Mambo.Watcher do
       "invokerid=(\\d*) invokername=(.*) invokeruid=(.*)", "i")
 
     case Regex.run(re, r) do
-      [_, _, _, _, _, ^bid] ->
-        {:noreply, state}
+      [_, _, _, _, _, ^bid] -> {:noreply, state}
 
       [_, "2", msg, clid, name, uid] ->
         msg = Mambo.Helpers.unescape(msg)
@@ -94,8 +93,8 @@ defmodule Mambo.Watcher do
           true ->
             {:noreply, state}
         end
-      _ ->
-        {:noreply, state}
+
+      _ -> {:noreply, state}
     end
   end
 
@@ -130,7 +129,6 @@ defmodule Mambo.Watcher do
       [_, name] ->
         Mambo.EventManager.notify({:enter, name})
         {:noreply, state}
-
       _ ->
         {:noreply, state}
     end
