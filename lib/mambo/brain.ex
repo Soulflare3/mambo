@@ -50,14 +50,18 @@ defmodule Mambo.Brain do
 
   def get_random_quote() do
     :random.seed(:erlang.now())
-    ids = :mnesia.dirty_all_keys(:mquotes)
-    id = Enum.at(ids, :random.uniform(length(ids)) - 1)
-    get_quote(id)
+    case :mnesia.dirty_all_keys(:mquotes) do
+      [] -> :no_quotes
+      ids ->
+        get_quote(Enum.at(ids, :random.uniform(length(ids)) - 1))
+    end
   end
 
   def quotes_max() do
-    ids = :mnesia.dirty_all_keys(:mquotes)
-    Enum.max(ids)
+    case :mnesia.dirty_all_keys(:mquotes) do
+      [] -> 0
+      keys -> Enum.max(keys)
+    end
   end
 
   # Lastfm.
