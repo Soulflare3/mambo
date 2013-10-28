@@ -254,4 +254,16 @@ defmodule Mambo.Helpers do
   def trim_punctuation(s) do
     rtrim_punctuation(ltrim_punctuation(s))
   end
+
+  @doc false
+  @spec get_extra(integer) :: integer | String.t
+  def get_extra(num) when num > 26 do
+    num
+  end
+
+  def get_extra(0), do: 1
+
+  def get_extra(num) do
+    <<?a + num - 1>>
+  end
 end

@@ -185,19 +185,19 @@ defmodule Mambo.Bot do
   defp add_watchers(ids, s) do
     start_watcher = fn(id, count) ->
       {:ok, pid} = Mambo.WatcherSup.add_watcher([{id, s.bot_id,
-        {"#{s.name}_#{count}", s.host, s.port, s.user, s.pass}}])
+        {"#{s.name}#{count}", s.host, s.port, s.user, s.pass}}])
       pid
     end
 
     {watchers, _} = case s.channels do
       "all" ->
-        Enum.map_reduce(ids, 1, fn(id, count) ->
-          {{id, start_watcher.(id, count)}, count + 1}
+        Enum.map_reduce(ids, 0, fn(id, count) ->
+          {{id, start_watcher.(id, Mambo.Helpers.get_extra(count))}, count + 1}
         end)
       l when is_list(l) ->
-        Enum.map_reduce(l, 1, fn(id, count) ->
+        Enum.map_reduce(l, 0, fn(id, count) ->
           if id in ids do
-            {{id, start_watcher.(id, count)}, count + 1}
+            {{id, start_watcher.(id, Mambo.Helpers.get_extra(count))}, count + 1}
           else
             {nil, count}
           end
