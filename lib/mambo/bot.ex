@@ -198,6 +198,8 @@ defmodule Mambo.Bot do
         Enum.map_reduce(l, 1, fn(id, count) ->
           if id in ids do
             {{id, start_watcher.(id, count)}, count + 1}
+          else
+            {nil, count}
           end
         end)
       _ ->
