@@ -136,6 +136,17 @@ defmodule Mambo.Watcher do
     end
   end
 
+  # Catch server query error messages and print them.
+  def handle_info({:tcp, _, <<"error id=", c, rest :: binary>>}, state) when c != ?0 do
+    case Regex.run(%r/^(\d*) msg=(.*)/i, <<c, rest :: binary>>) do
+      [_, id, msg] ->
+        IO.puts("Error(#{id}): #{Mambo.Helpers.unescape(msg)}")
+        {:noreply, state}
+      _ ->
+        {:noreply, state}
+    end
+  end
+
   def handle_info({:tcp_closed, _}, state) do
     {:stop, :normal, state}
   end
