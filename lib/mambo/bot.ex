@@ -48,6 +48,14 @@ defmodule Mambo.Bot do
   end
 
   @doc """
+  Returns a the list of the bot admins uid.
+  """
+  @spec admins() :: [String.t]
+  def admins() do
+    :gen_server.call(@bot, :admins)
+  end
+
+  @doc """
   Sends a chat message to the teamspeak server.
   """
   @spec send_msg(String.t, integer) :: :ok
@@ -209,6 +217,10 @@ defmodule Mambo.Bot do
     {:reply, s.bot_id, state}
   end
 
+  def handle_call(:admins, _, {_, s, _} = state) do
+    {:reply, s.admins, state}
+  end
+
   def handle_call(_, _, state) do
     {:noreply, state}
   end
@@ -230,7 +242,11 @@ defmodule Mambo.Bot do
     {:noreply, state}
   end
 
-  def handle_cast({:send_gm, msg}, {socket, _, _} = state) do
+  def handle_cast({:send_gm, msg}, {socket, _, watchers} = state) do
+    msg = "[b][color=#AA0000][GM] #{msg}[/color][/b]"
+    Enum.each(watchers, fn({_,pid}) ->
+      :gen_server.cast(pid, {:send_msg, msg})
+    end)
     :ok = send_to_server(socket, "gm msg=#{Mambo.Helpers.escape(msg)}")
     {:noreply, state}
   end

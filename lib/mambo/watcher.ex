@@ -87,6 +87,7 @@ defmodule Mambo.Watcher do
           status == :unmute ->
             Mambo.EventManager.notify({:msg, {msg, name, {cid, clid, uid}}})
             {:noreply, state}
+          # don't mute admin script
           status == :mute and Regex.match?(%r/^(#{@admin})/i, msg) ->
             Mambo.EventManager.notify({:msg, {msg, name, {cid, clid, uid}}})
             {:noreply, state}

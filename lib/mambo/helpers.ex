@@ -127,8 +127,6 @@ defmodule Mambo.Helpers do
   defp unescape(<<"\\r",  r :: binary>>, es), do: unescape(r, [?\r | es])
   defp unescape(<<"\\t",  r :: binary>>, es), do: unescape(r, [?\t | es])
   defp unescape(<<"\\v",  r :: binary>>, es), do: unescape(r, [?\v | es])
-  defp unescape(<<"[URL]", r :: binary>>, es), do: unescape(r, es)
-  defp unescape(<<"[\\/URL]", r :: binary>>, es), do: unescape(r, es)
   defp unescape(<<chr :: utf8, r :: binary>>, es), do: unescape(r, [chr | es])
 
   @doc """
@@ -143,32 +141,6 @@ defmodule Mambo.Helpers do
       line
     end
   end
-
-  @doc """
-  Format an url string to be displayed on the teamspeak chat.
-  """
-  @spec format_url(String.t) :: String.t
-  def format_url(url) do
-    format_url(url, url)
-  end
-
-  @spec format_url(String.t, String.t) :: String.t
-  def format_url(url, name) do
-    "[URL=#{url}]#{name}[/URL]"
-  end
-
-  @doc """
-  Finds the first url in a string.
-  """
-  @spec find_url(String.t) :: String.t | nil
-  def find_url(line) do
-    case Regex.run(%r(http[s]?://[^\s<>"]+|www\.[^\s<>\"]+)i, line) do
-      [h | _] -> h
-      _ -> nil
-    end
-  end
-
-  # Helpers.
 
   defp r_entities([], rest, _, acc) do
     String.from_char_list!(Enum.reverse(acc)) <> rest
@@ -196,5 +168,90 @@ defmodule Mambo.Helpers do
     other ->
       {other, r}
     end
+  end
+
+  @doc """
+  Format an url string to be displayed on the teamspeak chat.
+  """
+  @spec format_url(String.t) :: String.t
+  def format_url(url) do
+    format_url(url, url)
+  end
+
+  @spec format_url(String.t, String.t) :: String.t
+  def format_url(url, name) do
+    "[URL=#{url}]#{name}[/URL]"
+  end
+
+  @doc """
+  Finds a tweet id.
+  """
+  @spec get_tweet_id(String.t) :: String.t | nil
+  def get_tweet_id(line) do
+    case Regex.run(%r"\bhttps?://(?:www\.|mobile\.)?twitter.com/.+/status(?:es)?/([0-9]{18})", line) do
+      nil -> nil
+      [_, id] -> id
+    end
+  end
+
+  @doc """
+  Finds the first url in a string, if it finds one, removes leading and trailing
+  punctuation chars.
+  """
+  @spec get_url(String.t) :: String.t | nil
+  def get_url(line) do
+    case Regex.run(%r/\[url\](.+?)\[\/url\]/i, line) do
+      nil ->
+        case Regex.run(%r/\[url=(.+?)\]/i, line) do
+          nil -> nil
+          [_, url] -> trim_punctuation(url)
+        end
+      [_, url] -> trim_punctuation(url)
+    end
+  end
+
+  @doc """
+  Returns a string where trailing common punctuation chars have been removed.
+  """
+  @spec rtrim_punctuation(String.t) :: String.t
+  def rtrim_punctuation(string) do
+    if :binary.last(string) in [44,46,59,58,33] do
+      do_rtrim(string, <<>>)
+    else
+      string
+    end
+  end
+
+  defp do_rtrim(<<c :: utf8, rest :: binary>>, buffer) when c in [44,46,59,58,33] do
+    <<do_rtrim(rest, <<c :: utf8, buffer :: binary>>) :: binary>>
+  end
+
+  defp do_rtrim(<<c :: utf8, rest :: binary>>, buffer) do
+    <<buffer :: binary, c :: utf8, do_rtrim(rest, <<>>) :: binary>>
+  end
+
+  defp do_rtrim(<<>>, _) do
+    <<>>
+  end
+
+  @doc """
+  Returns a string where leading common punctuation chars have been removed.
+  """
+  @spec ltrim_punctuation(String.t) :: String.t
+  def ltrim_punctuation(<<c :: utf8, rest :: binary>>) when c in [44,46,59,58,33] do
+    <<ltrim_punctuation(rest) :: binary>>
+  end
+
+  def ltrim_punctuation(other) do
+    other
+  end
+
+  @doc """
+  Returns a string where leading and trailing common punctuation chars have
+  been removed.
+  """
+  @spec trim_punctuation(String.t) :: String.t
+  def trim_punctuation(s) do
+    rtrim_punctuation(ltrim_punctuation(s))
   end
 end

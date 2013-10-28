@@ -33,18 +33,21 @@ defmodule Title do
   end
 
   def handle_event({:msg, {msg, _, {cid,_,_}}}, []) do
-    answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
-    case Mambo.Helpers.find_url(msg) do
-      nil ->
-        {:ok, []}
-      url ->
-        spawn(fn -> get_title(url, answer) end)
-        {:ok, []}
+    unless Mambo.Helpers.get_tweet_id(msg) do
+      case Mambo.Helpers.get_url(msg) do
+        nil -> {:ok, []}
+        url ->
+          answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
+          spawn(fn -> get_title(url, answer) end)
+          {:ok, []}
+      end
+    else
+      {:ok, []}
     end
   end
 
-  def handle_event(_, []) do
-    {:ok, []}
+  def handle_event(_, twitter) do
+    {:ok, twitter}
   end
 
   @doc """
@@ -58,14 +61,16 @@ defmodule Title do
     case :hackney.get(url, headers, <<>>, [{:follow_redirect, true}]) do
       {:ok, 200, headers, client} ->
         case parse_content_type(headers["Content-Type"]) do
-          "text/html" ->
+          {:ok, "text/html"} ->
             {:ok, body, _} = :hackney.body(5000, client)
             find_title(body, answer)
-          {"text/html", :latin1} ->
+          {:ok, {"text/html", :latin1}} ->
             {:ok, body, _} = :hackney.body(5000, client)
             find_title(:unicode.characters_to_binary(body, :latin1), answer)
-          other ->
+          {:ok, other} ->
             answer.("[b]Content Type:[/b] #{other}")
+          _ ->
+            :ok
         end
       _ ->
         :ok
@@ -75,17 +80,19 @@ defmodule Title do
   # Helpers
 
   defp parse_content_type(content_type) do
-    case String.split(content_type, ";", global: false) do
-      ["text/html"] ->
-        "text/html"
-      [other] ->
-        other
-      ["text/html", rest] ->
-        if String.contains?(rest, "8859-1") do
-          {"text/html", :latin1}
-        else
-          "text/html"
-        end
+    if content_type do
+      case String.split(content_type, ";", global: false) do
+        ["text/html"] ->
+          {:ok, "text/html"}
+        [other] ->
+          {:ok, other}
+        ["text/html", rest] ->
+          if String.contains?(rest, "8859-1") do
+            {:ok, {"text/html", :latin1}}
+          else
+            {:ok, "text/html"}
+          end
+      end
     end
   end
 
