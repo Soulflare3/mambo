@@ -1,6 +1,6 @@
 defmodule Twitter do
   @moduledoc """
-  Print tweets to chat.
+  Print tweets to chat when a tweet link is posted.
   """
 
   use GenEvent.Behaviour

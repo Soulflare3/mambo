@@ -11,40 +11,49 @@ defmodule Help do
   @helpmsg """
 
   Mambo is an extensible irc-style teamspeak 3 bot.
-  See 'help <option>' for more information on a specific script.
+  See '.help <option>' for more information on a specific script.
 
   Options:
-    ask                 - ask mambo anything
-    benis               - benisify a sentence (*)
-    bf                  - brainfuck interpreter
-    reply | replies     - reply to certain keywords (*)
-    chat | speak | talk - start a private chat with the bot (*)
-    8ball               - ask the magic 8 ball
-    gay                 - rainbow color a phrase (*)
-    np                  - shows the last (or current) played song in last.fm (*)
-    calc                - calculator
-    random              - luck games
-    google | yt | img   - search google, youtube and images
-    sux                 - curse something (*)
-    title               - print url title (*)
-    tl | translate      - translate an expression
-    utils               - utility commands
-    wtc                 - prints a commit from whatthecommit.com
-
-    Options marked with (*) don't work on a private chat.
   """
+
+  @options [
+    {Elixir.Admin, "admin"},
+    {Elixir.Benis, "benis"},
+    {Elixir.Brainfuck, "brainfuck"},
+    {Elixir.Cannedreplies, "replies"},
+    {Elixir.Eightball, "8ball"},
+    {Elixir.Gif, "gif"},
+    {Elixir.Google, "google"},
+    {Elixir.Lastfm, "np"},
+    {Elixir.Private, "private"},
+    {Elixir.Quotes, "quotes"},
+    {Elixir.Rainbow, "gay"},
+    {Elixir.Random, "random"},
+    {Elixir.Sux, "sux"},
+    {Elixir.Title, "title"},
+    {Elixir.Translate, "translate"},
+    {Elixir.Twitter, "twitter"},
+    {Elixir.Urban, "urban"},
+    {Elixir.Utils, "utils"},
+    {Elixir.Whatthecommit, "wtc"},
+    {Elixir.Wolframalpha, "wolframalpha"},
+    {Elixir.Youtube, "youtube"}
+  ]
 
   def init([]) do
     {:ok, []}
   end
 
   def handle_event({:msg, {".help", _, {cid,_,_}}}, []) do
-    Mambo.Bot.send_msg(@helpmsg, cid)
+    options = Enum.map(Mambo.Bot.scripts(), &(@options[&1]))
+      |> Enum.filter(&(&1 != nil))
+    Mambo.Bot.send_msg("#{@helpmsg}#{Enum.join(options, " [b]|[/b] ")}", cid)
     {:ok, []}
   end
 
   def handle_event({:privmsg, {".help", _, {clid,_}}}, []) do
-    Mambo.Bot.send_privmsg(@helpmsg, clid)
+    options = Enum.join(Mambo.Bot.scripts(), " [b]|[/b] ")
+    Mambo.Bot.send_privmsg("#{@helpmsg}#{Enum.join(options, " [b]|[/b] ")}", clid)
     {:ok, []}
   end
 

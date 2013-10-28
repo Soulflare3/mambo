@@ -84,14 +84,12 @@ defmodule Translate do
     {:ok, langs}
   end
 
-  def handle_event({:msg, {<<".help ", cmd :: binary>>, _, {cid,_,_}}}, langs)
-    when cmd in ["tl", "translate"] do
+  def handle_event({:msg, {".help translate", _, {cid,_,_}}}, langs) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, langs}
   end
 
-  def handle_event({:privmsg, {<<".help ", cmd :: binary>>, _, {clid,_}}}, langs)
-    when cmd in ["tl", "translate"] do
+  def handle_event({:privmsg, {".help translate", _, {clid,_}}}, langs) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, langs}
   end

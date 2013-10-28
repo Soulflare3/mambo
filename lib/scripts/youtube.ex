@@ -3,6 +3,7 @@ defmodule Youtube do
   Search youtube videos.
 
   Examples:
+    .yt <phrase>
     .youtube <phrase>
   """
 

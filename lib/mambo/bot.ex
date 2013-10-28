@@ -48,11 +48,19 @@ defmodule Mambo.Bot do
   end
 
   @doc """
-  Returns a the list of the bot admins uid.
+  Returns a list of the bot admins uid.
   """
   @spec admins() :: [String.t]
   def admins() do
     :gen_server.call(@bot, :admins)
+  end
+
+  @doc """
+  Returns a list of the bot scripts.
+  """
+  @spec scripts() :: [atom()]
+  def scripts() do
+    :gen_server.call(@bot, :scripts)
   end
 
   @doc """
@@ -219,6 +227,11 @@ defmodule Mambo.Bot do
 
   def handle_call(:admins, _, {_, s, _} = state) do
     {:reply, s.admins, state}
+  end
+
+  def handle_call(:scripts, _, {_, s, _} = state) do
+    scripts = Enum.map(s.scripts, fn({name,_}) -> name end)
+    {:reply, scripts, state}
   end
 
   def handle_call(_, _, state) do

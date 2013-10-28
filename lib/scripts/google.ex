@@ -3,7 +3,10 @@ defmodule Google do
   Search google and images.
 
   Examples:
+    .g <phrase>
     .google <phrase>
+    .img <phrase>
+    .image <phrase>
     .images <phrase>
   """
 

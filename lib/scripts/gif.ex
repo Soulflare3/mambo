@@ -12,14 +12,14 @@ defmodule Gif do
     {:ok, clientID}
   end
 
-  def handle_event({:msg, {".help gif", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".help gif", _, {cid,_,_}}}, id) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
-    {:ok, []}
+    {:ok, id}
   end
 
-  def handle_event({:privmsg, {".help gif", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".help gif", _, {clid,_}}}, id) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
-    {:ok, []}
+    {:ok, id}
   end
 
   def handle_event({:msg, {<<".gif ", url :: binary>>, name, {cid,_,_}}}, id) do

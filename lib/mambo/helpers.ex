@@ -67,7 +67,7 @@ defmodule Mambo.Helpers do
   def get_settings() do
     {:ok, data} = File.read("settings.json")
 
-    {:ok, s} = JSEX.decode(data)
+    s = :jsx.decode(data)
     p = Enum.map(s["scripts"], fn([{_,name}, {_,args}]) ->
                                  {binary_to_atom("Elixir." <> name),args}
                                end)

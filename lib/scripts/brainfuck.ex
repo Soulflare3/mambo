@@ -15,12 +15,12 @@ defmodule Brainfuck do
     {:ok, []}
   end
 
-  def handle_event({:msg, {<<".help b", _ :: binary>>, _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".help brainfuck", _, {cid,_,_}}}, []) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {<<".help b", _ :: binary>>, _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".help brainfuck", _, {clid,_}}}, []) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
