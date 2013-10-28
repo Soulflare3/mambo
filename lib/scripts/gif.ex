@@ -24,13 +24,13 @@ defmodule Gif do
 
   def handle_event({:msg, {<<".gif ", url :: binary>>, name, {cid,_,_}}}, id) do
     answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
-    spawn(fn -> get_gif(url, id, name, answer) end)
+    spawn(fn -> get_gif(Mambo.Helpers.get_url(url), id, name, answer) end)
     {:ok, id}
   end
 
   def handle_event({:privmsg, {<<".gif ", url :: binary>>, name, {clid,_}}}, id) do
     answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
-    spawn(fn -> get_gif(url, id, name, answer) end)
+    spawn(fn -> get_gif(Mambo.Helpers.get_url(url), id, name, answer) end)
     {:ok, id}
   end
 
@@ -62,14 +62,23 @@ defmodule Gif do
       File.mkdir!("tmp")
     end
     File.write!(original, data)
-    {{w,h}, {ws, hs}} = get_sizes(data)
-    System.cmd("convert -size #{w}x#{h} #{original} -resize #{ws}x#{hs} #{small}")
-    if File.exists?(small) do
-      upload_gif(small, id, name, answer)
-      File.rm(original)
-      File.rm(small)
-    else
-      answer.("Something went wrong.")
+    case get_sizes(data) do
+      {{300,h},_} when h <= 300 ->
+        answer.("That gif already has the maximum allowed size.")
+        File.rm(original)
+      {{w,300},_} when w <= 300 ->
+        answer.("That gif already has the maximum allowed size.")
+        File.rm(original)
+      {{w,h},{ws,hs}} ->
+        System.cmd("convert -size #{w}x#{h} #{original} -resize #{ws}x#{hs} #{small}")
+        if File.exists?(small) do
+          upload_gif(small, id, name, answer)
+          File.rm(original)
+          File.rm(small)
+        else
+          answer.("Something went wrong.")
+          File.rm(original)
+        end
     end
   end
 
