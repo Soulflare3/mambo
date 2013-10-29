@@ -44,9 +44,12 @@ defmodule Gif do
     case :hackney.get(url, [{"User-Agent", "Mozilla/5.0"}], <<>>, []) do
       {:ok, 200, headers, client} ->
         if headers["Content-Type"] == "image/gif" do
-          answer.("This might take a while, hang in there.")
-          {:ok, body, _} = :hackney.body(client)
-          resize_gif(body, id, name, answer)
+          case :hackney.body(client) do
+            {:ok, body, _} ->
+              resize_gif(body, id, name, answer)
+            _ ->
+              answer.("Something went wrong.")
+          end
         else
           answer.("Hey smartass that's not a gif.")
         end
@@ -70,6 +73,7 @@ defmodule Gif do
         answer.("That gif already has the maximum allowed size.")
         File.rm(original)
       {{w,h},{ws,hs}} ->
+        answer.("This might take a while, hang in there.")
         System.cmd("convert -size #{w}x#{h} #{original} -resize #{ws}x#{hs} #{small}")
         if File.exists?(small) do
           upload_gif(small, id, name, answer)
@@ -87,7 +91,6 @@ defmodule Gif do
       width :: [little, size(16)],
       height :: [little, size(16)],
       _rest :: binary>> = gif
-
     if width > height do
       width_s = 300
       height_s = trunc(height * (width_s / width))
@@ -95,7 +98,6 @@ defmodule Gif do
       height_s = 300
       width_s = trunc(width * (height_s / height))
     end
-
     {{width, height}, {width_s, height_s}}
   end
 
@@ -107,9 +109,13 @@ defmodule Gif do
         payload = {:form, [{"image", bin}]}
         case :hackney.post(url, headers, payload, []) do
           {:ok, 200, _, client} ->
-            {:ok, body, _} = :hackney.body(client)
-            new_gif = Mambo.Helpers.format_url(:jsx.decode(body)["data"]["link"])
-            answer.("[b]#{name}[/b] here's your gif #{new_gif}")
+            case :hackney.body(client) do
+              {:ok, body, _} ->
+                new_gif = Mambo.Helpers.format_url(:jsx.decode(body)["data"]["link"])
+                answer.("[b]#{name}[/b] here's your gif #{new_gif}")
+            _ ->
+              answer.("Something went wrong.")
+            end
           _ ->
             answer.("Something went wrong.")
         end
