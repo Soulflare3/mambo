@@ -70,7 +70,7 @@ $ iex -S mix
 ```
 
 I recommend running the bot with an elixir shell, this way you can have some
-feedback and easily manage the bot without turning it off (see [Managing the bot]()
+feedback and easily manage the bot without turning it off (see [Managing the bot](https://github.com/mrshankly/mambo#managing-the-bot)
 for more info). In Linux (and Mac OS X too I guess) you can use [tmux](http://tmux.sourceforge.net/)
 or [screen](https://www.gnu.org/software/screen/) to keep the shell running.
 I don't know about Windows, google is your friend here.
@@ -185,7 +185,7 @@ They will both be installed when you do `mix deps.get` during the installation p
 
 **Note:** This requires to start the bot with `iex -S mix`.
 
-All the functions mentioned in [exports]() are available for you to use in an
+All the functions mentioned in [exports](https://github.com/mrshankly/mambo#exports) are available for you to use in an
 elixir shell.
 
 To manage scripts, load, unload, notify or get a list of the running scripts, use the
