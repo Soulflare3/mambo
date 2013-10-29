@@ -52,7 +52,8 @@ defmodule Help do
   end
 
   def handle_event({:privmsg, {".help", _, {clid,_}}}, []) do
-    options = Enum.join(Mambo.Bot.scripts(), " [b]|[/b] ")
+    options = Enum.map(Mambo.Bot.scripts(), &(@options[&1]))
+      |> Enum.filter(&(&1 != nil))
     Mambo.Bot.send_privmsg("#{@helpmsg}#{Enum.join(options, " [b]|[/b] ")}", clid)
     {:ok, []}
   end
