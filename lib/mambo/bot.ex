@@ -257,10 +257,15 @@ defmodule Mambo.Bot do
     {:noreply, state}
   end
 
-  def handle_cast({:send_gm, msg}, {socket, _, watchers} = state) do
+  def handle_cast({:send_gm, msg}, {socket, s, watchers} = state) do
     msg = "[b][color=#AA0000][GM] #{msg}[/color][/b]"
-    Enum.each(watchers, fn({_,pid}) ->
-      :gen_server.cast(pid, {:send_msg, msg})
+    cmd = "sendtextmessage targetmode=2 target=1 msg=#{Mambo.Helpers.escape(msg)}"
+    Enum.each(watchers, fn({cid,pid}) ->
+      if cid === s.default_channel do
+        send_to_server(socket, cmd)
+      else
+        :gen_server.cast(pid, {:send_msg, msg})
+      end
     end)
     :ok = send_to_server(socket, "gm msg=#{Mambo.Helpers.escape(msg)}")
     {:noreply, state}
