@@ -107,10 +107,15 @@ defmodule Mambo.Watcher do
         {:noreply, state}
 
       [_, ^scid, reasonid, iclid] ->
+        iclid = binary_to_integer(iclid)
+        reasonid = binary_to_integer(reasonid)
         Mambo.EventManager.notify({:move_in, {cid, reasonid, iclid}})
         {:noreply, state}
 
       [_, ocid, reasonid, oclid] ->
+        ocid = binary_to_integer(ocid)
+        oclid = binary_to_integer(oclid)
+        reasonid = binary_to_integer(reasonid)
         Mambo.EventManager.notify({:move_out, {ocid, reasonid, oclid}})
         {:noreply, state}
 
