@@ -8,7 +8,6 @@ defmodule Mambo.Bot do
 
   @bot __MODULE__
 
-  @login_ok   "error id=0 msg=ok\n\r"
   @notify_msg "notifytextmessage"
 
   defrecord Settings,
@@ -184,7 +183,7 @@ defmodule Mambo.Bot do
 
   defp add_watchers(ids, s) do
     start_watcher = fn(id, count) ->
-      {:ok, pid} = Mambo.WatcherSup.add_watcher([{id, s.bot_id,
+      {:ok, pid} = Mambo.WatcherSup.add_watcher([{id, s.default_channel, s.bot_id,
         {"#{s.name}#{count}", s.host, s.port, s.user, s.pass}}])
       pid
     end

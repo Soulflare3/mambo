@@ -10,8 +10,7 @@ defmodule Mambo.Watcher do
   @nmove    "notifyclientmoved"
   @nleft    "notifyclientleftview"
   @nenter   "notifycliententerview"
-  @login_ok "error id=0 msg=ok\n\r"
-  @admin    "\.mute|\.unmute|\.ban|\.kick|\.move|\.promote|\.demote|\.gm"
+  @admin    "\.mute|\.unmute|\.gm"
 
   # API.
 
@@ -36,11 +35,11 @@ defmodule Mambo.Watcher do
 
   # gen_server callbacks
 
-  def init({cid, bot_id, {name, host, port, user, pass}}) do
+  def init({cid, default_cid, bot_id, {name, host, port, user, pass}}) do
     {:ok, socket} = :gen_tcp.connect(String.to_char_list!(host), port, [:binary])
     login(socket, cid, name, user, pass)
     :erlang.send_after(300000, self(), :keep_alive)
-    {:ok, {:unmute, socket, cid, bot_id}}
+    {:ok, {:unmute, socket, {cid, default_cid}, bot_id}}
   end
 
   def handle_cast(:mute, {_, socket, ids}) do
@@ -61,11 +60,23 @@ defmodule Mambo.Watcher do
     {:noreply, state}
   end
 
-  # If login went ok, move watcher to channel with id `cid`.
-  def handle_info({:tcp, _, <<@login_ok, r :: binary>>}, {_, socket, cid, bid} = state) do
-    case Regex.run(%r/client_id=(\d*)/, r) do
+  # Catch server query error messages and print them.
+  def handle_info({:tcp, _, <<"error id=", c, rest :: binary>>}, state) when c != ?0 do
+    case Regex.run(%r/^(\d*) msg=(.*)/i, <<c, rest :: binary>>) do
+      [_, id, msg] ->
+        IO.puts("Error(#{id}): #{Mambo.Helpers.unescape(msg)}")
+        {:noreply, state}
+      _ ->
+        {:noreply, state}
+    end
+  end
+
+  def handle_info({:tcp, _, whoami}, {_, socket, {cid, dcid}, bid} = state) do
+    case Regex.run(%r/client_id=(\d*)/, whoami) do
       [_, clid] ->
-        send_to_server(socket, "clientmove clid=#{clid} cid=#{cid}")
+        if cid != dcid do
+          send_to_server(socket, "clientmove clid=#{clid} cid=#{cid}")
+        end
         {:noreply, {:unmute, socket, {binary_to_integer(clid), cid, bid}}}
       _ ->
         {:noreply, state}
@@ -139,16 +150,6 @@ defmodule Mambo.Watcher do
     end
   end
 
-  # Catch server query error messages and print them.
-  def handle_info({:tcp, _, <<"error id=", c, rest :: binary>>}, state) when c != ?0 do
-    case Regex.run(%r/^(\d*) msg=(.*)/i, <<c, rest :: binary>>) do
-      [_, id, msg] ->
-        IO.puts("Error(#{id}): #{Mambo.Helpers.unescape(msg)}")
-        {:noreply, state}
-      _ ->
-        {:noreply, state}
-    end
-  end
 
   def handle_info({:tcp_closed, _}, state) do
     {:stop, :normal, state}
