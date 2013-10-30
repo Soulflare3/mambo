@@ -346,23 +346,31 @@ defmodule Mambo.Bot do
     end
   end
 
-  # If the login goes ok, parse the channellist and spawn a watcher in each
-  # channel specified in `settings.json`.
-  def handle_info({:tcp, _, <<@login_ok, channellist :: binary>>}, {socket, s, [], ""}) do
-    if String.ends_with?(channellist, "error id=0 msg=ok\n\r") do
-      {ids, dc} = parse_channellist(channellist)
-      watchers = add_watchers(ids, s)
-      {:noreply, {socket, s.default_channel(dc), watchers}}
+  def handle_info({:tcp, _, channellist}, {socket, s, [], ""} = state) do
+    if String.contains?(channellist, "cid=") do
+      if String.ends_with?(channellist, "error id=0 msg=ok\n\r") do
+        {ids, dc} = parse_channellist(channellist)
+        watchers = add_watchers(ids, s)
+        {:noreply, {socket, s.default_channel(dc), watchers}}
+      else
+        {:noreply, {socket, s, [], channellist}}
+      end
     else
-      {:noreply, {socket, s, [], channellist}}
+      {:noreply, state}
     end
+  end
+
+  def handle_info({:tcp, _, <<"error id=0", _ :: binary>>}, {socket, s, [], channellist}) do
+    {ids, dc} = parse_channellist(channellist)
+    watchers = add_watchers(ids, s)
+    {:noreply, {socket, s.default_channel(dc), watchers}}
   end
 
   # If the channellist is too long the server query will answer in chuncks, this
   # will match the rest of the chuncks and join them together will the content
   # already received. Notice the state is a 4 element tuple, this is to make
   # sure that we haven't already receive the channellist.
-  def handle_info({:tcp, _, data}, {socket, s, [], channellist}) when channellist != "" do
+  def handle_info({:tcp, _, data}, {socket, s, [], channellist}) do
     if String.ends_with?(data, "error id=0 msg=ok\n\r") do
       {ids, dc} = parse_channellist(channellist <> data)
       watchers = add_watchers(ids, s)
