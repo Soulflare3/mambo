@@ -5,10 +5,6 @@ defmodule Mambo.Mixfile do
     [
       app: :mambo,
       version: "0.3",
-      elixir: "~> 0.10.4-dev",
-      name: "Mambo",
-      source_url: "https://github.com/mrshankly/mambo",
-      homepage_url: "https://github.com/mrshankly/mambo",
       deps: deps
     ]
   end

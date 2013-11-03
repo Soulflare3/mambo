@@ -74,11 +74,12 @@ defmodule Twitter do
           text: json["text"],
           entities: json["entities"]
         )
-        if reply = json["in_reply_to_status_id_str"] do
-          get_tweets(reply, token, [tweet | acc])
-        else
-          [tweet | acc]
+        case json["in_reply_to_status_id_str"] do
+          :null -> [tweet | acc]
+          reply -> get_tweets(reply, token, [tweet | acc])
         end
+      _ ->
+        []
     end
   end
 
