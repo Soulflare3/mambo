@@ -60,7 +60,6 @@ defmodule Gif do
 
   defp resize_gif(data, id, name, answer) do
     original = "tmp/#{:erlang.phash2(make_ref())}.gif"
-    small = "tmp/#{:erlang.phash2(make_ref())}.gif"
     unless File.exists?("tmp/") do
       File.mkdir!("tmp")
     end
@@ -72,16 +71,16 @@ defmodule Gif do
       {{w,300},_} when w <= 300 ->
         answer.("That gif already has the maximum allowed size.")
         File.rm(original)
-      {{w,h},{ws,hs}} ->
+      sizes ->
         answer.("This might take a while, hang in there.")
-        System.cmd("convert -size #{w}x#{h} #{original} -resize #{ws}x#{hs} #{small}")
-        if File.exists?(small) do
-          upload_gif(small, id, name, answer)
-          File.rm(original)
-          File.rm(small)
-        else
-          answer.("Something went wrong.")
-          File.rm(original)
+        case resize_gif(original, sizes) do
+          {:ok, new} ->
+            upload_gif(new, id, name, answer)
+            File.rm(original)
+            File.rm(new)
+          _ ->
+            answer.("Something went wrong.")
+            File.rm(original)
         end
     end
   end
@@ -99,6 +98,32 @@ defmodule Gif do
       width_s = trunc(width * (height_s / height))
     end
     {{width, height}, {width_s, height_s}}
+  end
+
+  def resize_gif(gif, {{w,h},{ws,hs}}) do
+    out = "tmp/#{:erlang.phash2(make_ref())}.gif"
+    System.cmd("convert -size #{w}x#{h} #{gif} -resize #{ws}x#{hs} #{out}")
+    case File.stat(out) do
+      {:ok, info} ->
+        if info.size > 2000000 do
+          compress_gif(out)
+        else
+          {:ok, out}
+        end
+      _ ->
+        :error
+    end
+  end
+
+  def compress_gif(gif) do
+    out = "tmp/#{:erlang.phash2(make_ref())}.gif"
+    System.cmd("convert #{gif} +dither -layers Optimize -colors 32 #{out}")
+    if File.exists?(out) do
+      File.rm(gif)
+      {:ok, out}
+    else
+      :error
+    end
   end
 
   def upload_gif(gif, clientID, name, answer) do
