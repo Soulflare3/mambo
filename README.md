@@ -97,7 +97,7 @@ Here's the full list of provided scripts:
 | [`lastfm.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/lastfm.ex#L2-L9) | `.np`,`.np <last.fm user>`,`.np set <last.fm user>` |
 | [`private.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/private.ex#L2-L7) | `.private` |
 | [`quotes.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/quotes.ex#L2-L11) | `.quote`,`.quote <id>`,`.quote add <quote>`,`.quote find <search query>`,`.quote rm <id` |
-| [`rainbow.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/rainbow.ex#L2-L7) | `.gay <expression>` |
+| [`rainbow.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/rainbow.ex#L2-L7) | `.r <expression>`,`.rainbow <expression>`,`.gay <expression>` |
 | [`random.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/random.ex#L2-L10) | `.roll`,`.rock`,`.paper`,`.scissors` |
 | [`sux.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/sux.ex#L2-L7) | `.sux <expression>` |
 | [`title.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/title.ex#L2-L8) | **none** |
