@@ -12,33 +12,33 @@ defmodule Google do
 
   use GenEvent.Behaviour
 
-  def init([]) do
+  def init(_) do
     {:ok, []}
   end
 
-  def handle_event({:msg, {".help google", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".help google", _, {cid,_,_}}}, _) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".help google", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".help google", _, {clid,_}}}, _) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
-  def handle_event({:msg, {msg, _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {msg, _, {cid,_,_}}}, _) do
     answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
     spawn(fn -> parse_msg(msg, answer) end)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {msg, _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {msg, _, {clid,_}}}, _) do
     answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
     spawn(fn -> parse_msg(msg, answer) end)
     {:ok, []}
   end
 
-  def handle_event(_, []) do
+  def handle_event(_, _) do
     {:ok, []}
   end
 

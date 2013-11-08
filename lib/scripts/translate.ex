@@ -77,7 +77,7 @@ defmodule Translate do
     {"yi", "yiddish"}
   ]
 
-  def init([]) do
+  def init(_) do
     langs = Enum.reduce(@languages, [], fn({k,v}, acc) -> [k, v | acc] end)
     |> Enum.join("|")
 

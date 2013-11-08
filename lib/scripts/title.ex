@@ -9,30 +9,30 @@ defmodule Title do
 
   use GenEvent.Behaviour
 
-  def init([]) do
+  def init(_) do
     {:ok, []}
   end
 
-  def handle_event({:msg, {".help title", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".help title", _, {cid,_,_}}}, _) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".help title", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".help title", _, {clid,_}}}, _) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
   # Ignore links from the `.gif` command.
-  def handle_event({:msg, {<<".gif", _ :: binary>>, _, _}}, []) do
+  def handle_event({:msg, {<<".gif", _ :: binary>>, _, _}}, _) do
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {<<".gif", _ :: binary>>, _, _}}, []) do
+  def handle_event({:privmsg, {<<".gif", _ :: binary>>, _, _}}, _) do
     {:ok, []}
   end
 
-  def handle_event({:msg, {msg, _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {msg, _, {cid,_,_}}}, _) do
     unless Mambo.Helpers.get_tweet_id(msg) do
       case Mambo.Helpers.get_url(msg) do
         nil -> {:ok, []}
@@ -46,8 +46,8 @@ defmodule Title do
     end
   end
 
-  def handle_event(_, twitter) do
-    {:ok, twitter}
+  def handle_event(_, _) do
+    {:ok, []}
   end
 
   @doc """

@@ -8,33 +8,33 @@ defmodule Whatthecommit do
 
   use GenEvent.Behaviour
 
-  def init([]) do
+  def init(_) do
     {:ok, []}
   end
 
-  def handle_event({:msg, {".help wtc", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".help wtc", _, {cid,_,_}}}, _) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".help wtc", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".help wtc", _, {clid,_}}}, _) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
-  def handle_event({:msg, {".wtc", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".wtc", _, {cid,_,_}}}, _) do
     answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
     spawn(fn -> wtc(answer) end)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".wtc", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".wtc", _, {clid,_}}}, _) do
     answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
     spawn(fn -> wtc(answer) end)
     {:ok, []}
   end
 
-  def handle_event(_, []) do
+  def handle_event(_, _) do
     {:ok, []}
   end
 

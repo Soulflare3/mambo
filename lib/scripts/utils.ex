@@ -16,71 +16,71 @@ defmodule Utils do
   @months {'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep',
            'Oct', 'Nov', 'Dec'}
 
-  def init([]) do
+  def init(_) do
     {:ok, []}
   end
 
-  def handle_event({:msg, {".help utils", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".help utils", _, {cid,_,_}}}, _) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".help utils", _, {clid, _}}}, []) do
+  def handle_event({:privmsg, {".help utils", _, {clid, _}}}, _) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
-  def handle_event({:msg, {".ping", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".ping", _, {cid,_,_}}}, _) do
     Mambo.Bot.send_msg("pong", cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".ping", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".ping", _, {clid,_}}}, _) do
     Mambo.Bot.send_privmsg("pong", clid)
     {:ok, []}
   end
 
-  def handle_event({:msg, {".date", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".date", _, {cid,_,_}}}, _) do
     Mambo.Bot.send_msg(date(), cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".date", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".date", _, {clid,_}}}, _) do
     Mambo.Bot.send_privmsg(date(), clid)
     {:ok, []}
   end
 
-  def handle_event({:msg, {".time", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".time", _, {cid,_,_}}}, _) do
     Mambo.Bot.send_msg(date(), cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".time", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".time", _, {clid,_}}}, _) do
     Mambo.Bot.send_privmsg(date(), clid)
     {:ok, []}
   end
 
-  def handle_event({:msg, {".uptime", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".uptime", _, {cid,_,_}}}, _) do
     Mambo.Bot.send_msg(uptime(), cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".uptime", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".uptime", _, {clid,_}}}, _) do
     Mambo.Bot.send_privmsg(uptime(), clid)
     {:ok, []}
   end
 
-  def handle_event({:msg, {".version", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".version", _, {cid,_,_}}}, _) do
     Mambo.Bot.send_msg(version(), cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".version", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".version", _, {clid,_}}}, _) do
     Mambo.Bot.send_privmsg(version(), clid)
     {:ok, []}
   end
 
-  def handle_event(_, []) do
+  def handle_event(_, _) do
     {:ok, []}
   end
 

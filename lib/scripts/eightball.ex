@@ -16,31 +16,31 @@ defmodule Eightball do
      "Don't count on it.", "My reply is no.", "My sources say no.",
      "Outlook not so good.", "Very doubtful."]
 
-  def init([]) do
+  def init(_) do
     {:ok, []}
   end
 
-  def handle_event({:msg, {".help 8ball", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".help 8ball", _, {cid,_,_}}}, _) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".help 8ball", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".help 8ball", _, {clid,_}}}, _) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
-  def handle_event({:msg, {<<".8ball ", _ :: binary>>, _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {<<".8ball ", _ :: binary>>, _, {cid,_,_}}}, _) do
     Mambo.Bot.send_msg(shake, cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {<<".8ball ", _ :: binary>>, _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {<<".8ball ", _ :: binary>>, _, {clid,_}}}, _) do
     Mambo.Bot.send_privmsg(shake, clid)
     {:ok, []}
   end
 
-  def handle_event(_, []) do
+  def handle_event(_, _) do
     {:ok, []}
   end
 

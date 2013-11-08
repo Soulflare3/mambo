@@ -11,61 +11,61 @@ defmodule Random do
 
   use GenEvent.Behaviour
 
-  def init([]) do
+  def init(_) do
     {:ok, []}
   end
 
-  def handle_event({:msg, {".help random", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".help random", _, {cid,_,_}}}, _) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".help random", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".help random", _, {clid,_}}}, _) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
-  def handle_event({:msg, {".roll", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".roll", _, {cid,_,_}}}, _) do
     Mambo.Bot.send_msg(roll, cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".roll", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".roll", _, {clid,_}}}, _) do
     Mambo.Bot.send_privmsg(roll, clid)
     {:ok, []}
   end
 
-  def handle_event({:msg, {".rock", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".rock", _, {cid,_,_}}}, _) do
     rps("rock", attack) |> Mambo.Bot.send_msg(cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".rock", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".rock", _, {clid,_}}}, _) do
     rps("rock", attack) |> Mambo.Bot.send_privmsg(clid)
     {:ok, []}
   end
 
-  def handle_event({:msg, {".paper", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".paper", _, {cid,_,_}}}, _) do
     rps("paper", attack) |> Mambo.Bot.send_msg(cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".paper", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".paper", _, {clid,_}}}, _) do
     rps("paper", attack) |> Mambo.Bot.send_privmsg(clid)
     {:ok, []}
   end
 
-  def handle_event({:msg, {".scissors", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".scissors", _, {cid,_,_}}}, _) do
     rps("scissors", attack) |> Mambo.Bot.send_msg(cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".scissors", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".scissors", _, {clid,_}}}, _) do
     rps("scissors", attack) |> Mambo.Bot.send_privmsg(clid)
     {:ok, []}
   end
 
-  def handle_event(_, []) do
+  def handle_event(_, _) do
     {:ok, []}
   end
 

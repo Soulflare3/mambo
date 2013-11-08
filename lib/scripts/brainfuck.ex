@@ -11,33 +11,33 @@ defmodule Brainfuck do
   @tape <<0 :: [size(30000), unit(8)]>>
     @data_pointer 0
 
-  def init([]) do
+  def init(_) do
     {:ok, []}
   end
 
-  def handle_event({:msg, {".help brainfuck", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".help brainfuck", _, {cid,_,_}}}, _) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".help brainfuck", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".help brainfuck", _, {clid,_}}}, _) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
-  def handle_event({:msg, {<<".bf ", l :: binary>>, _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {<<".bf ", l :: binary>>, _, {cid,_,_}}}, _) do
     answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
     spawn(fn -> run(l, answer) end)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {<<".bf ", l :: binary>>, _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {<<".bf ", l :: binary>>, _, {clid,_}}}, _) do
     answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
     spawn(fn -> run(l, answer) end)
     {:ok, []}
   end
 
-  def handle_event(_, []) do
+  def handle_event(_, _) do
     {:ok, []}
   end
 
