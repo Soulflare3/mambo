@@ -5,7 +5,6 @@ defmodule Rainbow do
   Examples:
     .r <phrase>
     .rainbow <phrase>
-    .gay <phrase>
   """
 
   use GenEvent.Behaviour
@@ -38,11 +37,6 @@ defmodule Rainbow do
   end
 
   def handle_event({:msg, {<<".rainbow ", msg :: binary>>, _, {cid,_,_}}}, []) do
-    msg |> rainbow |> Mambo.Bot.send_msg(cid)
-    {:ok, []}
-  end
-
-  def handle_event({:msg, {<<".gay ", msg :: binary>>, _, {cid,_,_}}}, []) do
     msg |> rainbow |> Mambo.Bot.send_msg(cid)
     {:ok, []}
   end
