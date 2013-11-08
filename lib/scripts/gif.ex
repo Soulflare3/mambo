@@ -25,16 +25,28 @@ defmodule Gif do
     {:ok, []}
   end
 
-  def handle_event({:msg, {<<".gif ", url :: binary>>, name, {cid,_,_}}}, _) do
+  def handle_event({:msg, {<<".gif ", msg :: binary>>, name, {cid,_,_}}}, _) do
     answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
-    spawn(fn -> crush(Mambo.Helpers.get_url(url), name, answer) end)
-    {:ok, []}
+    case Mambo.Helpers.get_url(msg) do
+      nil ->
+        answer.("What the fuck do you want dude?")
+        {:ok, []}
+      url ->
+        spawn(fn -> crush(url, name, answer) end)
+        {:ok, []}
+    end
   end
 
-  def handle_event({:privmsg, {<<".gif ", url :: binary>>, name, {clid,_}}}, _) do
+  def handle_event({:privmsg, {<<".gif ", msg :: binary>>, name, {clid,_}}}, _) do
     answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
-    spawn(fn -> crush(Mambo.Helpers.get_url(url), name, answer) end)
-    {:ok, []}
+    case Mambo.Helpers.get_url(msg) do
+      nil ->
+        answer.("What the fuck do you want dude?")
+        {:ok, []}
+      url ->
+        spawn(fn -> crush(url, name, answer) end)
+        {:ok, []}
+    end
   end
 
   def handle_event(_, _) do
