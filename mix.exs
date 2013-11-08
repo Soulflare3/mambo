@@ -4,7 +4,7 @@ defmodule Mambo.Mixfile do
   def project do
     [
       app: :mambo,
-      version: "0.3",
+      version: "0.3.0",
       deps: deps
     ]
   end
