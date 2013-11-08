@@ -85,7 +85,7 @@ Here's the full list of provided scripts:
 
 | Script | Commands |
 |--------|----------|
-| [`admin.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/admin.ex#L2-L10) | `.mute`,`.unmute`,`.gm <message>` |
+| [`admin.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/admin.ex#L2-L10) | `.mute`,`.unmute`,`.gm <message>`,`.rename <name>` |
 | [`benis.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/benis.ex#L2-L7) | `.benis <expression>` |
 | [`brainfuck.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/brainfuck.ex#L2-L7) | `.bf <brainfuck_expression>` |
 | [`cannedreplies.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/cannedreplies.ex#L2-L13) | `cool`,`gface`,`goface`,`edgyface`,`dface`,`ggface`,`chownface` |
