@@ -1,6 +1,9 @@
 defmodule Gif do
   @moduledoc """
-  Resize a gif to the maximum allow size by teamspeak.
+  Crush gifs with the force of a thousand suns.
+
+  Resizes a gif to the maximum teamspeak size, 300x300, and also converts it to
+  a video using the [url]https://mediacru.sh/[/url] api.
 
   Examples
     .gif <gif_link>
@@ -8,121 +11,177 @@ defmodule Gif do
 
   use GenEvent.Behaviour
 
-  def init([]) do
+  def init(_) do
     {:ok, []}
   end
 
-  def handle_event({:msg, {".help gif", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".help gif", _, {cid,_,_}}}, _) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".help gif", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".help gif", _, {clid,_}}}, _) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, []}
   end
 
-  def handle_event({:msg, {<<".gif ", url :: binary>>, name, {cid,_,_}}}, []) do
+  def handle_event({:msg, {<<".gif ", url :: binary>>, name, {cid,_,_}}}, _) do
     answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
-    spawn(fn -> get_gif(Mambo.Helpers.get_url(url), name, answer) end)
+    spawn(fn -> crush(Mambo.Helpers.get_url(url), name, answer) end)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {<<".gif ", url :: binary>>, name, {clid,_}}}, []) do
+  def handle_event({:privmsg, {<<".gif ", url :: binary>>, name, {clid,_}}}, _) do
     answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
-    spawn(fn -> get_gif(Mambo.Helpers.get_url(url), name, answer) end)
+    spawn(fn -> crush(Mambo.Helpers.get_url(url), name, answer) end)
     {:ok, []}
   end
 
-  def handle_event(_, []) do
+  def handle_event(_, _) do
     {:ok, []}
   end
 
   # Helpers.
 
-  defp get_gif(url, name, answer) do
-    case :hackney.get(url, [{"User-Agent", "Mozilla/5.0"}], <<>>, []) do
+  defp crush(url, name, answer) do
+    case download_gif(url) do
+      {:ok, {dir, gif}} ->
+        answer.("[b]Gif:[/b] This might take a while, hang in there.")
+
+        case resize(dir, gif) do
+          {:ok, new} ->
+            answer.(format_response(name, pupload(url, new)))
+          :right_size ->
+            original = upload_url(url)
+            answer.(format_response(name, [original, original]))
+          :error ->
+            original = upload_url(url)
+            answer.(format_response(name, [original, :error]))
+        end
+        File.rm_rf(dir)
+
+      {:error, reason} ->
+        answer.(reason)
+    end
+  end
+
+  defp download_gif(url) do
+    temp_dir = "tmp/#{:erlang.phash2(make_ref())}"
+    File.mkdir_p!(temp_dir)
+
+    case :hackney.get(url, [], <<>>, []) do
       {:ok, 200, headers, client} ->
         if headers["Content-Type"] == "image/gif" do
-          case :hackney.body(client) do
-            {:ok, body, _} ->
-              resize_gif(body, name, answer)
-            _ ->
-              answer.("Something went wrong.")
-          end
+          {:ok, bin, _} = :hackney.body(client)
+          path = Path.join([temp_dir, "original.gif"])
+          File.write!(path, bin)
+          {:ok, {temp_dir, path}}
         else
-          answer.("Hey smartass that's not a gif.")
+          {:error, "[b]Gif:[/b] Hey smartass that's not a gif."}
         end
       _ ->
-        answer.("Something went wrong.")
+        File.rm_rf(temp_dir)
+        {:error, "[b]Gif:[/b] Download failed."}
     end
   end
 
-  defp resize_gif(data, name, answer) do
-    original = "tmp/#{:erlang.phash2(make_ref())}.gif"
-    unless File.exists?("tmp/") do
-      File.mkdir!("tmp")
-    end
-    File.write!(original, data)
-    case get_sizes(data) do
-      {{300,h},_} when h <= 300 ->
-        answer.("That gif already has the maximum allowed size.")
-        File.rm(original)
-      {{w,300},_} when w <= 300 ->
-        answer.("That gif already has the maximum allowed size.")
-        File.rm(original)
-      sizes ->
-        answer.("This might take a while, hang in there.")
-        case resize_gif(original, sizes) do
-          {:ok, new} ->
-            upload_gif(new, name, answer)
-            File.rm(original)
-            File.rm(new)
-          _ ->
-            answer.("Something went wrong.")
-            File.rm(original)
-        end
+  defp resize(dir, gif) do
+    out = Path.join([dir, "ts.gif"])
+    tmp = Path.join([dir, "#{:erlang.phash2(make_ref())}.gif"])
+
+    case get_size(gif) do
+      {w,h} when w > 290 and w <= 300 and h <= 300 -> :right_size
+      {w,h} when h > 290 and h <= 300 and w <= 300 -> :right_size
+      _ ->
+        System.cmd("convert #{gif} -coalesce #{tmp}")
+        System.cmd("convert #{tmp} -resize 300x300 #{out}")
+        if File.exists?(out), do: {:ok, out}, else: :error
     end
   end
 
-  defp get_sizes(gif) do
-    <<?G, ?I, ?F, ?8, _, ?a,
-      width :: [little, size(16)],
-      height :: [little, size(16)],
-      _rest :: binary>> = gif
-    if width > height do
-      width_s = 300
-      height_s = trunc(height * (width_s / width))
-    else
-      height_s = 300
-      width_s = trunc(width * (height_s / height))
-    end
-    {{width, height}, {width_s, height_s}}
-  end
+  defp upload_file(path) do
+    url = "https://mediacru.sh/api/upload/file"
+    bin = File.read!(path)
+    name = Path.basename(path)
 
-  def resize_gif(gif, {{w,h},{ws,hs}}) do
-    out = "tmp/#{:erlang.phash2(make_ref())}.gif"
-    System.cmd("convert -size #{w}x#{h} #{gif} -resize #{ws}x#{hs} #{out}")
-    case File.exists?(out) do
-      true -> {:ok, out}
-      false -> :error
+    case :hackney.post(url, [], {:multipart, [{"file",{:file,name,bin}}]}, []) do
+      {:ok, status, _, client} when status in [200,409] ->
+        {:ok, body, _} = :hackney.body(client)
+        hash = :jsx.decode(body)["hash"]
+        {:ok, [{"gif","https://mediacru.sh/#{hash}.gif"}]}
+      _ ->
+        :error
     end
   end
 
-  def upload_gif(gif, name, answer) do
-    base_url = "https://mediacru.sh"
-    out = System.cmd("curl --silent -F \"file=@#{gif}\" #{base_url}/api/upload/file")
-    case :jsx.is_json(out) do
-      true ->
-        json = :jsx.decode(out)
-        if json["error"] in [200, 409] do
-          gif_url = "#{base_url}/#{json["hash"]}.gif"
-          answer.("[b]#{name}[/b] here's your gif #{Mambo.Helpers.format_url(gif_url)}")
-        else
-          answer.("Something went wrong.")
-        end
-      false ->
-        answer.("Something went wrong.")
+  defp upload_url(gifurl) do
+    url = "https://mediacru.sh/api/upload/url"
+    case :hackney.post(url, [], {:form, [{"url",gifurl}]}, []) do
+      {:ok, status, _, client} when status in [200,409] ->
+        {:ok, body, _} = :hackney.body(client)
+        hash = :jsx.decode(body)["hash"]
+        urls = Enum.map(["gif","mp4","ogv","webm"], fn(ext) ->
+          {ext,"https://mediacru.sh/#{hash}.#{ext}"}
+        end)
+        {:ok, urls}
+      _ ->
+        :error
+    end
+  end
+
+  defp pupload(url, file) do
+    pid = self()
+    ref = make_ref()
+    pids = [spawn(fn -> do_fun(pid, ref, &upload_url/1, url) end),
+            spawn(fn -> do_fun(pid, ref, &upload_file/1, file) end)]
+    gather(pids, ref, [])
+  end
+
+  defp do_fun(pid, ref, fun, arg) do
+    pid <- {self(), ref, fun.(arg)}
+  end
+
+  defp gather([pid|t], ref, acc) do
+    receive do
+      {^pid, ^ref, result} -> gather(t, ref, [result | acc])
+      _ -> acc
+    end
+  end
+  defp gather([], _, acc), do: Enum.reverse(acc)
+
+  defp get_size(gif) do
+    bin = File.read!(gif)
+    <<?G,?I,?F,?8,_,?a,
+      w :: [little, size(16)],
+      h :: [little, size(16)],
+      _ :: binary>> = bin
+    {w,h}
+  end
+
+  defp format_response(name, urls) do
+    s = "[b]Gif: #{name}:[/b] "
+
+    case urls do
+      [{:ok, original},{:ok,ts}] ->
+        <<s :: binary,
+          "[url=#{original["gif"]}][original][/url] ",
+          "[url=#{original["mp4"]}][mp4][/url] ",
+          "[url=#{original["ogv"]}][ogv][/url] ",
+          "[url=#{original["webm"]}][webm][/url] ",
+          "[url=#{ts["gif"]}][teamspeak][/url]">>
+
+      [{:ok, original},:error] ->
+        <<s :: binary,
+          "[url=#{original["gif"]}][original][/url] ",
+          "[url=#{original["mp4"]}][mp4][/url] ",
+          "[url=#{original["ogv"]}][ogv][/url] ",
+          "[url=#{original["webm"]}][webm][/url]">>
+
+      [:error,{:ok,ts}] ->
+        s <> "[url=#{ts["gif"]}][teamspeak][/url]"
+
+      [:error,:error] ->
+        "[b]Gif:[/b] Upload failed."
     end
   end
 end
