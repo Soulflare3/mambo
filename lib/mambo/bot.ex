@@ -31,14 +31,6 @@ defmodule Mambo.Bot do
   end
 
   @doc """
-  Returns the bot name.
-  """
-  @spec name() :: String.t
-  def name() do
-    :gen_server.call(@bot, :name)
-  end
-
-  @doc """
   Returns the bot id.
   """
   @spec id() :: String.t
@@ -142,6 +134,14 @@ defmodule Mambo.Bot do
   end
 
   @doc """
+  Renames the watcher process in the channel with id `cid`.
+  """
+  @spec rename(String.t, integer) :: :ok
+  def rename(name, cid) do
+    :gen_server.cast(@bot, {:rename, {name, cid}})
+  end
+
+  @doc """
   Creates a watcher process in the channel `cid`.
   """
   @spec add_watcher(integer()) :: :ok
@@ -216,10 +216,6 @@ defmodule Mambo.Bot do
     :ok = login(socket, s.name, s.user, s.pass)
     :erlang.send_after(300000, self(), :keep_alive)
     {:ok, {socket, s, [], ""}}
-  end
-
-  def handle_call(:name, _, {_, s, _} = state) do
-    {:reply, s.name, state}
   end
 
   def handle_call(:id, _, {_, s, _} = state) do
@@ -299,6 +295,17 @@ defmodule Mambo.Bot do
     {:noreply, state}
   end
 
+  def handle_cast({:rename, {name, cid}}, {socket, s, watchers} = state) do
+    if cid === s.default_channel do
+      cmd = "clientupdate client_nickname=#{Mambo.Helpers.escape(name)}"
+      send_to_server(socket, cmd)
+      {:noreply, state}
+    else
+      :gen_server.cast(watchers[cid], {:rename, name})
+      {:noreply, state}
+    end
+  end
+
   def handle_cast({:add_watcher, cid}, {socket, s, watchers}) do
     num = length(watchers) + 1
     args = [{cid, s.bot_id, {"#{s.name}_#{num}", s.host, s.port, s.user, s.pass}}]
@@ -335,11 +342,19 @@ defmodule Mambo.Bot do
   end
 
   # Catch server query error messages and print them.
-  def handle_info({:tcp, _, <<"error id=", c, rest :: binary>>}, state) when c != ?0 do
+  def handle_info({:tcp, _, <<"error id=", c, rest :: binary>>}, {socket,_,_} = state) when c != ?0 do
     case Regex.run(%r/^(\d*) msg=(.*)/i, <<c, rest :: binary>>) do
+      # give feedback when using the .rename command and nickname is already in use
+      [_, "513", msg] ->
+        emsg = Mambo.Helpers.escape("[color=#AA0000][b]nickname is already in use[/b][/color]")
+        send_to_server(socket, "sendtextmessage targetmode=2 target=1 msg=#{emsg}")
+        IO.puts("Error(513): #{Mambo.Helpers.unescape(msg)}")
+        {:noreply, state}
+
       [_, id, msg] ->
         IO.puts("Error(#{id}): #{Mambo.Helpers.unescape(msg)}")
         {:noreply, state}
+
       _ ->
         {:noreply, state}
     end

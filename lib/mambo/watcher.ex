@@ -56,16 +56,30 @@ defmodule Mambo.Watcher do
     {:noreply, state}
   end
 
+  def handle_cast({:rename, name}, {_, socket, _} = state) do
+    cmd = "clientupdate client_nickname=#{Mambo.Helpers.escape(name)}"
+    send_to_server(socket, cmd)
+    {:noreply, state}
+  end
+
   def handle_cast(_, state) do
     {:noreply, state}
   end
 
   # Catch server query error messages and print them.
-  def handle_info({:tcp, _, <<"error id=", c, rest :: binary>>}, state) when c != ?0 do
+  def handle_info({:tcp, _, <<"error id=", c, rest :: binary>>}, {_,socket,_} = state) when c != ?0 do
     case Regex.run(%r/^(\d*) msg=(.*)/i, <<c, rest :: binary>>) do
+      # give feedback when using the .rename command and nickname is already in use
+      [_, "513", msg] ->
+        emsg = Mambo.Helpers.escape("[color=#AA0000][b]nickname is already in use[/b][/color]")
+        send_to_server(socket, "sendtextmessage targetmode=2 target=1 msg=#{emsg}")
+        IO.puts("Error(513): #{Mambo.Helpers.unescape(msg)}")
+        {:noreply, state}
+
       [_, id, msg] ->
         IO.puts("Error(#{id}): #{Mambo.Helpers.unescape(msg)}")
         {:noreply, state}
+
       _ ->
         {:noreply, state}
     end
