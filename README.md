@@ -85,18 +85,18 @@ Here's the full list of provided scripts:
 
 | Script | Commands |
 |--------|----------|
-| [`admin.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/admin.ex#L2-L9) | `.mute`,`.unmute`,`.gm <message>` |
+| [`admin.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/admin.ex#L2-L10) | `.mute`,`.unmute`,`.gm <message>` |
 | [`benis.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/benis.ex#L2-L7) | `.benis <expression>` |
 | [`brainfuck.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/brainfuck.ex#L2-L7) | `.bf <brainfuck_expression>` |
 | [`cannedreplies.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/cannedreplies.ex#L2-L13) | `cool`,`gface`,`goface`,`edgyface`,`dface`,`ggface`,`chownface` |
 | [`eightball.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/eightball.ex#L2-L7) | `.8ball <question>` |
-| [`gif.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/gif.ex#L2-L7) | `.gif <gif_link>` |
+| [`gif.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/gif.ex#L2-L10) | `.gif <gif_link>` |
 | [`google.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/google.ex#L2-L11) | `.g <phrase>`,`.google <phrase>`,`.img <phrase>`,`.image <phrase>`,`.images <phrase>` |
 | [`help.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/help.ex#L2-L7) | `.help` |
 | [`lastfm.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/lastfm.ex#L2-L9) | `.np`,`.np <last.fm user>`,`.np set <last.fm user>` |
 | [`private.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/private.ex#L2-L7) | `.private` |
 | [`quotes.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/quotes.ex#L2-L11) | `.quote`,`.quote <id>`,`.quote add <quote>`,`.quote find <search query>`,`.quote rm <id` |
-| [`rainbow.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/rainbow.ex#L2-L7) | `.r <expression>`,`.rainbow <expression>`,`.gay <expression>` |
+| [`rainbow.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/rainbow.ex#L2-L8) | `.r <expression>`,`.rainbow <expression>`,`.gay <expression>` |
 | [`random.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/random.ex#L2-L10) | `.roll`,`.rock`,`.paper`,`.scissors` |
 | [`sux.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/sux.ex#L2-L7) | `.sux <expression>` |
 | [`title.ex`](https://github.com/mrshankly/mambo/blob/master/lib/scripts/title.ex#L2-L8) | **none** |
@@ -145,21 +145,21 @@ The modules `Mambo.Bot` and `Mambo.Brain` implement various functions meant to b
 
 #### [`Mambo.Bot`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex)
 
-* [`name/0`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L38)
-* [`id/0`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L46)
-* [`admins/0`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L54)
-* [`scripts/0`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L62)
-* [`send_msg/2`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L70)
-* [`send_privmsg/2`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L78)
-* [`send_gm/1`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L86)
-* [`kick/2`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L94)
-* [`ban/3`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L102)
-* [`move/2`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L110)
-* [`move/3`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L122)
-* [`mute/1`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L133)
-* [`unmute/1`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L141)
-* [`add_watcher/1`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L149)
-* [`remove_watcher/1`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L157)
+* [`id/0`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L37)
+* [`admins/0`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L45)
+* [`scripts/0`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L53)
+* [`send_msg/2`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L61)
+* [`send_privmsg/2`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L69)
+* [`send_gm/1`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L77)
+* [`kick/2`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L85)
+* [`ban/3`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L93)
+* [`move/2`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L101)
+* [`move/3`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L113)
+* [`mute/1`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L124)
+* [`unmute/1`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L132)
+* [`rename/1`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L140)
+* [`add_watcher/1`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L148)
+* [`remove_watcher/1`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/bot.ex#L156)
 
 #### [`Mambo.Brain`](https://github.com/mrshankly/mambo/blob/master/lib/mambo/brain.ex) - bot's memory
 
