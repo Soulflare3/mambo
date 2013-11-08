@@ -25,7 +25,7 @@
     {"name": "Translate", "args": []},
     {"name": "Cannedreplies", "args": []},
     {"name": "Whatthecommit", "args": []},
-    {"name": "Gif", "args": "IMGUR CLIENT ID HERE"},
+    {"name": "Gif", "args": []},
     {"name": "Lastfm", "args": "LASTFM API KEY HERE"},
     {"name": "Youtube", "args": "YOUTUBE API KEY HERE"},
     {"name": "Wolframalpha", "args": "WOLFRAMALPHA API KEY HERE"},

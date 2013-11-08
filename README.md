@@ -13,7 +13,6 @@ mind sharing it.
 * The script `gif.ex` also requires [ImageMagick](http://www.imagemagick.org/script/index.php) to be installed.
 
 Some plugins require access to certain APIs:
-* [Imgur](http://api.imgur.com/) for `gif.ex`
 * [Twitter](https://dev.twitter.com/) for `twitter.ex`
 * [WolframAlpha](http://products.wolframalpha.com/api/) for `wolframalpha.ex`
 * [YouTube](https://developers.google.com/youtube/) for `youtube.ex`
