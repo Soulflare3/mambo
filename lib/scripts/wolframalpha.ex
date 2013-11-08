@@ -60,9 +60,9 @@ defmodule Wolframalpha do
         {:ok, body, _} = :hackney.body(client)
         case parse_resp(body) do
           {:done, _, result, _, _} ->
-            answer.("[b]WolframAlpha:[/b] #{format(result)}")
+            answer.("[b]Wolfram|Alpha:[/b] #{format(result)}")
           {:no_result, _, result, _, _} ->
-            answer.("[b]WolframAlpha:[/b] #{result}")
+            answer.("[b]Wolfram|Alpha:[/b] #{result}")
         end
       _ ->
         answer.("Something went wrong.")
@@ -86,7 +86,10 @@ defmodule Wolframalpha do
   end
 
   defp event({:endElement, _, 'plaintext', _}, _, state) do
-    throw {:done, String.from_char_list!(state)}
+    case to_string(state) do
+      "" -> throw {:no_result, "No result."}
+      result -> throw {:done, result}
+    end
   end
 
   defp event(_, _, state) do
