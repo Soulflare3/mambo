@@ -27,7 +27,7 @@ defmodule Help do
     {Elixir.Lastfm, "np"},
     {Elixir.Private, "private"},
     {Elixir.Quotes, "quotes"},
-    {Elixir.Rainbow, "gay"},
+    {Elixir.Rainbow, "rainbow"},
     {Elixir.Random, "random"},
     {Elixir.Sux, "sux"},
     {Elixir.Title, "title"},

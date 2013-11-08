@@ -3,6 +3,8 @@ defmodule Rainbow do
   Rainbow color a phrase.
 
   Examples:
+    .r <phrase>
+    .rainbow <phrase>
     .gay <phrase>
   """
 
@@ -20,13 +22,23 @@ defmodule Rainbow do
     {:ok, []}
   end
 
-  def handle_event({:msg, {".help gay", _, {cid,_,_}}}, []) do
+  def handle_event({:msg, {".help rainbow", _, {cid,_,_}}}, []) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, []}
   end
 
-  def handle_event({:privmsg, {".help gay", _, {clid,_}}}, []) do
+  def handle_event({:privmsg, {".help rainbow", _, {clid,_}}}, []) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
+    {:ok, []}
+  end
+
+  def handle_event({:msg, {<<".r ", msg :: binary>>, _, {cid,_,_}}}, []) do
+    msg |> rainbow |> Mambo.Bot.send_msg(cid)
+    {:ok, []}
+  end
+
+  def handle_event({:msg, {<<".rainbow ", msg :: binary>>, _, {cid,_,_}}}, []) do
+    msg |> rainbow |> Mambo.Bot.send_msg(cid)
     {:ok, []}
   end
 
