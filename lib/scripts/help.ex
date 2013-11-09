@@ -26,7 +26,7 @@ defmodule Help do
     {Elixir.Google, "google"},
     {Elixir.Lastfm, "np"},
     {Elixir.Private, "private"},
-    {Elixir.Quotes, "quotes"},
+    {Elixir.Quotes, "quote"},
     {Elixir.Rainbow, "rainbow"},
     {Elixir.Random, "random"},
     {Elixir.Sux, "sux"},

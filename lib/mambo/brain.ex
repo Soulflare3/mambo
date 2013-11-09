@@ -48,6 +48,13 @@ defmodule Mambo.Brain do
     :mnesia.activity(:transaction, f)
   end
 
+  def edit_quote(id, content) do
+    case get_quote(id) do
+      :not_found -> :not_found
+      {_,_} -> add_quote(id, content)
+    end
+  end
+
   def get_random_quote() do
     :random.seed(:erlang.now())
     case :mnesia.dirty_all_keys(:mquotes) do

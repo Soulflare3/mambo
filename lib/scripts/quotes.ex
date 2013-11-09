@@ -5,6 +5,7 @@ defmodule Quotes do
   Examples
     .quote add <phrase>
     .quote find <query>
+    .quote edit <id>
     .quote rm <id>
     .quote <id>
     .quote
@@ -16,12 +17,12 @@ defmodule Quotes do
     {:ok, Mambo.Brain.quotes_max()}
   end
 
-  def handle_event({:msg, {".help quotes", _, {cid,_,_}}}, max) do
+  def handle_event({:msg, {".help quote", _, {cid,_,_}}}, max) do
     Mambo.Bot.send_msg(<<?\n, @moduledoc>>, cid)
     {:ok, max}
   end
 
-  def handle_event({:privmsg, {".help quotes", _, {clid,_}}}, max) do
+  def handle_event({:privmsg, {".help quote", _, {clid,_}}}, max) do
     Mambo.Bot.send_privmsg(<<?\n, @moduledoc>>, clid)
     {:ok, max}
   end
@@ -37,62 +38,39 @@ defmodule Quotes do
     end
   end
 
-  def handle_event({:privmsg, {<<".quote add ", content :: binary>>, _, {clid,_}}}, max) do
-    case add_quote(max + 1, content) do
-      {:ok, id} ->
-        Mambo.Bot.send_privmsg("Quote [b]#{id}[/b] added.", clid)
-        {:ok, id}
-      :error ->
-        Mambo.Bot.send_privmsg("Did you forget to enter a quote?", clid)
-        {:ok, max}
-    end
-  end
-
   def handle_event({:msg, {<<".quote find ", query :: binary>>, _, {cid,_,_}}}, max) do
     answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
     spawn(fn -> find_quotes(query, answer) end)
     {:ok, max}
   end
 
-  def handle_event({:privmsg, {<<".quote find ", query :: binary>>, _, {clid,_}}}, max) do
-    answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
-    spawn(fn -> find_quotes(query, answer) end)
-    {:ok, max}
+  def handle_event({:msg, {<<".quote edit ", msg :: binary>>, _, {cid,_,_}}}, max) do
+    answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
+    case String.split(msg, " ", global: false) do
+      [num, content] ->
+        spawn(fn -> edit_quote(num, content, answer) end)
+        {:ok, max}
+      _ ->
+        answer.("u wot m8")
+        {:ok, max}
+    end
   end
 
   def handle_event({:msg, {<<".quote rm ", num :: binary>>, _, {cid,_,_}}}, max) do
     answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
-    remove_quote(num, answer)
-    {:ok, max}
-  end
-
-  def handle_event({:privmsg, {<<".quote rm ", num :: binary>>, _, {clid,_}}}, max) do
-    answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
-    remove_quote(num, answer)
+    spawn(fn -> remove_quote(num, answer) end)
     {:ok, max}
   end
 
   def handle_event({:msg, {<<".quote ", num :: binary>>, _, {cid,_,_}}}, max) do
     answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
-    get_quote(num, answer)
-    {:ok, max}
-  end
-
-  def handle_event({:privmsg, {<<".quote ", num :: binary>>, _, {clid,_}}}, max) do
-    answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
-    get_quote(num, answer)
+    spawn(fn -> get_quote(num, answer) end)
     {:ok, max}
   end
 
   def handle_event({:msg, {".quote", _, {cid,_,_}}}, max) do
     answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
-    get_random_quote(answer)
-    {:ok, max}
-  end
-
-  def handle_event({:privmsg, {".quote", _, {clid,_}}}, max) do
-    answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
-    get_random_quote(answer)
+    spawn(fn -> get_random_quote(answer) end)
     {:ok, max}
   end
 
@@ -125,6 +103,23 @@ defmodule Quotes do
         quotes ->
           s = Enum.sort(quotes) |> Enum.join(", ")
           answer.("Quotes found: #{s}.")
+      end
+    end
+  end
+
+  defp edit_quote(num, content, answer) do
+    c = String.strip(content)
+    if c == "" do
+      answer.("Did you forget to enter a quote?")
+    else
+      case Integer.parse(num) do
+        {id, ""} ->
+          case Mambo.Brain.edit_quote(id, c) do
+            :not_found -> answer.("Quote [b]#{id}[/b] not found.")
+            _success -> answer.("Quote [b]#{id}[/b] edited.")
+          end
+        _ ->
+          answer.("Invalid quote id [b]#{num}[/b].")
       end
     end
   end
