@@ -20,7 +20,9 @@ defmodule Cannedreplies do
               {"goface", "ʕ ◔ϖ◔ʔ"},
               {"edgyface", "(ケ≖‿≖)ケ"},
               {"dface", "ಠ_ಠ"},
-              {"ggface", "G_G"}]
+              {"ggface", "G_G"},
+              {"kawaiiface", "(◕.◕✿)"}
+            ]
 
   def init(_) do
     {:ok, []}
