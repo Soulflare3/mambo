@@ -10,7 +10,7 @@ defmodule Mambo.Watcher do
   @nmove    "notifyclientmoved"
   @nleft    "notifyclientleftview"
   @nenter   "notifycliententerview"
-  @admin    "\.mute|\.unmute|\.gm"
+  @admin    "\.mute|\.unmute|\.gm|\.rename"
 
   # API.
 
