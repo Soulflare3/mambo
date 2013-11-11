@@ -98,25 +98,26 @@ defmodule Mambo.Watcher do
   end
 
   def handle_info({:tcp, _, <<@nmsg, r :: binary>>}, {status, _, {_,cid,bid}} = state) do
-    {:ok, re} = Regex.compile("targetmode=([1-2]) msg=(\\S*)(?: target=\\d*)? " <>
-      "invokerid=(\\d*) invokername=(.*) invokeruid=(.*)", "i")
-
-    case Regex.run(re, r) do
-      [_, _, _, _, _, ^bid] -> {:noreply, state}
-
+    case Regex.run(%R/targetmode=([1-2]) msg=(\S+?)(?: target=\d+)? invokerid=(\d+) invokername=(\S+?) invokeruid=(\S+)/i, r) do
       [_, "2", msg, clid, name, uid] ->
-        msg = Mambo.Helpers.unescape(msg)
+        msg  = Mambo.Helpers.unescape(msg)
+        clid = Mambo.Helpers.unescape(clid)
         name = Mambo.Helpers.unescape(name)
-        cond do
-          status == :unmute ->
-            Mambo.EventManager.notify({:msg, {msg, name, {cid, clid, uid}}})
-            {:noreply, state}
-          # don't mute admin script
-          status == :mute and Regex.match?(%r/^(#{@admin})/i, msg) ->
-            Mambo.EventManager.notify({:msg, {msg, name, {cid, clid, uid}}})
-            {:noreply, state}
-          true ->
-            {:noreply, state}
+        uid  = Mambo.Helpers.unescape(uid)
+        if uid != bid do
+          cond do
+            status == :unmute ->
+              Mambo.EventManager.notify({:msg, {msg, name, {cid, clid, uid}}})
+              {:noreply, state}
+            # don't mute admin script
+            status == :mute and Regex.match?(%r/^(#{@admin})/i, msg) ->
+              Mambo.EventManager.notify({:msg, {msg, name, {cid, clid, uid}}})
+              {:noreply, state}
+            true ->
+              {:noreply, state}
+          end
+        else
+          {:noreply, state}
         end
 
       _ -> {:noreply, state}
@@ -155,15 +156,14 @@ defmodule Mambo.Watcher do
   end
 
   def handle_info({:tcp, _, <<@nenter, r :: binary>>}, {:unmute, _, _} = state) do
-    case Regex.run(%r/client_nickname=(.*) client_input_muted=/i, r) do
+    case Regex.run(%r/client_nickname=(.+?) client_input_muted=/i, r) do
       [_, name] ->
-        Mambo.EventManager.notify({:enter, name})
+        Mambo.EventManager.notify({:enter, Mambo.Helpers.unescape(name)})
         {:noreply, state}
       _ ->
         {:noreply, state}
     end
   end
-
 
   def handle_info({:tcp_closed, _}, state) do
     {:stop, :normal, state}
