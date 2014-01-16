@@ -118,7 +118,7 @@ defmodule Gif do
 
     case :hackney.post(url, [], {:multipart, [{"file",{:file,name,bin}}]}, []) do
       {:ok, status, _, client} when status in [200,409] ->
-        {:ok, body, _} = :hackney.body(client)
+        {:ok, body} = :hackney.body(client)
         hash = :jsx.decode(body)["hash"]
         {:ok, [{"gif","https://mediacru.sh/#{hash}.gif"}]}
       _ ->
@@ -130,7 +130,7 @@ defmodule Gif do
     url = "https://mediacru.sh/api/upload/url"
     case :hackney.post(url, [], {:form, [{"url",gifurl}]}, []) do
       {:ok, status, _, client} when status in [200,409] ->
-        {:ok, body, _} = :hackney.body(client)
+        {:ok, body} = :hackney.body(client)
         hash = :jsx.decode(body)["hash"]
         urls = Enum.map(["gif","mp4","ogv","webm"], fn(ext) ->
           {ext,"https://mediacru.sh/#{hash}.#{ext}"}

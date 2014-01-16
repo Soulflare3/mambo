@@ -57,7 +57,7 @@ defmodule Lastfm do
 
     case :hackney.get(url, [], <<>>, []) do
       {:ok, 200, _, client} ->
-        {:ok, body, _} = :hackney.body(client)
+        {:ok, body} = :hackney.body(client)
         case :jsx.decode(body)["recenttracks"] do
           nil ->
             Mambo.Bot.send_msg("No result.", cid)

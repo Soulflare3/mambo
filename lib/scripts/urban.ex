@@ -54,7 +54,7 @@ defmodule Urban do
     url = "http://api.urbandictionary.com/v0/define?term=#{URI.encode(query)}"
     case :hackney.get(url, [], <<>>, []) do
       {:ok, 200, _, client} ->
-        {:ok, body, _} = :hackney.body(client)
+        {:ok, body} = :hackney.body(client)
         case :jsx.decode(body)["list"] do
           [first|_] ->
             answer.("[b]Urban Dictionary:[/b] #{format(first["definition"])}.")

@@ -44,7 +44,7 @@ defmodule Whatthecommit do
     url = "http://whatthecommit.com/index.txt"
     case :hackney.get(url, [], <<>>, []) do
       {:ok, 200, _, client} ->
-        {:ok, body, _} = :hackney.body(client)
+        {:ok, body} = :hackney.body(client)
         answer.("#{String.strip(body)}")
       _ ->
         answer.("Something went wrong!")

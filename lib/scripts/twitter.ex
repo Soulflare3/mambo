@@ -46,7 +46,7 @@ defmodule Twitter do
     headers = [{"Authorization", "Basic #{:base64.encode("#{key}:#{secret}")}"},
                {"Content-Type", "application/x-www-form-urlencoded;charset=UTF-8"}]
     {:ok, 200, _, client} = :hackney.post(url, headers, body, [])
-    {:ok, body, _} = :hackney.body(client)
+    {:ok, body} = :hackney.body(client)
     :jsx.decode(body)["access_token"]
   end
 
@@ -66,7 +66,7 @@ defmodule Twitter do
     headers = [{"Authorization", "Bearer #{token}"}]
     case :hackney.get(url, headers, <<>>, []) do
       {:ok, 200, _, client} ->
-        {:ok, body, _} = :hackney.body(client)
+        {:ok, body} = :hackney.body(client)
         json = :jsx.decode(body)
         uscreen_name = json["user"]["screen_name"]
         tweet = tweet(

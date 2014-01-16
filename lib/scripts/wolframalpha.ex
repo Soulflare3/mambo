@@ -57,7 +57,7 @@ defmodule Wolframalpha do
 
     case :hackney.get(url, [], <<>>, []) do
       {:ok, 200, _, client} ->
-        {:ok, body, _} = :hackney.body(client)
+        {:ok, body} = :hackney.body(client)
         case parse_resp(body) do
           {:done, _, result, _, _} ->
             answer.("[b]Wolfram|Alpha:[/b] #{format(result)}")

@@ -62,10 +62,10 @@ defmodule Title do
       {:ok, 200, headers, client} ->
         case parse_content_type(headers["Content-Type"]) do
           {:ok, "text/html"} ->
-            {:ok, body, _} = :hackney.body(5000, client)
+            {:ok, body} = :hackney.body(client, 5000)
             find_title(body, answer)
           {:ok, {"text/html", :latin1}} ->
-            {:ok, body, _} = :hackney.body(5000, client)
+            {:ok, body} = :hackney.body(client, 5000)
             find_title(:unicode.characters_to_binary(body, :latin1), answer)
           {:ok, other} ->
             answer.("[b]Content Type:[/b] #{other}")

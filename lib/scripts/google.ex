@@ -62,7 +62,7 @@ defmodule Google do
   defp google(url, answer) do
     case :hackney.get(url, [], <<>>, []) do
       {:ok, 200, _, client} ->
-        {:ok, body, _} = :hackney.body(client)
+        {:ok, body} = :hackney.body(client)
         case :jsx.decode(body)["responseData"]["results"] do
           [r | _] ->
             result = r["unescapedUrl"]
