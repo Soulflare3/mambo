@@ -1,7 +1,8 @@
-/ebin
+/_build
 /deps
 /tmp
 /releases
 /Mnesia.nonode@nohost
 settings.json
 erl_crash.dump
+*.ez
