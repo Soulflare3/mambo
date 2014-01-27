@@ -97,7 +97,7 @@ defmodule Title do
   end
 
   defp find_title(body, answer) do
-    case Regex.run(%r\<title[^>]*>([^<]+)</title>\im, body, capture: [1]) do
+    case Regex.run(%r{<title[^>]*>([^<]+)</title>}im, body, capture: [1]) do
       [title] ->
         title = String.strip(title) |> String.split("\n") |> Enum.join
                 |> Mambo.Helpers.decode_html
