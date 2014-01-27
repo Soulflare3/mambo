@@ -150,7 +150,7 @@ defmodule Gif do
   end
 
   defp do_fun(pid, ref, fun, arg) do
-    pid <- {self(), ref, fun.(arg)}
+    send(pid, {self(), ref, fun.(arg)})
   end
 
   defp gather([pid|t], ref, acc) do
