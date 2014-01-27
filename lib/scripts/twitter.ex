@@ -84,11 +84,7 @@ defmodule Twitter do
   end
 
   # replaces entities and returns the formatted tweet text.
-  defp format_tweet(tweet) do
-    {user, user_link} = tweet(tweet, :user)
-    text = tweet(tweet, :text)
-    entities = tweet(tweet, :entities)
-
+  defp format_tweet(tweet(user: {user,user_link}, text: text, entities: entities)) do
     # Hashtags.
     text = Enum.reduce(entities["hashtags"], text, fn(tag, old_text) ->
       ttag = tag["text"]
