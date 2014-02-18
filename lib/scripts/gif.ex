@@ -113,10 +113,8 @@ defmodule Gif do
 
   defp upload_file(path) do
     url = "https://mediacru.sh/api/upload/file"
-    bin = File.read!(path)
-    name = Path.basename(path)
 
-    case :hackney.post(url, [], {:multipart, [{"file",{:file,name,bin}}]}, []) do
+    case :hackney.post(url, [], {:multipart, [{:file,path}]}, []) do
       {:ok, status, _, client} when status in [200,409] ->
         {:ok, body} = :hackney.body(client)
         hash = :jsx.decode(body)["hash"]
