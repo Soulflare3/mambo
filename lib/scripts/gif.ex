@@ -84,7 +84,7 @@ defmodule Gif do
     case :hackney.get(url, [], <<>>, []) do
       {:ok, 200, headers, client} ->
         if headers["Content-Type"] == "image/gif" do
-          {:ok, bin, _} = :hackney.body(client)
+          {:ok, bin} = :hackney.body(client)
           path = Path.join([temp_dir, "original.gif"])
           File.write!(path, bin)
           {:ok, {temp_dir, path}}
