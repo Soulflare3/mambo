@@ -82,7 +82,7 @@ defmodule Mambo.Bot do
   Kick a client from the teamspeak server.
   """
   @spec kick(integer, String.t) :: :ok
-  def kick(cid, msg // "Smells bad!") do
+  def kick(cid, msg \\ "Smells bad!") do
     :gen_server.cast(@bot, {:kick, {cid, msg}})
   end
 
@@ -90,7 +90,7 @@ defmodule Mambo.Bot do
   Bans a client from the teamspeak server.
   """
   @spec ban(integer, integer, String.t) :: :ok
-  def ban(cid, time, msg // "Smells bad!") do
+  def ban(cid, time, msg \\ "Smells bad!") do
     :gen_server.cast(@bot, {:ban, {cid, time, msg}})
   end
 
@@ -173,7 +173,7 @@ defmodule Mambo.Bot do
 
   defp parse_channellist(channellist) do
     String.split(channellist, "|")
-      |> Enum.map(&Regex.run(%r/cid=(\d*).*?channel_flag_default=([0-1])/, &1))
+      |> Enum.map(&Regex.run(~r/cid=(\d*).*?channel_flag_default=([0-1])/, &1))
       |> Enum.map_reduce(1, fn
         ([_,id,"0"], dc) -> {binary_to_integer(id), dc}
         ([_,id,"1"], _) -> id = binary_to_integer(id); {id, id}
@@ -343,7 +343,7 @@ defmodule Mambo.Bot do
 
   # Catch server query error messages and print them.
   def handle_info({:tcp, _, <<"error id=", c, rest :: binary>>}, {socket,_,_} = state) when c != ?0 do
-    case Regex.run(%r/^(\d*) msg=(.*)/i, <<c, rest :: binary>>) do
+    case Regex.run(~r/^(\d*) msg=(.*)/i, <<c, rest :: binary>>) do
       # give feedback when using the .rename command and nickname is already in use
       [_, "513", msg] ->
         emsg = Mambo.Helpers.escape("[color=#AA0000][b]nickname is already in use[/b][/color]")

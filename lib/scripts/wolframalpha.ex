@@ -43,7 +43,7 @@ defmodule Wolframalpha do
   # Helpers
 
   defp parse_msg(msg, key, answer) do
-    case Regex.run(%r/^(?:\.wa|\.calc|\.convert) (.*)/i, msg) do
+    case Regex.run(~r/^(?:\.wa|\.calc|\.convert) (.*)/i, msg) do
       [_, query] ->
         wolframalpha(query, key, answer)
       _ ->

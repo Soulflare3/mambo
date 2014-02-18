@@ -45,7 +45,7 @@ defmodule Google do
   # Helpers
 
   defp parse_msg(msg, answer) do
-    case Regex.run(%r/^(\.g|\.google|\.img|\.image(?:s)?) (.*)/i, msg) do
+    case Regex.run(~r/^(\.g|\.google|\.img|\.image(?:s)?) (.*)/i, msg) do
       [_, <<".g", _ :: binary>>, query] ->
         url = "https://ajax.googleapis.com/ajax/services/search/" <>
           "web?safe=off&v=1.0&q=#{URI.encode(query)}"

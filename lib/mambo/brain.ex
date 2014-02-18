@@ -17,7 +17,7 @@ defmodule Mambo.Brain do
   end
 
   def find_quotes(query) do
-    keywords = String.replace(query, %r/(\.|:|,|;|\?|!)/, "")
+    keywords = String.replace(query, ~r/(\.|:|,|;|\?|!)/, "")
       |> String.downcase
       |> String.split(["\n","\s","\t","\r"], trim: true)
 

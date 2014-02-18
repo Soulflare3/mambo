@@ -42,7 +42,7 @@ defmodule Urban do
   # Helpers
 
   defp parse_msg(msg, answer) do
-    case Regex.run(%r/^(?:\.ud|\.urban) (.*)/i, msg) do
+    case Regex.run(~r/^(?:\.ud|\.urban) (.*)/i, msg) do
       [_, query] ->
         urban(query, answer)
       _ ->

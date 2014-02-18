@@ -42,7 +42,7 @@ defmodule Youtube do
   # Helpers
 
   defp parse_msg(msg, key, answer) do
-    case Regex.run(%r/^(?:\.yt|\.youtube) (.*)/i, msg) do
+    case Regex.run(~r/^(?:\.yt|\.youtube) (.*)/i, msg) do
       [_, query] ->
         youtube(query, key, answer)
       _ ->

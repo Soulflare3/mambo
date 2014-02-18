@@ -97,7 +97,7 @@ defmodule Translate do
   def handle_event({:msg, {msg, _, {cid,_,_}}}, langs) do
     answer = fn(x) -> Mambo.Bot.send_msg(x, cid) end
 
-    case Regex.run(%r/^(\.tl|\.translate)(?: (#{langs}))?(?: (#{langs}))? (.*)/, msg) do
+    case Regex.run(~r/^(\.tl|\.translate)(?: (#{langs}))?(?: (#{langs}))? (.*)/, msg) do
       [_, _, "", "", exp] ->
         spawn(fn -> translate("auto", "en", exp, answer) end)
         {:ok, langs}
@@ -114,7 +114,7 @@ defmodule Translate do
   def handle_event({:privmsg, {msg, _, {clid,_}}}, langs) do
     answer = fn(x) -> Mambo.Bot.send_privmsg(x, clid) end
 
-    case Regex.run(%r/^(\.tl|\.translate)(?: (#{langs}))?(?: (#{langs}))? (.*)/, msg) do
+    case Regex.run(~r/^(\.tl|\.translate)(?: (#{langs}))?(?: (#{langs}))? (.*)/, msg) do
       [_, _, "", "", exp] ->
         spawn(fn -> translate("auto", "en", exp, answer) end)
         {:ok, langs}

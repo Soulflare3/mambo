@@ -68,7 +68,7 @@ defmodule Mambo.Watcher do
 
   # Catch server query error messages and print them.
   def handle_info({:tcp, _, <<"error id=", c, rest :: binary>>}, {_,socket,_} = state) when c != ?0 do
-    case Regex.run(%r/^(\d*) msg=(.*)/i, <<c, rest :: binary>>) do
+    case Regex.run(~r/^(\d*) msg=(.*)/i, <<c, rest :: binary>>) do
       # give feedback when using the .rename command and nickname is already in use
       [_, "513", msg] ->
         emsg = Mambo.Helpers.escape("[color=#AA0000][b]nickname is already in use[/b][/color]")
@@ -86,7 +86,7 @@ defmodule Mambo.Watcher do
   end
 
   def handle_info({:tcp, _, whoami}, {_, socket, {cid, dcid}, bid} = state) do
-    case Regex.run(%r/client_id=(\d*)/, whoami) do
+    case Regex.run(~r/client_id=(\d*)/, whoami) do
       [_, clid] ->
         if cid != dcid do
           send_to_server(socket, "clientmove clid=#{clid} cid=#{cid}")
@@ -98,7 +98,7 @@ defmodule Mambo.Watcher do
   end
 
   def handle_info({:tcp, _, <<@nmsg, r :: binary>>}, {status, _, {_,cid,bid}} = state) do
-    case Regex.run(%R/targetmode=([1-2]) msg=(\S+?)(?: target=\d+)? invokerid=(\d+) invokername=(\S+?) invokeruid=(\S+)/i, r) do
+    case Regex.run(~R/targetmode=([1-2]) msg=(\S+?)(?: target=\d+)? invokerid=(\d+) invokername=(\S+?) invokeruid=(\S+)/i, r) do
       [_, "2", msg, clid, name, uid] ->
         msg  = Mambo.Helpers.unescape(msg)
         clid = Mambo.Helpers.unescape(clid)
@@ -110,7 +110,7 @@ defmodule Mambo.Watcher do
               Mambo.EventManager.notify({:msg, {msg, name, {cid, clid, uid}}})
               {:noreply, state}
             # don't mute admin script
-            status == :mute and Regex.match?(%r/^(#{@admin})/i, msg) ->
+            status == :mute and Regex.match?(~r/^(#{@admin})/i, msg) ->
               Mambo.EventManager.notify({:msg, {msg, name, {cid, clid, uid}}})
               {:noreply, state}
             true ->
@@ -127,7 +127,7 @@ defmodule Mambo.Watcher do
   def handle_info({:tcp, _, <<@nmove, r :: binary>>}, {:unmute, _, {clid,cid,_}} = state) do
     scid = integer_to_binary(cid)
     sclid = integer_to_binary(clid)
-    case Regex.run(%r/ctid=(\d*) reasonid=(\d*).*?clid=(\d*)/i, r) do
+    case Regex.run(~r/ctid=(\d*) reasonid=(\d*).*?clid=(\d*)/i, r) do
       [_, _, "4", ^sclid] ->
         Mambo.Bot.remove_watcher(cid)
         {:noreply, state}
@@ -156,7 +156,7 @@ defmodule Mambo.Watcher do
   end
 
   def handle_info({:tcp, _, <<@nenter, r :: binary>>}, {:unmute, _, _} = state) do
-    case Regex.run(%r/client_nickname=(.+?) client_input_muted=/i, r) do
+    case Regex.run(~r/client_nickname=(.+?) client_input_muted=/i, r) do
       [_, name] ->
         Mambo.EventManager.notify({:enter, Mambo.Helpers.unescape(name)})
         {:noreply, state}

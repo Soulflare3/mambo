@@ -135,7 +135,7 @@ defmodule Mambo.Helpers do
   @spec decode_html(String.t) :: String.t
   def decode_html(line) do
     if String.contains?(line, "&") do
-      Regex.scan(%r/&(#?[xX]?(?:[0-9a-fA-F]+|\w{1,8}));/, line, return: :index, capture: :first)
+      Regex.scan(~r/&(#?[xX]?(?:[0-9a-fA-F]+|\w{1,8}));/, line, return: :index, capture: :first)
       |> r_entities(line, 0, [])
     else
       line
@@ -188,7 +188,7 @@ defmodule Mambo.Helpers do
   """
   @spec get_tweet_id(String.t) :: String.t | nil
   def get_tweet_id(line) do
-    case Regex.run(%r"\bhttps?://(?:www\.|mobile\.)?twitter.com/.+/status(?:es)?/([0-9]{18})", line) do
+    case Regex.run(~r"\bhttps?://(?:www\.|mobile\.)?twitter.com/.+/status(?:es)?/([0-9]{18})", line) do
       nil -> nil
       [_, id] -> id
     end
@@ -200,9 +200,9 @@ defmodule Mambo.Helpers do
   """
   @spec get_url(String.t) :: String.t | nil
   def get_url(line) do
-    case Regex.run(%r/\[url\](.+?)\[\/url\]/i, line) do
+    case Regex.run(~r/\[url\](.+?)\[\/url\]/i, line) do
       nil ->
-        case Regex.run(%r/\[url=(.+?)\]/i, line) do
+        case Regex.run(~r/\[url=(.+?)\]/i, line) do
           nil -> nil
           [_, url] -> trim_punctuation(url)
         end
